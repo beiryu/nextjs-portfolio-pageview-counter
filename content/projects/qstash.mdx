@@ -3,8 +3,7 @@ title: QStash
 description: QStash is a fully managed serverless queue and messaging service designed for the serverless era.
 date: "2022-07-18"
 url: https://upstash.com/qstash
-published: true
-
+published: false
 ---
 
 QStash is an HTTP based messaging and scheduling solution for the serverless and edge runtimes.
@@ -15,7 +14,6 @@ QStash is an HTTP based messaging and scheduling solution for the serverless and
 - Delay message delivery
 - Message deduplication
 - Scheduling via CRON
-
 
 Formally, QStash is a message queue and task scheduler designed for serverless runtimes. Informally, QStash is a glue for your serverless functions.
 
@@ -31,6 +29,5 @@ Let's talk about a real world example. We have an e-commerce app and we want to 
 If you use QStash in the above example, you simply send a request to QStash from the newPurchase service. QStash will queue the request and call the sendEmail service. If the service does not respond, QStash will retry with a backoff strategy. The latency of sendEmail service will not affect the newPurchase service, because it will not wait for a response from the sendEmail service. QStash decouples the newPurchase and sendEmail services. You can update both services independently as long as you keep the message format compatible.
 
 With QStash, you can add delays to the requests. Send an email 3 days after the shipment to remind the customer to add a review. You can also schedule tasks. You can send the requests with a CRON expression, so it will be run repetitively.
-
 
 To learn more about QStash, visit [upstash.com/qstash](upstash.com/qstash).

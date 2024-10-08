@@ -1,0 +1,83 @@
+---
+title: "Light Control System Using Google Assistant"
+description: Build a simulation of the Hero arena game on a console
+repository: beiryu/light-control-system-using-google-assistant
+date: "2023-03-21"
+published: true
+---
+
+## 📚 **Technology Stack**
+
+Arduino, C++, Google assistant, ESP8266, Relay Board
+
+## 📃 Introduction
+
+Home automation is also named as domestics or Smart home .It involves the control and automation of lighting, heating, ventilation, air conditioning and security, as well as home appliances. Wi-Fi is often used for remote monitoring and control. Home devices, when remotely monitored and controlled via the Internet, are a part of the Internet of things. Modern systems generally consist of switches and sensors connected to a central hub called a gateway from which the system is controlled with a user interface that is interacted either with a mobile phone software ,tablet, computers or a web interface ,often but not always via internet cloud services.
+
+## 🏛 System Architecture
+
+The controlling device will be connected with the Wi-Fi module through a hotspot created by the module. The module will be connected with the
+microcontroller. The controller will give the required command to the relay board and the relay board acts as a switch between the circuit. The appliances will be connected with the relay board. Now, the appliances can be controlled using the internet of things.
+
+<div align="center">
+  <img
+    src="./light-control-system-using-google-assistant/1.png"
+    alt="Block diagram of Home Automation System"
+  />
+</div>
+
+Connect ESP8266 to Arduino UNO
+
+<div align="center">
+  <img
+    src="./light-control-system-using-google-assistant/2.png"
+    alt="Connection of ESP8266 to Arduino UNO"
+  />
+</div>
+
+State Machine
+
+<div align="center">
+  <img
+    src="./light-control-system-using-google-assistant/3.png"
+    alt="State Machine"
+  />
+</div>
+
+<div align="center">
+  <img
+    src="./light-control-system-using-google-assistant/4.png"
+    alt="State Machine of Local server"
+  />
+</div>
+
+## Hardware and Software
+
+### Arduino
+
+Arduino is an open source computer hardware and software company, project and user community that designs and manufactures single board microcontroller’s kits for building digital devices and interactive objects that can sense control objects in the world. Arduino board designs use a variety of microprocessor and controller .The board is equipped with sets of digital and analog input/output (I/O) pins that may be interfaced to various expansion boards and other circuits. The board features a serial communication interface, including universal serial bus (USB) on some models, which are also used for loading programs from personal computers. The microcontrollers are typically programmed using a dialect feature from the programming language C & C++.
+
+### ESP8266 Wifi Module
+
+The ESP8266 is a low cost Wi-Fi chip with full TCP/IP stack and microcontroller unit. This small module allows microcontrollers to connect to a Wi-Fi network and make simple TCP/IP connection using Hayes style commands, The ESP8266 with 1MiB of built in flash, allowing for single chip devices capable of connecting to Wi-Fi.
+
+### Relay Board
+
+A relay is an electrically operated switch. Many relays use an electromagnet to mechanically operate a switch, but other operating principles are also used, such as solid state relay. Relays are used where it is necessary to control a circuit by a separate low power signal, or where several circuits must be controlled by one signal. Relays were used extensively in telephone exchange and early computers to perform logical operation.
+
+### Breadboard
+
+is a construction base for prototyping of electronics. Originally the word referred to a literal breadboard, a polished piece of wood used for slicing bread. In the 1970s the solderless breadboard became available and nowadays the term“breadboard” is commonly used to refer to these.Because the solderless breadboard does not require soldering, it is reusable. ThisIt easy to use for creating temporary prototypes and experimenting with circuit design. For this reason, solderless breadboards are also popular with students and technological education. Older breadboard types did not have this property. A stripboard and similar prototyping printed circuit boards, which are used to buildsemi-permanent soldered prototypes or one-offs, cannot easily be reused. A variety of electronics systems may be prototyped by using breadboards, from small analogand digital circuits to complete central processing units.
+
+### Google assistant
+
+is an artificial intelligence-power virtual assistant developed byGoogle that is primarily available on mobile and smart home devices. Google Assistants can engage in two-way conversations. Actions on Google allows 3rd party developers to build apps for google assistant. Letting third-party device makers incorporate their own “Actions on Google” commands for their respective products. Incorporating text-based interactions and more languages. Allowing users to set a precise geographic location for the device to enable improved location-specificationqueries.Google Assistant, in the nature and manner of Google now, can search the Internet,schedule events
+and alarms, adjust hardware settings on the user's device, and show information from the user's Google account. Unlike Google Now, however, theAssistant can engage in a two-way conversation, using Google's natural language processing algorithm.
+
+### Arduino IDE
+
+(Integrated Development Environment) is a cross-platform application that is written in functions from C and C++. It is used to write and upload programs to Arduino Compatible boards, but also, with the help of 3rd party cores, other vendor development boards.
+
+### Connecting wires
+
+allows an electrical current or signal to travel from one point on a circuit to another because signal or current needs a medium through which to [move.In](http://move.in/) basic circuits, the wire comes from one terminal of a power source, such as a battery.

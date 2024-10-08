@@ -4,8 +4,7 @@ description: Ratelimiting library for serverless and edge runtimes. Built on top
 date: "2022-06-06"
 url: https://upstash.com/blog/upstash-ratelimit
 repository: upstash/ratelimit
-published: true
-
+published: false
 ---
 
 In today's digital age, serverless computing has become increasingly popular due to its scalability and cost-efficiency. One of the challenges of serverless computing is to manage resources efficiently, and one critical aspect of this is rate limiting. Rate limiting is a technique that limits the number of requests a client can make to a server over a given period. This technique can prevent abuse, improve performance, and reduce costs. One npm package that helps implement rate limiting for serverless applications is @upstash/ratelimit, built on top of Upstash Redis.
@@ -18,30 +17,29 @@ Upstash is a managed Redis-compatible database service designed for serverless a
 - Sliding window
 - Leaky bucket
 
-
 Using `@upstash/ratelimit` is straightforward. First, you need to install the package using npm:
 
 ```bash
 npm install @upstash/ratelimit @upstash/redis
 ```
-Then, you can use it in your  application:
+
+Then, you can use it in your application:
 
 ```ts
-import { Ratelimit } from "@upstash/ratelimit"
-import { Redis } from "@upstash/redis"
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 const ratelimit = new Ratelimit({
-    redis: new Redis({
-        url: "",
-        token: ""
-    }),
-    limiter: Ratelimit.slidingWindow(10, "10s"),
-    analytics: true
-})
-
+  redis: new Redis({
+    url: "",
+    token: "",
+  }),
+  limiter: Ratelimit.slidingWindow(10, "10s"),
+  analytics: true,
+});
 
 // Check if the client has exceeded the rate limit
-const { success } = await ratelimit.limit("identifier")
+const { success } = await ratelimit.limit("identifier");
 ```
 
 In the code above, we initialize Upstash with our Upstash Redis credentials and define our rate limiting rules. We then call the `limit` function, passing the identifier. The function returns a Promise that resolves with `success` and some other useful data.

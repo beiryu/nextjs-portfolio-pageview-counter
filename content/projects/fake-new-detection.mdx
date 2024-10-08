@@ -1,0 +1,75 @@
+---
+title: "Fake News Detection"
+description: Fake news is a burning problem of society, especially in the current information explosion era. This project will allow you to work with Vietnamese text data, build a fake news prediction model and deploy this model to a simple website.
+repository: beiryu/game-resistance
+date: "2021-10-01"
+published: true
+---
+
+## 📚 **Technology Stack**
+
+Python, Stopword, Tokenizer, Streamlit, Scikit learn
+
+## 📃 Overview
+
+Fake news is currently a pressing issue in society, especially in the age of explosive information. This project will allow you to work with Vietnamese text data, build a fake news prediction model, and deploy this model on a simple website.
+
+## Tasks
+
+- Preprocessing Vietnamese text
+- EDA
+- Building a machine learning model
+- Deploying the model
+
+## Goals
+
+To become familiar with the process of working with data science problems with raw text data, and learn how to use some popular libraries.
+
+## Details
+
+1. **Data source**: [VNFD Dataset](https://github.com/thanhhocse96/vfnd-vietnamese-fake-news-datasets/blob/master/CSV/vn_news_223_tdlfr.csv)
+
+- Dataset of 223 Vietnamese news articles, with 2 labels: 1 (fake news) and 0 (real news)
+- Data description: [Description of VNFD dataset](https://github.com/thanhhocse96/vfnd-vietnamese-fake-news-datasets/tree/master/CSV)
+
+1. **Vietnamese text pre-processing**
+
+- Basic text pre-processing steps include: lowercase, stopword removal, stemming, normalization depending on each field, noise removal (HTML tags, special symbols such as @, #,...), punctuation removal
+- Reference sources: [Overview of text pre-processing](https://maelfabien.github.io/machinelearning/NLP_1/#i-what-is-preprocessing)
+- In this project, you need to observe the dataset and choose, experiment with pre-processing methods on your own.
+
+**Note 1**: for stopword removal and tokenization, you can refer to some Vietnamese sources:
+
+- Stopword: [Source](https://github.com/stopwords/vietnamese-stopwords/blob/master/vietnamese-stopwords.txt)
+- Tokenizer: [VnCoreNLP](https://github.com/vncorenlp/VnCoreNLP#install)
+
+**Note 2**: if using stopword removal and tokenizer (or other normalization tools for Vietnamese), please cite the reference link. If using one of the above suggested sources, just mention the used tool in the paper.
+
+## Exploratory Data Analysis (EDA)
+
+- Check for missing data, incorrect data types (if any)
+- Check if there is any class imbalance in the distribution
+- Obtain statistical information about the text (average length of each record, etc.)
+
+## Model Training
+
+- Recommended library: [scikit-learn](https://scikit-learn.org/stable/user_guide.html)
+- Linear or non-linear models can be selected
+- At least two machine learning models should be chosen (but not too many),
+  trained on the pre-processed dataset and evaluated
+- After training, the models need to be saved for inference in step 5
+
+**Note**: The input data for machine learning models needs to be numerical, so feature extraction of the text is required before feeding it into the learning model.
+
+## Model Deployment
+
+- Recommended library: [Streamlit](https://docs.streamlit.io/)
+  Streamlit allows for simple Python-based interface coding to support free web deployment of machine learning models for demo purposes. The library is quite easy to use, and you can refer to the interface ideas in the [Streamlit gallery](https://streamlit.io/gallery).
+- When running the demo, I want to input a text directly, select one of the trained models, and output whether it is a fake or real news. Therefore, you need to load the saved models in step 4.
+- After testing the web demo locally, refer to the [Deploy Streamlit](https://docs.streamlit.io/streamlit-community-cloud/get-started/deploy-an-app) and follow the instructions to deploy the website on the Internet.
+
+**Note 1:** You need a Github account to host this website.
+
+**Note 2:** Due to the small dataset used, the prediction accuracy when testing the demo is not entirely required.
+
+**Note 3:** The interface only needs to be visually appealing, allowing users to input text, select the model type, and display whether it is fake or real news.
