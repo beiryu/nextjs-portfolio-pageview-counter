@@ -35,6 +35,20 @@ export const Navigation: React.FC = () => {
 							Projects
 						</Link>
 						<Link
+							href="/portfolio"
+							className="duration-200 text-zinc-400 hover:text-zinc-100"
+						>
+							Portfolio
+						</Link>
+						<Link
+							href="https://blog.pagedaisy.com/"
+							className="duration-200 text-zinc-400 hover:text-zinc-100"
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							Blog
+						</Link>
+						<Link
 							href="/contact"
 							className="duration-200 text-zinc-400 hover:text-zinc-100"
 						>
