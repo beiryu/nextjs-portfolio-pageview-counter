@@ -1,33 +1,81 @@
-<div align="center">
-    <a href="https://chronark.com"><h1 align="center">chronark.com</h1></a>
+# Personal Portfolio
 
-My personal website, built with [Next.js](https://nextjs.org/), [Tailwind CSS](https://tailwindcss.com/), [Upstash](https://upstash.com?ref=chronark.com), [Contentlayer](https://www.contentlayer.dev/) and deployed to [Vercel](https://vercel.com/).
+<div align="center">
+
+[View Live Demo](https://portfolio.pagedaisy.app/)
 
 </div>
 
-<br/>
+## 📌 Overview
 
+This is my personal portfolio website, showcasing my projects and skills. It's built with modern web technologies to provide a fast, responsive, and visually appealing experience.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/upstash/clone?demo-title=Next.js%20Portfolio%20with%20Pageview%20Counter&demo-description=Portfolio%20site%20with%20pageview%20counter%2C%20built%20with%20Next.js%2013%20App%20Router%2C%20Contentlayer%2C%20and%20Upstash%20Redis.&demo-url=https%3A%2F%2Fchronark.com%2F&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F1DA8n5a6WaP9p1FXf9LmUY%2Fc6264fa2732355787bf657df92dda8a1%2FCleanShot_2023-04-17_at_14.17.37.png&project-name=Next.js%20Portfolio%20with%20Pageview%20Counter&repository-name=nextjs-portfolio-pageview-counter&repository-url=https%3A%2F%2Fgithub.com%2Fchronark%2Fchronark.com&from=templates&integration-ids=oac_V3R1GIpkoJorr6fqyiwdhl17)
+### 🛠️ Built With
 
-## Running Locally
+- [Next.js](https://nextjs.org/) - React framework for production
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
+- [Contentlayer](https://www.contentlayer.dev/) - Content SDK for developers
+- [Vercel](https://vercel.com/) - Platform for deploying and hosting
+- [MDX](https://mdxjs.com/) - Markdown for components
+- [Upstash](https://upstash.com/) - Redis-compatible in-memory data store
 
+## 🚀 Getting Started
 
-```sh-session
-git clone https://github.com/chronark/chronark.com.git
-cd chronark.com
+### Prerequisites
+
+- Node.js (version 18 or later)
+- pnpm (or npm/yarn)
+
+### Installation
+
+1. Clone the repository
+
+   ```sh
+   git clone https://github.com/beiryu/nextjs-portfolio-pageview-counter.git
+   cd nextjs-portfolio-pageview-counter
+   ```
+
+2. Install dependencies
+
+   ```sh
+   pnpm install
+   ```
+
+3. Create a `.env` file in the root directory and add necessary environment variables (refer to `.env.example`)
+
+4. Start the development server
+
+   ```sh
+   pnpm dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## 🔧 Configuration
+
+Customize the portfolio by modifying the following files:
+
+- `config/site.ts`: Site metadata and general configuration
+- `data/`: Add your projects, skills, and other content here
+- `public/`: Store your images and other static assets
+
+## 📂 Project Structure
+
+```
+├── components/     # Reusable UI components
+├── config/         # Configuration files
+├── data/           # Content data (projects, skills, etc.)
+├── lib/            # Utility functions and helpers
+├── pages/          # Next.js pages
+├── public/         # Static assets
+├── styles/         # Global styles and Tailwind config
+└── types/          # TypeScript type definitions
 ```
 
+## 📝 License
 
-Create a `.env` file similar to [`.env.example`](https://github.com/chronark/chronark.com/blob/main/.env.example).
+This project is open source and available under the [MIT License](LICENSE).
 
-Then install dependencies and run the development server:
-```sh-session
-pnpm install
-pnpm dev
-```
+## 🙏 Acknowledgments
 
-
-## Cloning / Forking
-
-Please remove all of my personal information (projects, images, etc.) before deploying your own version of this site.
+This portfolio is inspired by and adapted from [chronark's portfolio](https://github.com/chronark/chronark.com). Many thanks to the original creator for the inspiration and foundation.
