@@ -1,0 +1,37 @@
+---
+title: "Monitoring Intervention System"
+description: Build a program system that allows communication between processes on a single machine and/or across different machines (with different operating systems); so that they are capable of preventing Deadlock or avoiding falling into Critical sections
+repository: beiryu/monitoring-intervention-system
+date: "2022-01-20"
+published: true
+---
+
+## 📚 **Technology Stack**
+
+Election, Bootstrap
+
+## 📃 **General requirements**
+
+The system for monitoring/intervening in children's computer usage time includes 2 main programs:
+
+1.  **Program C (for Children):** runs on the child's laptop/desktop and is placed in Autorun mode (automatically runs when the computer is turned on), performing the following tasks:
+    *C0: Get password (from keyboard)
+    *C1: If the input string is the parent's password: the program waits for 60 minutes before asking for the password again (perform C0 again) // this is when the parent is using the computer, not the child!
+    \*C2: If it is not the parent's password:
+    +C2.1: Check if the current time is within the time frame when the child has not used the computer yet or not:
+    -C2.1.1: If it is within the time frame when the child has not used the computer: Notify when the child can use it again (display on the screen and/or speak out loud), then perform 2 tasks in parallel: (1) check if it has been 15 seconds since the notification was made & if so, the program will shut down the computer (shut down the operating system - without allowing user intervention) – (2) perform C0 & C1 again (meaning if the user enters the correct parent password, the program will not shut down the computer but perform C1 - wait for 60 minutes later...)
+    -C2.1.2: Otherwise (within the time frame when the child can use the computer):
+    .C2.1.2.1: If the password is not the child's password: ask and check the password again (perform C0 again) until the 3rd incorrect password attempt, then set the time when the child cannot use the computer for 10 minutes from the current time and shut down the computer.
+    .C2.1.2.2: Otherwise (correct child password): Read information about the time frame to be used (a) and Notify how many more minutes the computer will be shut down & what time the child can turn it back on (b), then run in monitoring mode to perform the following tasks at the same time: (1) Save the screen and/or keys pressed every minute, (2) perform (a) and update the information if there is any change (done by the parent process P) and perform (b), (3) check if there is only 1 minute left until the computer shuts down and perform (b), and if there is 0 minute left, shut down the computer.
+    Information about \<time frames used\> is stored in 01 Text File with synchronization through Cloud so that process P (for Parent) from other machines (which can run on Windows or Android, MacOS, IOS, Linux, ...) can refer to and adjust it. The file has a format convention for each line as follows:
+    F\<h1:m1\>(h1:m1) T\<h2:m2\>(h2:m2) [ D\<mD\> I\<mI\> ] [ S\<mS\> ]
+    Where F=from, T=to, D=duration, I=interrupt_time, S=sum indicates that the time frame used is from [h1:m1](h1:m1) to [h2:m2](h2:m2); and within this time frame, only mS minutes can be used, divided into mD-minute segments and rest for mI minutes.
+    For example, with the file content consisting of 3 lines as follows:
+    F06:00 T06:45
+    F07:30 T11:30 D60 I20 S150
+    F19:00 T21:30 S90
+    Then the time frames used are: - From 06:00 to 06:45 - Within the time frame from 07:30 to 11:30, the computer can be used, but each time it is turned on, it can only be used for up to 60 minutes - after that, the computer will not work until it has been disconnected for 20 minutes, and at the same time, when it has been used for 150 minutes, the computer will also stop running. - From 19:00 to 21:30, the computer can be turned on/off at any time, but the total time used is limited to 90 minutes (the computer will shut down at 21:30 or when it has been used enough 90 minutes (and then cannot be turned on again even if it is not yet 21:30))
+2.  **Program P (for Parent):** if possible, write to run on a mobile phone (Android and/or IOS), otherwise write to run on a laptop/desktop PC (Windows/MacOS/...) (if not possible, just write it on Windows), perform monitoring tasks - allowing to view and adjust the time frames used in the above text file, at the same time can also view the history of child computer usage and the screens/keys that program C has saved at the Online level (basic level only considers within the day, advanced level can access other days - both in the past and the future).
+
+**Note**: Program P can be run at the same time by both parents of the child (on two different machines), so resource conflicts may occur, such as when both are editing the text file at the same time, which can lead to data corruption and the program needs to be designed so that the processes do not enter the critical section at the same time.
+To solve the critical section problem (a program section that has the potential for conflict in accessing shared resources), flags, alternating checks, semaphores, monitors, etc. can be used as desired. The communication mechanism between processes can also

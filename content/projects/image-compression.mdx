@@ -1,0 +1,37 @@
+---
+title: "Implementing The Image Compression Algorithm Following The JPEG Standard"
+description: JPEG is an image compression algorithm widely used on electronic devices and applications. This algorithm uses lossy compression method, meaning that some image information will be lost after compression
+repository: beiryu/image-compression
+date: "2023-04-01"
+published: true
+---
+
+## 📚 **Technology Stack**
+
+Python, Bootstrap, Parallel Programming, Pythonanywhere, Image compression, JPEG algorithm, Optimization
+
+## 📃 Introduction to the problem
+
+- JPEG is an image compression algorithm widely used on electronic devices and applications. This algorithm uses lossy compression method, meaning that some image information will be lost after compression.
+- The algorithm works by dividing an image into small 8x8 pixel blocks, performing discrete cosine transform (DCT) on each block to convert the image data into frequency coefficients, then removing some coefficients to reduce the amount of data needed to represent the image. The final compressed image is a collection of these frequency coefficients, which can be used to reconstruct the original image with some negligible loss of detail.
+- The input of the JPEG algorithm is a digital image (represented as a matrix of pixel values).
+- The output of the algorithm is a compressed image file that is saved as an image file (e.g. JPEG, JPG).
+
+## Implementing the JPEG image compression algorithm
+
+Steps in the JPEG image compression process:
+
+- Color space conversion: Color images are usually represented as RGB values (red, green, and blue). First, the image is converted to a different color space, such as YCbCr, to separate information about brightness (Y) and information about color components (Cb and Cr).
+- DCT decomposition: The image is divided into non-overlapping 8x8 pixel blocks. Each 8x8 block undergoes Discrete Cosine Transform (DCT) to convert from the time domain to the frequency domain.
+- Quantization: The result from the previous step is quantized, meaning that the frequency values are rounded or truncated to reduce precision. This quantization process causes some loss of information, but helps reduce the size of data.
+- Discarding unnecessary information: Some image data that is not necessary for compression is removed or encoded using compression methods such as Huffman coding.
+- Storage: The compressed values after the above steps are stored in a JPEG image file.
+
+## **List of references**
+
+- Wallace, G. K. (1992). The JPEG still picture compression standard. IEEE Transactions on Consumer Electronics, 38(1), xviii-xxxiv.
+- Pennebaker, W. B., & Mitchell, J. L. (1992). JPEG: Still image data compression standard. Van Nostrand Reinhold.
+- Sayood, K. (2000). Introduction to data compression. Academic Press.
+- Li, H., Zeng, B., Li, Z., & Wu, X. (2004). A fast DCT-SVD image compression algorithm. IEEE Transactions on Circuits and Systems for Video Technology, 14(3), 381-386.
+- Lee, K. M., & Ho, Y. S. (2003). A new fast and efficient image codec based on the discrete cosine transform. IEEE Transactions on Circuits and Systems for Video Technology, 13(7), 688-695.
+- Alex Townsend (March 2017). JPEG: Image compression algorithm
