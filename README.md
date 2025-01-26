@@ -1,11 +1,5 @@
 # Personal Portfolio
 
-<div align="center">
-
-[View Live Demo](https://portfolio.pagedaisy.app/)
-
-</div>
-
 ## 📌 Overview
 
 This is my personal portfolio website, showcasing my projects and skills. It's built with modern web technologies to provide a fast, responsive, and visually appealing experience.
