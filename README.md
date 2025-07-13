@@ -15,7 +15,7 @@ This is my personal portfolio website, showcasing my projects and skills. It's b
 
 ## 🚀 Getting Started
 
-### Prerequisites
+### Prerequisite
 
 - Node.js (version 18 or later)
 - pnpm (or npm/yarn)
