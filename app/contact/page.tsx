@@ -1,5 +1,5 @@
 "use client";
-import { Github, Mail, Twitter, Linkedin } from "lucide-react";
+import { Github, Mail, Twitter, Linkedin, Upload, Keyboard } from "lucide-react";
 import Link from "next/link";
 import { Navigation } from "../components/nav";
 import { Card } from "../components/card";
@@ -12,10 +12,10 @@ const socials = [
 		handle: "Khanh Dinh",
 	},
 	{
-		icon: <Mail size={20} />,
-		href: "mailto:dinhnguyenkhanh210401@gmail.com",
-		label: "Email",
-		handle: "@google",
+		icon: <Keyboard size={20} />,
+		href: "https://www.upwork.com/freelancers/~01837562c4fa4017b2",
+		label: "Upwork",
+		handle: "Nguyen Khanh D.",
 	},
 	{
 		icon: <Github size={20} />,

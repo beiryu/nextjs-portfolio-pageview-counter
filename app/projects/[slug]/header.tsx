@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeft, Eye, Github, Linkedin } from "lucide-react";
+import { ArrowLeft, Eye, Github, Keyboard, Linkedin } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -67,6 +67,18 @@ export const Header: React.FC<Props> = ({ project, views }) => {
 								views,
 							)}
 						</span>
+						<Link
+							target="_blank"
+							href="https://www.upwork.com/freelancers/~01837562c4fa4017b2"
+						>
+							<Keyboard
+								className={`w-6 h-6 duration-200 hover:font-medium ${
+									isIntersecting
+										? " text-zinc-400 hover:text-zinc-100"
+										: "text-zinc-600 hover:text-zinc-900"
+								} `}
+							/>
+						</Link>
 						<Link
 							target="_blank"
 							href="https://www.linkedin.com/in/khanh-ndinh/"
