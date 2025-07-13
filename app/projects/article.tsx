@@ -20,7 +20,7 @@ export const Article: React.FC<Props> = ({ project, views }) => {
 								)}
 							</time>
 						) : (
-							<span>SOON</span>
+							<span className="bg-gradient-to-r from-amber-600 to-rose-700 rounded-md px-2 py-1 text-white font-bold shadow-sm">SOON</span>
 						)}
 					</span>
 					<span className="text-zinc-500 text-xs  flex items-center gap-1">

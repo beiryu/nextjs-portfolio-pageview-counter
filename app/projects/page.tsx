@@ -21,10 +21,12 @@ export default async function ProjectsPage() {
 	}, {} as Record<string, number>);
 
 	const featured = allProjects.find(
-		(project) => project.slug === "nextjs-portfolio-pageview-counter",
+		(project) => project.slug === "sketchpad-ai",
 	)!;
-	const top2 = allProjects.find((project) => project.slug === "nextjs-blog")!;
-	const top3 = allProjects.find((project) => project.slug === "game-hub")!;
+  const sortedAllProjectsByViews = allProjects.sort((a, b) => views[b.slug] - views[a.slug])
+	const top2 = sortedAllProjectsByViews[1]!;
+	const top3 = sortedAllProjectsByViews[2]!;
+
 	const sorted = allProjects
 		.filter((p) => p.published)
 		.filter(
@@ -66,7 +68,7 @@ export default async function ProjectsPage() {
 												}).format(new Date(featured.date))}
 											</time>
 										) : (
-											<span>SOON</span>
+							        <span className="bg-gradient-to-r from-amber-600 to-rose-700 rounded-md px-2 py-1 text-white font-bold shadow-sm">SOON</span>
 										)}
 									</div>
 									<span className="flex items-center gap-1 text-xs text-zinc-500">
