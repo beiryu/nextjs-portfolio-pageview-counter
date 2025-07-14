@@ -15,8 +15,7 @@ export default function Portfolio() {
           <div className="mt-8 text-zinc-400">
             <ul className="space-y-4">
               <li>
-                <strong>Programming languages:</strong> Typescript, Python, C/
-                C++, Java, PHP.
+                <strong>Programming languages:</strong> Typescript, Python, Go.
               </li>
               <li>
                 <strong>Frameworks/ Libraries/ Concepts/ Tools:</strong>{" "}
@@ -42,13 +41,238 @@ export default function Portfolio() {
           <div className="space-y-10">
             <div className="border-l-2 border-zinc-700 pl-6">
               <h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
-                Blogger
+                Backend Engineer - Gameloft - Ho Chi Minh
               </h3>
-              <p className="text-zinc-400 mt-1">May 2023 - Present</p>
+              <p className="text-zinc-400 mt-1">6/2024 - Current</p>
               <ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
                 <li>
-                  Beiryu Blog, Software Engineering, SWE Skits & Entertainment,
-                  Tech Life, Coding, Career Advice, LeetCode
+                  Perform web and legacy system development, update and support,
+                  delivery high level solutions or subsystems like custom API's,
+                  database modeling and design.
+                </li>
+                <li>
+                  Participle on the conception and setup of automation system to
+                  facilitate the usage and project deployment on site and on
+                  cloud.
+                </li>
+                <li>
+                  Analyzes customer requirements and defines solutions and
+                  architecture plus assistance to the team on problems and
+                  technical roadblocks.
+                </li>
+                <li>
+                  Create and maintain technical documentation linked with the
+                  solution developed.
+                </li>
+                <li>
+                  Work with infrastructure team to find innovative solution.
+                </li>
+                <li>
+                  Contribute to continuous improvement by suggesting improvement
+                  to user interface, software architecture or new technologies.
+                </li>
+                <li>
+                  Coordinate roll-out of new applications and provides
+                  production support.
+                </li>
+                <li>
+                  Mentored junior developers, fostering knowledge sharing and 
+                  improving overall code quality
+                </li>
+              </ul>
+
+              <h4 className="text-xl font-semibold text-zinc-200 mt-6 mb-3 italic underline">
+                Claynosaurs
+              </h4>
+              <ul className="text-zinc-400 list-decimal list-inside space-y-2">
+                <li>
+                  General: Team size: 10/ Duration: 9/2024 - now/ Position:
+                  Backend/ Tech stacks: NestJs, MongoDB, Microservice, Domain
+                  Driven Design, Redis, Colyseus, Sentry, ReactJs, AWS Cloud
+                  Services (ECS, ...).
+                </li>
+                <li>
+                  Play a crucial role in developing and optimizing game server
+                  infrastructure using Colyseus
+                </li>
+                <li>
+                  Served as primary owner for key microservices within the game ecosystem, 
+                  including social network (profile, friend, clan, habitat services), 
+                  combat system (PvP/PvE/matchmaking services)
+                </li>
+                <li>
+                  Conducted regular load testing and performance monitoring
+                  using Sentry to optimize WebSocket message efficiency and
+                  identify bottlenecks in distributed service requests
+                </li>
+                <li>
+                  Contribute to the improvement and expansion of the existing
+                  microservice architecture
+                </li>
+                <li>
+                  Key Contributions:
+                  <ul className="pl-10 mt-2 space-y-1 list-[lower-alpha]">
+                    <li>
+                      Game Server Development:
+                      <ul className="pl-6 mt-2 space-y-1 list-disc">
+                        <li>
+                          Engineered Colyseus playground schema, facilitating
+                          seamless communication between game and backend teams
+                        </li>
+                        <li>
+                          Reduced documentation overhead by 40% through
+                          intuitive schema design
+                        </li>
+                        <li>
+                          Improved development speed by 30% by streamlining
+                          message validation processes
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      Microservice Architecture:
+                      <ul className="pl-6 mt-2 space-y-1 list-disc">
+                        <li>
+                          Contributed to the optimization of the existing
+                          microservice ecosystem
+                        </li>
+                        <li>
+                          Implemented Domain Driven Design principles, improving
+                          system modularity and scalability
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      Social Network Services:
+                      <ul className="pl-6 mt-2 space-y-1 list-disc">
+                        <li>
+                          Architected and implemented core social features including profiles, 
+                          friend systems, clan management, and player habitats
+                        </li>
+                        <li>
+                          Developed an advanced friend recommendation engine using 
+                          graph algorithms and player behavior analysis
+                        </li>
+                        <li>
+                          Built real-time clan chat and activity feeds using WebSocket
+                          connections and Redis pub/sub
+                        </li>
+                        <li>
+                          Created habitat customization system with real-time synchronization between players
+                        </li>
+                        <li>
+                          Implemented social achievements and rewards system integrated
+                          with player profiles
+                        </li>
+                      </ul>
+                    </li>
+                    <li>
+                      Combat System Services:
+                      <ul className="pl-6 mt-2 space-y-1 list-disc">
+                        <li>
+                          Designed and implemented PvP matchmaking algorithm considering
+                          player rank, level, and historical performance
+                        </li>
+                        <li>
+                          Built PvE progression system with dynamic difficulty scaling
+                          based on player stats
+                        </li>
+                        <li>
+                          Created combat result validation and anti-cheat systems
+                          to ensure fair play
+                        </li>
+                        <li>
+                          Implemented leaderboard and ranking systems with Redis
+                          sorted sets for efficient updates
+                        </li>
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  Key Achievements:
+                  <ul className="pl-6 mt-2 space-y-1 list-disc">
+                    <li>
+                      Contributed to the development of internal tools using
+                      ReactJs, improving team productivity by 20%
+                    </li>
+                    <li>
+                      Mentored junior developers, improving team knowledge
+                      sharing and code quality
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+              <h4 className="text-xl font-semibold text-zinc-200 mt-6 mb-3 italic underline">
+                Applaydu
+              </h4>
+              <ul className="text-zinc-400 list-decimal list-inside space-y-2">
+                <li>
+                  General: Team size: 6/ Duration: 6/2024 - 9/2024/ Position:
+                  Backend/ Tech stacks: Javascript, Nodejs, ExpressJs,
+                  Snowflake, ReactJs, AWS Cloud Service (Lambda, DynamoDB, S3,
+                  Cloudwatch Log, Cloudfront).
+                </li>
+                <li>
+                  Email System Optimization
+                  <ul className="pl-6 mt-2 space-y-1 list-disc">
+                    <li>
+                      Engineered and implemented an optimized email delivery
+                      system, significantly improving sending speed while
+                      maintaining rate-limit compliance
+                    </li>
+                    <li>
+                      Reduced email processing time by 80% without compromising
+                      deliverability or violating service provider restrictions
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  AI-Powered Story Reading Feature
+                  <ul className="pl-6 mt-2 space-y-1 list-disc">
+                    <li>
+                      Spearheaded the development of an innovative AI-driven
+                      story reading feature
+                    </li>
+                    <li>
+                      Collaborated closely with DevOps and Infrastructure teams
+                      to design and implement robust pipelines for story
+                      generation and processing
+                    </li>
+                    <li>
+                      Increased user engagement by 25% through the introduction
+                      of this cutting-edge feature
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  CRON System Performance Enhancement
+                  <ul className="pl-6 mt-2 space-y-1 list-disc">
+                    <li>
+                      Identified and resolved critical memory leak issues in the
+                      CRON job system
+                    </li>
+                    <li>
+                      Optimized resource utilization, resulting in a 40%
+                      reduction in server memory consumption
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  Key Achievements:
+                  <ul className="pl-6 mt-2 space-y-1 list-disc">
+                    <li>
+                      Boosted email delivery efficiency by 80% while ensuring
+                      compliance with rate limits
+                    </li>
+                    <li>
+                      Led cross-functional teams in implementing AI-powered
+                      features, driving a 25% increase in user engagement
+                    </li>
+                    <li>
+                      Optimized CRON systems, reducing memory usage by 40%
+                    </li>
+                  </ul>
                 </li>
               </ul>
             </div>
@@ -56,7 +280,7 @@ export default function Portfolio() {
               <h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
                 Frontend Engineer - Hachium - Hanoi, Vietnam
               </h3>
-              <p className="text-zinc-400 mt-1">9/2024 - Current</p>
+              <p className="text-zinc-400 mt-1">9/2024 - 3/2025</p>
               <ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
                 <li>
                   Perform web and legacy system development, update and support,
@@ -198,213 +422,6 @@ export default function Portfolio() {
                     <li>
                       Established a robust component library with Storybook,
                       accelerating UI development across multiple projects
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
-            <div className="border-l-2 border-zinc-700 pl-6">
-              <h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
-                Backend Engineer - Gameloft - Ho Chi Minh
-              </h3>
-              <p className="text-zinc-400 mt-1">6/2024 - Current</p>
-              <ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
-                <li>
-                  Perform web and legacy system development, update and support,
-                  delivery high level solutions or subsystems like custom API's,
-                  database modeling and design.
-                </li>
-                <li>
-                  Participle on the conception and setup of automation system to
-                  facilitate the usage and project deployment on site and on
-                  cloud.
-                </li>
-                <li>
-                  Analyzes customer requirements and defines solutions and
-                  architecture plus assistance to the team on problems and
-                  technical roadblocks.
-                </li>
-                <li>
-                  Create and maintain technical documentation linked with the
-                  solution developed.
-                </li>
-                <li>
-                  Work with infrastructure team to find innovative solution.
-                </li>
-                <li>
-                  Contribute to continuous improvement by suggesting improvement
-                  to user interface, software architecture or new technologies.
-                </li>
-                <li>
-                  Coordinate roll-out of new applications and provides
-                  production support.
-                </li>
-              </ul>
-
-              <h4 className="text-xl font-semibold text-zinc-200 mt-6 mb-3 italic underline">
-                Claynosaurs
-              </h4>
-              <ul className="text-zinc-400 list-decimal list-inside space-y-2">
-                <li>
-                  General: Team size: 10/ Duration: 9/2024 - now/ Position:
-                  Backend/ Tech stacks: NestJs, MongoDB, Microservice, Domain
-                  Driven Design, Redis, Colyseus, Sentry, ReactJs, AWS Cloud
-                  Services (ECS, ...).
-                </li>
-                <li>
-                  Play a crucial role in developing and optimizing game server
-                  infrastructure using Colyseus
-                </li>
-                <li>
-                  Lead the development and maintenance of key microservices
-                  including Friend Service
-                </li>
-                <li>
-                  Contribute to the improvement and expansion of the existing
-                  microservice architecture
-                </li>
-                <li>
-                  Key Contributions:
-                  <ul className="pl-10 mt-2 space-y-1 list-[lower-alpha]">
-                    <li>
-                      Game Server Development:
-                      <ul className="pl-6 mt-2 space-y-1 list-disc">
-                        <li>
-                          Engineered Colyseus playground schema, facilitating
-                          seamless communication between game and backend teams
-                        </li>
-                        <li>
-                          Reduced documentation overhead by 40% through
-                          intuitive schema design
-                        </li>
-                        <li>
-                          Improved development speed by 30% by streamlining
-                          message validation processes
-                        </li>
-                      </ul>
-                    </li>
-                    <li>
-                      Microservice Architecture:
-                      <ul className="pl-6 mt-2 space-y-1 list-disc">
-                        <li>
-                          Contributed to the optimization of the existing
-                          microservice ecosystem
-                        </li>
-                        <li>
-                          Implemented Domain Driven Design principles, improving
-                          system modularity and scalability
-                        </li>
-                      </ul>
-                    </li>
-                    <li>
-                      Friend Service:
-                      <ul className="pl-6 mt-2 space-y-1 list-disc">
-                        <li>
-                          Designed and implemented a scalable friend management
-                          system
-                        </li>
-                        <li>
-                          Optimized friend suggestion algorithms, increasing
-                          user connections by 35%
-                        </li>
-                        <li>
-                          Implemented real-time friend status updates using
-                          WebSockets, enhancing user engagement
-                        </li>
-                        <li>
-                          Implemented comprehensive unit tests for the Friend
-                          Service, achieving 90% code coverage
-                        </li>
-                        <li>
-                          Integrated unit tests into the CI/CD pipeline for the
-                          Friend Service, reducing related bugs by 40%
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  Key Achievements:
-                  <ul className="pl-6 mt-2 space-y-1 list-disc">
-                    <li>
-                      Contributed to the development of internal tools using
-                      ReactJs, improving team productivity by 20%
-                    </li>
-                    <li>
-                      Mentored junior developers, improving team knowledge
-                      sharing and code quality
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-              <h4 className="text-xl font-semibold text-zinc-200 mt-6 mb-3 italic underline">
-                Applaydu
-              </h4>
-              <ul className="text-zinc-400 list-decimal list-inside space-y-2">
-                <li>
-                  General: Team size: 6/ Duration: 6/2024 - 9/2024/ Position:
-                  Backend/ Tech stacks: Javascript, Nodejs, ExpressJs,
-                  Snowflake, ReactJs, AWS Cloud Service (Lambda, DynamoDB, S3,
-                  Cloudwatch Log, Cloudfront).
-                </li>
-                <li>
-                  Email System Optimization
-                  <ul className="pl-6 mt-2 space-y-1 list-disc">
-                    <li>
-                      Engineered and implemented an optimized email delivery
-                      system, significantly improving sending speed while
-                      maintaining rate-limit compliance
-                    </li>
-                    <li>
-                      Reduced email processing time by 80% without compromising
-                      deliverability or violating service provider restrictions
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  AI-Powered Story Reading Feature
-                  <ul className="pl-6 mt-2 space-y-1 list-disc">
-                    <li>
-                      Spearheaded the development of an innovative AI-driven
-                      story reading feature
-                    </li>
-                    <li>
-                      Collaborated closely with DevOps and Infrastructure teams
-                      to design and implement robust pipelines for story
-                      generation and processing
-                    </li>
-                    <li>
-                      Increased user engagement by 25% through the introduction
-                      of this cutting-edge feature
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  CRON System Performance Enhancement
-                  <ul className="pl-6 mt-2 space-y-1 list-disc">
-                    <li>
-                      Identified and resolved critical memory leak issues in the
-                      CRON job system
-                    </li>
-                    <li>
-                      Optimized resource utilization, resulting in a 40%
-                      reduction in server memory consumption
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  Key Achievements:
-                  <ul className="pl-6 mt-2 space-y-1 list-disc">
-                    <li>
-                      Boosted email delivery efficiency by 80% while ensuring
-                      compliance with rate limits
-                    </li>
-                    <li>
-                      Led cross-functional teams in implementing AI-powered
-                      features, driving a 25% increase in user engagement
-                    </li>
-                    <li>
-                      Optimized CRON systems, reducing memory usage by 40%
                     </li>
                   </ul>
                 </li>
@@ -1011,7 +1028,10 @@ export default function Portfolio() {
                 <strong>Duration:</strong> 2019 - 2024
               </li>
               <li>
-                <strong>Current GPA:</strong> 3.4/4
+                <strong>GPA:</strong> 3.4/4
+              </li>
+              <li>
+                <strong>Graduation:</strong> High Honors
               </li>
             </ul>
           </div>
