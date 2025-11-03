@@ -46,38 +46,49 @@ export default function Portfolio() {
               <p className="text-zinc-400 mt-1">6/2024 - Current</p>
               <ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
                 <li>
-                  Perform web and legacy system development, update and support,
-                  delivery high level solutions or subsystems like custom API's,
-                  database modeling and design.
+                  Develop and maintain backend features and system integrations,
+                  delivering high-level solutions including custom APIs, database
+                  modeling and design.
                 </li>
                 <li>
-                  Participle on the conception and setup of automation system to
-                  facilitate the usage and project deployment on site and on
-                  cloud.
+                  Collaborate with clients to discuss requirements and propose
+                  technical solutions that align with business objectives.
                 </li>
                 <li>
-                  Analyzes customer requirements and defines solutions and
-                  architecture plus assistance to the team on problems and
-                  technical roadblocks.
+                  Participate in cross-team meetings with team leaders to break
+                  down tasks, estimate workloads, and define sprint goals.
+                </li>
+                <li>
+                  Review and merge pull requests from other developers to ensure
+                  code quality and consistency across the codebase.
+                </li>
+                <li>
+                  Support deployment processes and monitor production systems for
+                  stability and performance.
+                </li>
+                <li>
+                  Contribute to architectural discussions and recommend
+                  improvements for scalability and performance.
+                </li>
+                <li>
+                  Participate in the conception and setup of automation systems
+                  to facilitate project deployment on-premise and cloud
+                  infrastructure.
                 </li>
                 <li>
                   Create and maintain technical documentation linked with the
-                  solution developed.
+                  solutions developed.
                 </li>
                 <li>
-                  Work with infrastructure team to find innovative solution.
-                </li>
-                <li>
-                  Contribute to continuous improvement by suggesting improvement
-                  to user interface, software architecture or new technologies.
+                  Work with infrastructure team to find innovative solutions.
                 </li>
                 <li>
                   Coordinate roll-out of new applications and provides
                   production support.
                 </li>
                 <li>
-                  Mentored junior developers, fostering knowledge sharing and 
-                  improving overall code quality
+                  Mentor junior developers, fostering knowledge sharing and
+                  improving overall code quality.
                 </li>
               </ul>
 
