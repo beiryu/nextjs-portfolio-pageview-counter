@@ -23,7 +23,9 @@ export default async function ProjectsPage() {
 	const featured = allProjects.find(
 		(project) => project.slug === "sketchpad-ai",
 	)!;
-  const sortedAllProjectsByViews = allProjects.sort((a, b) => views[b.slug] - views[a.slug])
+	const sortedAllProjectsByViews = allProjects.sort(
+		(a, b) => views[b.slug] - views[a.slug],
+	);
 	const top2 = sortedAllProjectsByViews[1]!;
 	const top3 = sortedAllProjectsByViews[2]!;
 
@@ -68,7 +70,9 @@ export default async function ProjectsPage() {
 												}).format(new Date(featured.date))}
 											</time>
 										) : (
-							        <span className="bg-gradient-to-r from-amber-600 to-rose-700 rounded-md px-2 py-1 text-white font-bold shadow-sm">SOON</span>
+											<span className="bg-gradient-to-r from-amber-600 to-rose-700 rounded-md px-2 py-1 text-white font-bold shadow-sm">
+												SOON
+											</span>
 										)}
 									</div>
 									<span className="flex items-center gap-1 text-xs text-zinc-500">
