@@ -43,7 +43,7 @@ export default function Portfolio() {
 							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
 								Backend Engineer - Gameloft - Ho Chi Minh
 							</h3>
-							<p className="text-zinc-400 mt-1">6/2024 - Current</p>
+							<p className="text-zinc-400 mt-1">6/2024</p>
 							<ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
 								<li>
 									Develop and maintain backend features and system integrations,
@@ -296,7 +296,7 @@ export default function Portfolio() {
 							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
 								Full Stack Engineer - SquarePing - Remote
 							</h3>
-							<p className="text-zinc-400 mt-1">10/2025 - Current</p>
+							<p className="text-zinc-400 mt-1">10/2025</p>
 							<ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
 								<li>
 									Develop and maintain comprehensive backend features including
@@ -340,7 +340,7 @@ export default function Portfolio() {
 							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
 								Full Stack Developer - DZNS - Remote
 							</h3>
-							<p className="text-zinc-400 mt-1">8/2025 - Current</p>
+							<p className="text-zinc-400 mt-1">8/2025</p>
 							<ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
 								<li>
 									Specialize in developing Minimum Viable Products (MVPs) for
