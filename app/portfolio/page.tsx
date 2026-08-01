@@ -41,6 +41,81 @@ export default function Portfolio() {
 					<div className="space-y-10">
 						<div className="border-l-2 border-zinc-700 pl-6">
 							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
+								Software Engineer - One Tech Stop - Da Nang
+							</h3>
+							<p className="text-zinc-400 mt-1">7/2026</p>
+							<ul className="mt-4 text-zinc-400 list-disc list-inside space-y-2">
+								<li>
+									Develop and test features and bug fixes from backlog items,
+									ensuring quality and timely delivery.
+								</li>
+								<li>
+									Build and maintain CI/CD pipelines to streamline deployments.
+								</li>
+								<li>
+									Contribute to Quality Assurance processes, practices, and
+									analysis tools to improve overall code quality.
+								</li>
+								<li>
+									Involved in defining Non-Functional Requirements such as
+									performance, security, reliability, and maintainability.
+								</li>
+								<li>
+									Assist leaders in defining and refining the technical
+									backlog, roadmap, and risk management strategies.
+								</li>
+								<li>
+									Provide constructive feedback to team members and monitor
+									industry trends to propose ideas for new programs, products,
+									or features.
+								</li>
+							</ul>
+
+							<h4 className="text-xl font-semibold text-zinc-200 mt-6 mb-3 italic underline">
+								EPCAS
+							</h4>
+							<ul className="text-zinc-400 list-decimal list-inside space-y-2">
+								<li>
+									General: Team size: 12/ Duration: 7/2026 - now/ Position:
+									Full Stack Developer/ Tech stacks: Next.js, TypeScript,
+									React, FastAPI, Python, PostgreSQL, BigQuery, Firebase,
+									Google Cloud Storage, Cloud Run, Cloud Workflows, Docker, Tailwind CSS.
+								</li>
+								<li>
+									Contributed to the full-stack development of an enterprise
+									cost allocation platform embedded as an iframe within ONE's
+									(Ocean Network Express) internal EPIC system
+								</li>
+								<li>
+									Built high-performance file ingestion pipelines supporting
+									large-scale CSV/Excel uploads via GCS signed URLs, with
+									real-time processing status updates using Firebase
+									Firestore and Realtime Database
+								</li>
+								<li>
+									Integrated BigQuery as the analytics data warehouse for
+									historical cost data storage and reporting
+								</li>
+								<li>
+									Built cost review and file management UIs using Next.js 15,
+									TanStack React Table with virtualization for large datasets,
+									React Query, and Jotai for atomic state management
+								</li>
+								<li>
+									Maintained backend services with FastAPI (async),
+									SQLModel/SQLAlchemy, and Alembic-managed PostgreSQL
+									migrations
+								</li>
+								<li>
+									Configured CI/CD pipelines and containerized services for
+									deployment on Cloud Run, with secrets managed via GCP
+									Secret Manager
+								</li>
+							</ul>
+						</div>
+
+						<div className="border-l-2 border-zinc-700 pl-6">
+							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
 								Backend Engineer - Gameloft - Ho Chi Minh
 							</h3>
 							<p className="text-zinc-400 mt-1">6/2024</p>
