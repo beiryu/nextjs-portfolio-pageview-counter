@@ -27,7 +27,10 @@
 			"react": "recommended"
 		},
 		"rules": {
-			"recommended": true
+			"preset": "recommended",
+			"suspicious": {
+				"noUnknownAtRules": "off"
+			}
 		}
 	},
 	"javascript": {
