@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { PageIn, Reveal, RevealEach } from "../components/motion";
 import { Navigation } from "../components/nav";
 
 export default function Portfolio() {
@@ -9,10 +10,12 @@ export default function Portfolio() {
 			<div className="container min-h-screen px-4 mx-auto pb-10 md:pt-24 lg:pt-32">
 				<div className="max-w-6xl mx-auto">
 					{/* Skills */}
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
-						Skills
-					</h2>
-					<div className="mt-8 text-zinc-400">
+					<PageIn>
+						<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl">
+							Skills
+						</h2>
+					</PageIn>
+					<PageIn delay={0.1} className="mt-8 text-zinc-400">
 						<ul className="space-y-4">
 							<li>
 								<strong>Programming languages:</strong> Typescript, Python, Go.
@@ -31,14 +34,16 @@ export default function Portfolio() {
 								<strong>Database:</strong> MongoDB, MySQL, PostgreSQL.
 							</li>
 						</ul>
-					</div>
+					</PageIn>
 					<div className="my-8 w-full h-px bg-zinc-800" />
 
 					{/* Experience */}
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
-						Experience
-					</h2>
-					<div className="space-y-10">
+					<Reveal>
+						<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
+							Experience
+						</h2>
+					</Reveal>
+					<RevealEach className="space-y-10">
 						<div className="border-l-2 border-zinc-700 pl-6">
 							<h3 className="text-2xl font-bold tracking-tight text-zinc-300 sm:text-3xl">
 								Software Engineer - One Tech Stop - Da Nang
@@ -1178,12 +1183,14 @@ export default function Portfolio() {
 								</li>
 							</ul>
 						</div>
-					</div>
+					</RevealEach>
 					<div className="my-12 w-full h-px bg-zinc-800" />
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
-						Education
-					</h2>
-					<div className="mt-8 text-zinc-400">
+					<Reveal>
+						<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
+							Education
+						</h2>
+					</Reveal>
+					<Reveal className="mt-8 text-zinc-400">
 						<ul className="space-y-4">
 							<li>
 								<strong>Institution:</strong> University of Science, Vietnam
@@ -1202,12 +1209,14 @@ export default function Portfolio() {
 								<strong>Graduation:</strong> High Honors
 							</li>
 						</ul>
-					</div>
+					</Reveal>
 					<div className="my-12 w-full h-px bg-zinc-800" />
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
-						Honors & Awards
-					</h2>
-					<div className="space-y-6 text-zinc-400">
+					<Reveal>
+						<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
+							Honors & Awards
+						</h2>
+					</Reveal>
+					<RevealEach className="space-y-6 text-zinc-400">
 						<div>
 							<h3 className="text-xl font-semibold text-zinc-200">2019</h3>
 							<ul className="mt-2 list-disc list-inside">
@@ -1262,12 +1271,14 @@ export default function Portfolio() {
 								</li>
 							</ul>
 						</div>
-					</div>
+					</RevealEach>
 					<div className="my-12 w-full h-px bg-zinc-800" />
-					<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
-						Certifications
-					</h2>
-					<div className="space-y-6 text-zinc-400">
+					<Reveal>
+						<h2 className="text-3xl font-bold tracking-tight text-zinc-100 sm:text-4xl mb-6">
+							Certifications
+						</h2>
+					</Reveal>
+					<Reveal className="space-y-6 text-zinc-400">
 						<div>
 							<ul className="mt-2 list-disc list-inside">
 								<li>
@@ -1282,7 +1293,7 @@ export default function Portfolio() {
 								</li>
 							</ul>
 						</div>
-					</div>
+					</Reveal>
 				</div>
 			</div>
 		</div>

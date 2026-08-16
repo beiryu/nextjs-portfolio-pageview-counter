@@ -52,6 +52,15 @@ export default function RootLayout({
 		<html lang="en" className={[inter.variable, calSans.variable].join(" ")}>
 			<head>
 				<Analytics />
+				{/* Entrance and scroll animations render their first frame into the
+				    server HTML as `opacity:0`, and without JS nothing ever advances
+				    them — the page would arrive fully written but blank. This puts
+				    every animated block back to its resting state for those readers. */}
+				<noscript>
+					<style>
+						{`[style*="opacity:0"]{opacity:1!important;transform:none!important}`}
+					</style>
+				</noscript>
 			</head>
 			<body
 				className={`bg-black ${

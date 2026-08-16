@@ -1,6 +1,8 @@
 // @ts-nocheck
+"use client";
 
 import { useMDXComponent } from "@content-collections/mdx/react";
+import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import type * as React from "react";
@@ -15,8 +17,45 @@ function clsx(...args: any) {
 // them — which is what previously left paragraphs with a 24px top margin and a
 // 20px bottom one, and pushed list markers outside the text column.
 //
-// This map is for structure and behaviour that CSS cannot express.
+// This map is for structure, behaviour and motion — not styling.
+
+const VIEWPORT = { once: true, margin: "0px 0px -80px 0px" } as const;
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * Turns a block-level tag into its motion equivalent so it fades up as it
+ * scrolls into view. Deliberately `motion.<tag>` rather than a wrapper element:
+ * an extra div would change the DOM shape and break selectors like
+ * `.mdx-article h2:first-child` and `.mdx-article ul > li`.
+ */
+function revealed(Tag: string) {
+	const Motion = motion[Tag];
+
+	return ({ className, ...props }) => {
+		const reduced = useReducedMotion();
+
+		return (
+			<Motion
+				className={className}
+				initial={{ opacity: 0, y: reduced ? 0 : 12 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				viewport={VIEWPORT}
+				transition={{ duration: 0.45, ease: EASE }}
+				{...props}
+			/>
+		);
+	};
+}
+
 const components = {
+	h2: revealed("h2"),
+	h3: revealed("h3"),
+	p: revealed("p"),
+	ul: revealed("ul"),
+	ol: revealed("ol"),
+	blockquote: revealed("blockquote"),
+	pre: revealed("pre"),
+
 	a: ({ className, href = "", ...props }) => {
 		const isExternal = /^https?:\/\//.test(href);
 		if (isExternal) {
