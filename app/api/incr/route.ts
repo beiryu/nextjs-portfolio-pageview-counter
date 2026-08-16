@@ -47,10 +47,7 @@ export async function POST(req: Request): Promise<Response> {
 			ex: 24 * 60 * 60,
 		});
 		if (!isNew) {
-			// FIXME: missing `return` — the dedupe early-exit never fires, so every
-			// request increments. Preserved verbatim in this commit so the runtime
-			// move can be verified against existing counter behaviour. Fixed next.
-			new Response(null, { status: 202 });
+			return new Response(null, { status: 202 });
 		}
 	}
 
