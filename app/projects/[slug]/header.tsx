@@ -1,8 +1,9 @@
 "use client";
-import { ArrowLeft, Eye, Github, Keyboard, Linkedin } from "lucide-react";
+import { ArrowLeft, Eye, Keyboard } from "lucide-react";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { Github, Linkedin } from "@/app/components/brand-icons";
 
 type Props = {
 	project: {

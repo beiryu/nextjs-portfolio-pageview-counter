@@ -1,13 +1,7 @@
 "use client";
-import {
-	Github,
-	Keyboard,
-	Linkedin,
-	Mail,
-	Twitter,
-	Upload,
-} from "lucide-react";
+import { Keyboard } from "lucide-react";
 import Link from "next/link";
+import { Github, Linkedin } from "../components/brand-icons";
 import { Card } from "../components/card";
 import { Navigation } from "../components/nav";
 
