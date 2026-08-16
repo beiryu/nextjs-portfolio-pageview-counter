@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 const redis = Redis.fromEnv();
 export const config = {
@@ -15,7 +15,7 @@ export default async function incr(req: NextRequest): Promise<NextResponse> {
 	}
 
 	const body = await req.json();
-	let slug: string | undefined = undefined;
+	let slug: string | undefined;
 	if ("slug" in body) {
 		slug = body.slug;
 	}

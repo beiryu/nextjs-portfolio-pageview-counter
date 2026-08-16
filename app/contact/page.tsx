@@ -1,15 +1,15 @@
 "use client";
 import {
 	Github,
+	Keyboard,
+	Linkedin,
 	Mail,
 	Twitter,
-	Linkedin,
 	Upload,
-	Keyboard,
 } from "lucide-react";
 import Link from "next/link";
-import { Navigation } from "../components/nav";
 import { Card } from "../components/card";
+import { Navigation } from "../components/nav";
 
 const socials = [
 	{
