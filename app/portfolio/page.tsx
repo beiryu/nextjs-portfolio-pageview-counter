@@ -4,7 +4,7 @@ import { Navigation } from "../components/nav";
 
 export default function Portfolio() {
 	return (
-		<div className=" bg-gradient-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
+		<div className=" bg-linear-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
 			<Navigation />
 			<div className="container min-h-screen px-4 mx-auto pb-10 md:pt-24 lg:pt-32">
 				<div className="max-w-6xl mx-auto">
