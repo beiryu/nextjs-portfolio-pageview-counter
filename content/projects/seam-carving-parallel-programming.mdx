@@ -6,11 +6,11 @@ date: "2022-11-01"
 published: true
 ---
 
-## 📚 **Technology Stack**
+## Technology Stack
 
 C/C++, Cuda, Parallel Programming
 
-## 📃 **Seam carving**
+## Seam carving
 
 It operates by establishing a number of seams (the least important paths) in an image and automatically removing the seams to reduce the size of the image or inserting connections to expand it. In this project, the goal is to remove the least important seams.
 
@@ -26,7 +26,7 @@ The purpose of the algorithm is to align objects in the image, display the image
   <img src="./seam-carving-parallel-programming/1.png" alt="Seam carving" />
 </div>
 
-## **Steps to perform basic seam carving algorithm**
+## Steps to perform basic seam carving algorithm
 
 Convert image to .pnm if it is not in the correct format
 
@@ -145,7 +145,7 @@ For the third parallel version, we parallelize as follows:
 - When parallelizing the steps, the seam-carving algorithm has significantly improved its execution time compared to the previous 2 versions.
 - In terms of ideology when parallelizing, the team did not change the original ideology and the parallelized version still significantly improved the time.
 
-## **Development direction**
+## Development direction
 
 - We can optimize by using the idea of two-end BFS, from which we can calculate in two directions from top to bottom and from bottom to top, and then synthesize the results by taking the smallest total result of the row. It is easy to estimate that the algorithm speed will decrease by half. _F_[*n*/2]+_F_[*n*/2+1]
 - Currently, the main direction of the group is to optimize the time for one algorithm execution. However, in practice, when using the algorithm to measure performance, we always want to maximize the number of seams that can be run. This is the biggest limitation to the idea of optimizing the algorithm, making the algorithm unfavorable. A proposal may be to use one image in each deletion and perform only one deletion on the returned result.

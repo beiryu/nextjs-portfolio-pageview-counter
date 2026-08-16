@@ -1,33 +1,193 @@
 @reference "../../../global.css";
 
+/* ---------------------------------------------------------------------------
+   Article typography
+   Scoped to `.mdx-article` (the <article> on /projects/[slug]). Everything here
+   sits at specificity >= 0,1,1, so it wins over @tailwindcss/typography's
+   `:where()` rules without the half-override problems that came from applying
+   utilities in the MDX component map.
+   --------------------------------------------------------------------------- */
+
+.mdx-article {
+	counter-reset: section;
+}
+
+/* Headings ---------------------------------------------------------------- */
+
+.mdx-article h2 {
+	@apply relative mt-16 mb-5 font-display text-2xl font-normal tracking-tight text-zinc-100 sm:text-3xl;
+	scroll-margin-top: 5rem;
+}
+
+.mdx-article h2:first-child {
+	@apply mt-0;
+}
+
+.mdx-article h3 {
+	@apply mt-10 mb-3 text-lg font-semibold tracking-tight text-zinc-200;
+	scroll-margin-top: 5rem;
+}
+
+.mdx-article h4,
+.mdx-article h5,
+.mdx-article h6 {
+	@apply mt-8 mb-2 text-base font-semibold text-zinc-200;
+	scroll-margin-top: 5rem;
+}
+
+/* Section numbers.
+   Driven by a CSS counter so no numbering is baked into the MDX content.
+   The `:has()` guard skips pages with fewer than three sections, where a lone
+   "01" would read as a mistake rather than a system. */
+.mdx-article:has(h2:nth-of-type(3)) h2::before {
+	counter-increment: section;
+	content: counter(section, decimal-leading-zero);
+	@apply block mb-2 font-sans text-xs font-medium tracking-[0.2em] text-zinc-600;
+}
+
+/* From `lg` up there is room in the margin, so the numbers form a rail beside
+   the text column instead of stacking above each heading. */
+@media (min-width: 1024px) {
+	.mdx-article:has(h2:nth-of-type(3)) h2::before {
+		@apply absolute top-[0.45em] left-[-4.5rem] mb-0 text-right;
+		width: 3rem;
+	}
+}
+
+/* `rehype-autolink-headings` prepends an empty <span> to every heading. It has
+   no content and no `aria-hidden`/`tabIndex: -1`, so each heading carried an
+   invisible, tab-focusable link. */
+.mdx-article .subheading-anchor {
+	display: none;
+}
+
+/* Body -------------------------------------------------------------------- */
+
+.mdx-article p {
+	@apply my-5 leading-7 text-zinc-400;
+}
+
+.mdx-article strong {
+	@apply font-semibold text-zinc-100;
+}
+
+.mdx-article a:not(.subheading-anchor) {
+	@apply font-medium text-zinc-100 underline decoration-zinc-600 underline-offset-4 transition-colors duration-200 hover:decoration-zinc-300;
+}
+
+/* Lists ------------------------------------------------------------------- */
+
+/* Roughly two thirds of the bullets across content/projects follow the shape
+   `**Label**: sentence`. Giving them room and letting the leading <strong> carry
+   the contrast turns those dense grey slabs into scannable rows. */
+.mdx-article ul {
+	@apply my-6 list-none p-0;
+}
+
+.mdx-article ol {
+	@apply my-6 list-decimal pl-6;
+}
+
+.mdx-article ol::marker,
+.mdx-article ol > li::marker {
+	@apply text-zinc-500;
+}
+
+.mdx-article li {
+	@apply my-3 leading-7 text-zinc-400;
+}
+
+.mdx-article li:first-child {
+	@apply mt-0;
+}
+
+/* A hairline dash sits inside the measure; the previous `ml-6` on the list
+   hung disc markers outside the text column. */
+.mdx-article ul > li {
+	@apply relative pl-5;
+}
+
+.mdx-article ul > li::before {
+	content: "";
+	@apply absolute left-0 top-[0.85em] h-px w-2.5 bg-zinc-600;
+}
+
+.mdx-article li > ul,
+.mdx-article li > ol {
+	@apply my-3;
+}
+
+/* Inline code ------------------------------------------------------------- */
+
+/* Was `text-zinc-600` — lighter than the body text, so inline code read as
+   disabled rather than emphasised. */
+.mdx-article :not(pre) > code {
+	@apply rounded border border-zinc-700/50 bg-zinc-800/60 px-[0.35rem] py-[0.15rem] font-mono text-[0.85em] text-zinc-200;
+}
+
+/* Rules and quotes -------------------------------------------------------- */
+
+.mdx-article hr {
+	@apply my-12 border-zinc-800;
+}
+
+.mdx-article blockquote {
+	@apply my-6 border-l-2 border-zinc-700 pl-6 italic text-zinc-300;
+}
+
+/* Tables ------------------------------------------------------------------ */
+
+.mdx-article th {
+	@apply border-b border-zinc-700 px-4 py-2 text-left text-sm font-semibold text-zinc-200;
+}
+
+.mdx-article td {
+	@apply border-b border-zinc-800 px-4 py-2 text-sm text-zinc-400;
+}
+
+/* ---------------------------------------------------------------------------
+   Code blocks (rehype-pretty-code)
+   --------------------------------------------------------------------------- */
+
+.mdx-article pre {
+	@apply my-6 overflow-x-auto rounded-lg border border-zinc-800 py-4;
+}
+
 [data-rehype-pretty-code-figure] code {
-	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm text-black;
+	@apply grid min-w-full break-words rounded-none border-0 bg-transparent p-0 text-sm;
 	counter-reset: line;
 	box-decoration-break: clone;
 }
-[data-rehype-pretty-code-figure] .line {
+
+/* rehype-pretty-code 0.14 strips the `line` class and emits a `data-line`
+   attribute instead (see replaceLineClass in its dist/index.js), so the old
+   `.line` selectors never matched — which left code blocks with no horizontal
+   padding at all, text flush against the left edge. */
+[data-rehype-pretty-code-figure] [data-line] {
 	@apply px-4 py-1;
 }
-[data-rehype-pretty-code-figure] [data-line-numbers] > .line::before {
+[data-rehype-pretty-code-figure] [data-line-numbers] > [data-line]::before {
 	counter-increment: line;
 	content: counter(line);
 	display: inline-block;
 	width: 1rem;
 	margin-right: 1rem;
 	text-align: right;
-	color: gray;
+	@apply text-zinc-600;
 }
+/* `onVisitHighlightedLine` in content-collections.ts adds this class back after
+   replaceLineClass has run, so it is still the right hook. */
 [data-rehype-pretty-code-figure] .line--highlighted {
 	@apply bg-zinc-300/10;
 }
-[data-rehype-pretty-code-figure] .line-highlighted span {
+[data-rehype-pretty-code-figure] .line--highlighted span {
 	@apply relative;
 }
 [data-rehype-pretty-code-figure] .word--highlighted {
 	@apply rounded-md bg-zinc-300/10 p-1;
 }
 [data-rehype-pretty-code-title] {
-	@apply mt-4 py-2 px-4 text-sm font-medium;
+	@apply mt-4 px-4 py-2 text-sm font-medium text-zinc-400;
 }
 [data-rehype-pretty-code-title] + pre {
 	@apply mt-0;

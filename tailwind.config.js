@@ -9,12 +9,39 @@ module.exports = {
 			typography: {
 				DEFAULT: {
 					css: {
+						// Width is owned by the `max-w-2xl` on the <article>, not by
+						// prose's own 65ch — two competing constraints made the measure
+						// unpredictable across breakpoints.
+						maxWidth: "none",
 						"code::before": {
 							content: '""',
 						},
 						"code::after": {
 							content: '""',
 						},
+					},
+				},
+				// Project pages render on the dark layout gradient, so `prose-invert`
+				// is the active palette. Stock invert defaults are too high-contrast
+				// against zinc; these track the rest of the site's zinc ramp.
+				invert: {
+					css: {
+						"--tw-prose-invert-body": "var(--color-zinc-400)",
+						"--tw-prose-invert-headings": "var(--color-zinc-100)",
+						"--tw-prose-invert-lead": "var(--color-zinc-400)",
+						"--tw-prose-invert-links": "var(--color-zinc-100)",
+						"--tw-prose-invert-bold": "var(--color-zinc-100)",
+						"--tw-prose-invert-counters": "var(--color-zinc-500)",
+						"--tw-prose-invert-bullets": "var(--color-zinc-700)",
+						"--tw-prose-invert-hr": "var(--color-zinc-800)",
+						"--tw-prose-invert-quotes": "var(--color-zinc-300)",
+						"--tw-prose-invert-quote-borders": "var(--color-zinc-700)",
+						"--tw-prose-invert-captions": "var(--color-zinc-500)",
+						"--tw-prose-invert-code": "var(--color-zinc-200)",
+						"--tw-prose-invert-pre-code": "var(--color-zinc-300)",
+						"--tw-prose-invert-pre-bg": "var(--color-zinc-900)",
+						"--tw-prose-invert-th-borders": "var(--color-zinc-700)",
+						"--tw-prose-invert-td-borders": "var(--color-zinc-800)",
 					},
 				},
 				quoteless: {

@@ -11,6 +11,7 @@ type Props = {
 		title: string;
 		description: string;
 		repository?: string;
+		date?: string;
 	};
 
 	views: number;
@@ -42,27 +43,36 @@ export const Header: React.FC<Props> = ({ project, views }) => {
 		return () => observer.disconnect();
 	}, []);
 
+	// Shared by every control in the fixed bar. Hovering used to change font
+	// weight, which reflowed the flex row — including the view-counter digits.
+	const navItem = `duration-200 ${
+		isIntersecting
+			? "text-zinc-400 hover:text-zinc-100"
+			: "text-zinc-400 hover:text-white"
+	}`;
+
 	return (
+		// The banner fades to transparent at the bottom so it dissolves into the
+		// layout gradient instead of ending on a hard horizontal seam.
 		<header
 			ref={ref}
-			className="relative isolate overflow-hidden bg-linear-to-tl from-black via-zinc-900 to-black"
+			className="relative isolate overflow-hidden bg-linear-to-b from-black via-black to-transparent"
 		>
+			{/* Once the hero has scrolled away this bar sits over article text, so
+			    it needs a real surface. It previously cleared its own background,
+			    blur and border at `lg`, leaving the icons on top of the copy. */}
 			<div
-				className={`fixed inset-x-0 top-0 z-50 backdrop-blur-sm lg:backdrop-blur-none duration-200 border-b lg:bg-transparent ${
+				className={`fixed inset-x-0 top-0 z-50 duration-200 border-b ${
 					isIntersecting
-						? "bg-zinc-900/0 border-transparent"
-						: "bg-white/10  border-zinc-200 lg:border-transparent"
+						? "bg-transparent border-transparent"
+						: "bg-zinc-900/80 backdrop-blur border-zinc-800"
 				}`}
 			>
 				<div className="container flex flex-row-reverse items-center justify-between p-6 mx-auto">
-					<div className="flex justify-between gap-8">
+					<div className="flex items-center justify-between gap-8">
 						<span
 							title="View counter for this page"
-							className={`duration-200 hover:font-medium flex items-center gap-1 ${
-								isIntersecting
-									? " text-zinc-400 hover:text-zinc-100"
-									: "text-zinc-600 hover:text-zinc-900"
-							} `}
+							className={`flex items-center gap-1 tabular-nums ${navItem}`}
 						>
 							<Eye className="w-5 h-5" />{" "}
 							{Intl.NumberFormat("en-US", { notation: "compact" }).format(
@@ -71,72 +81,75 @@ export const Header: React.FC<Props> = ({ project, views }) => {
 						</span>
 						<Link
 							target="_blank"
+							aria-label="Upwork profile"
 							href="https://www.upwork.com/freelancers/~01837562c4fa4017b2"
 						>
-							<Keyboard
-								className={`w-6 h-6 duration-200 hover:font-medium ${
-									isIntersecting
-										? " text-zinc-400 hover:text-zinc-100"
-										: "text-zinc-600 hover:text-zinc-900"
-								} `}
-							/>
+							<Keyboard className={`w-6 h-6 ${navItem}`} />
 						</Link>
 						<Link
 							target="_blank"
+							aria-label="LinkedIn profile"
 							href="https://www.linkedin.com/in/khanh-ndinh/"
 						>
-							<Linkedin
-								className={`w-6 h-6 duration-200 hover:font-medium ${
-									isIntersecting
-										? " text-zinc-400 hover:text-zinc-100"
-										: "text-zinc-600 hover:text-zinc-900"
-								} `}
-							/>
+							<Linkedin className={`w-6 h-6 ${navItem}`} />
 						</Link>
-						<Link target="_blank" href="https://github.com/beiryu">
-							<Github
-								className={`w-6 h-6 duration-200 hover:font-medium ${
-									isIntersecting
-										? " text-zinc-400 hover:text-zinc-100"
-										: "text-zinc-600 hover:text-zinc-900"
-								} `}
-							/>
+						<Link
+							target="_blank"
+							aria-label="GitHub profile"
+							href="https://github.com/beiryu"
+						>
+							<Github className={`w-6 h-6 ${navItem}`} />
 						</Link>
 					</div>
 
 					<Link
 						href="/projects"
-						className={`duration-200 hover:font-medium ${
-							isIntersecting
-								? " text-zinc-400 hover:text-zinc-100"
-								: "text-zinc-600 hover:text-zinc-900"
-						} `}
+						aria-label="Back to projects"
+						className={navItem}
 					>
-						<ArrowLeft className="w-6 h-6 " />
+						<ArrowLeft className="w-6 h-6" />
 					</Link>
 				</div>
 			</div>
-			<div className="container mx-auto relative isolate overflow-hidden  py-24 sm:py-32">
-				<div className="mx-auto max-w-7xl px-6 lg:px-8 text-center flex flex-col items-center">
-					<div className="mx-auto max-w-2xl lg:mx-0">
-						<h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl font-display">
-							{project.title}
-						</h1>
-						<p className="mt-6 text-lg leading-8 text-zinc-300">
-							{project.description}
-						</p>
-					</div>
+			{/* Left-aligned at the same `max-w-2xl` measure as the article below, so
+			    the hero and the body share one left edge. */}
+			<div className="relative isolate max-w-2xl px-6 mx-auto pt-32 pb-16 sm:pt-40 sm:pb-24">
+				{project.date ? (
+					<time
+						dateTime={new Date(project.date).toISOString()}
+						className="block text-xs font-medium tracking-[0.2em] uppercase text-zinc-500"
+					>
+						{Intl.DateTimeFormat("en-US", {
+							month: "long",
+							year: "numeric",
+						}).format(new Date(project.date))}
+					</time>
+				) : null}
 
-					<div className="mx-auto mt-10 max-w-2xl lg:mx-0 lg:max-w-none">
-						<div className="grid grid-cols-1 gap-y-6 gap-x-8 text-base font-semibold leading-7 text-white sm:grid-cols-2 md:flex lg:gap-x-10">
-							{links.map((link) => (
-								<Link target="_blank" key={link.label} href={link.href}>
-									{link.label} <span aria-hidden="true">&rarr;</span>
-								</Link>
-							))}
-						</div>
+				<h1 className="mt-4 text-4xl tracking-tight text-white sm:text-5xl font-display">
+					{project.title}
+				</h1>
+
+				<p className="mt-5 text-base leading-7 text-zinc-400 sm:text-lg sm:leading-8">
+					{project.description}
+				</p>
+
+				{links.length > 0 ? (
+					<div className="flex flex-wrap gap-3 mt-8">
+						{links.map((link) => (
+							<Link
+								target="_blank"
+								rel="noreferrer"
+								key={link.label}
+								href={link.href}
+								className="inline-flex items-center gap-2 px-4 py-1.5 text-sm font-medium duration-200 border rounded-full border-zinc-700 text-zinc-200 hover:border-zinc-500 hover:text-white"
+							>
+								{link.label}
+								<span aria-hidden="true">&rarr;</span>
+							</Link>
+						))}
 					</div>
-				</div>
+				) : null}
 			</div>
 		</header>
 	);

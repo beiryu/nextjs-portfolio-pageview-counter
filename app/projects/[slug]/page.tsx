@@ -42,13 +42,16 @@ export default async function PostPage({ params }: Props) {
 		(await redis.get<number>(["pageviews", "projects", slug].join(":"))) ?? 0;
 
 	return (
-		<div className="bg-zinc-50 min-h-screen">
+		<>
 			<Header project={project} views={views} />
 			<ReportView slug={project.slug} />
 
-			<article className="px-4 py-12 mx-auto prose prose-zinc prose-quoteless">
+			{/* The dark gradient comes from app/projects/layout.tsx — this page used
+			    to paint `bg-zinc-50` over it, which is why the article read as a
+			    white sheet dropped into a dark site. */}
+			<article className="mdx-article max-w-2xl px-6 py-16 mx-auto prose prose-zinc prose-invert prose-quoteless sm:py-24">
 				<Mdx code={project.mdx} />
 			</article>
-		</div>
+		</>
 	);
 }
