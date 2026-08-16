@@ -1,11 +1,7 @@
-import { withContentlayer } from "next-contentlayer";
+import { withContentCollections } from "@content-collections/next";
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-	pageExtensions: ["js", "jsx", "ts", "tsx", "md", "mdx"],
-	experimental: {
-		mdxRs: true,
-	},
-};
+const nextConfig = {};
 
-export default withContentlayer(nextConfig);
+// withContentCollections must be the outermost plugin
+export default withContentCollections(nextConfig);

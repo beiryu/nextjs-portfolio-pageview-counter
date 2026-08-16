@@ -1,7 +1,8 @@
 "use client";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
 export const Navigation: React.FC = () => {
 	const ref = useRef<HTMLElement>(null);
@@ -20,7 +21,7 @@ export const Navigation: React.FC = () => {
 	return (
 		<header ref={ref}>
 			<div
-				className={`fixed inset-x-0 top-0 z-50 backdrop-blur  duration-200 border-b  ${
+				className={`fixed inset-x-0 top-0 z-50 backdrop-blur-sm  duration-200 border-b  ${
 					isIntersecting
 						? "bg-zinc-900/0 border-transparent"
 						: "bg-zinc-900/500  border-zinc-800 "

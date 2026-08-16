@@ -1,22 +1,28 @@
+import { allProjects } from "content-collections";
 import { notFound } from "next/navigation";
-import { allProjects } from "contentlayer/generated";
 import { Mdx } from "@/app/components/mdx";
 import { Header } from "./header";
 import "./mdx.css";
-import { ReportView } from "./view";
 import { Redis } from "@upstash/redis";
+import { ReportView } from "./view";
 
 export const revalidate = 60;
+// Next 15 changed the fetch default from force-cache to no-store, so the
+// Upstash read below would otherwise opt this segment out of static rendering.
+// force-static restores the pre-upgrade behaviour: all 23 pages prerendered,
+// view counts refreshed every 60s by ISR.
+export const dynamic = "force-static";
 
+// Next 16 removed synchronous access to request-time APIs; `params` is a Promise.
 type Props = {
-	params: {
-		slug: string;
-	};
+	params: Promise<{ slug: string }>;
 };
 
 const redis = Redis.fromEnv();
 
-export async function generateStaticParams(): Promise<Props["params"][]> {
+// Returns the RESOLVED param shape, not Props["params"] — generateStaticParams
+// still hands back plain objects.
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
 	return allProjects
 		.filter((p) => p.published)
 		.map((p) => ({
@@ -25,7 +31,7 @@ export async function generateStaticParams(): Promise<Props["params"][]> {
 }
 
 export default async function PostPage({ params }: Props) {
-	const slug = params?.slug;
+	const { slug } = await params;
 	const project = allProjects.find((project) => project.slug === slug);
 
 	if (!project) {
@@ -41,7 +47,7 @@ export default async function PostPage({ params }: Props) {
 			<ReportView slug={project.slug} />
 
 			<article className="px-4 py-12 mx-auto prose prose-zinc prose-quoteless">
-				<Mdx code={project.body.code} />
+				<Mdx code={project.mdx} />
 			</article>
 		</div>
 	);

@@ -4,7 +4,7 @@ import { Navigation } from "../components/nav";
 
 export default function Portfolio() {
 	return (
-		<div className=" bg-gradient-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
+		<div className=" bg-linear-to-tl from-zinc-900/0 via-zinc-900 to-zinc-900/0">
 			<Navigation />
 			<div className="container min-h-screen px-4 mx-auto pb-10 md:pt-24 lg:pt-32">
 				<div className="max-w-6xl mx-auto">
@@ -61,8 +61,8 @@ export default function Portfolio() {
 									performance, security, reliability, and maintainability.
 								</li>
 								<li>
-									Assist leaders in defining and refining the technical
-									backlog, roadmap, and risk management strategies.
+									Assist leaders in defining and refining the technical backlog,
+									roadmap, and risk management strategies.
 								</li>
 								<li>
 									Provide constructive feedback to team members and monitor
@@ -76,10 +76,10 @@ export default function Portfolio() {
 							</h4>
 							<ul className="text-zinc-400 list-decimal list-inside space-y-2">
 								<li>
-									General: Team size: 12/ Duration: 7/2026 - now/ Position:
-									Full Stack Developer/ Tech stacks: Next.js, TypeScript,
-									React, FastAPI, Python, PostgreSQL, BigQuery, Firebase,
-									Google Cloud Storage, Cloud Run, Cloud Workflows, Docker, Tailwind CSS.
+									General: Team size: 12/ Duration: 7/2026 - now/ Position: Full
+									Stack Developer/ Tech stacks: Next.js, TypeScript, React,
+									FastAPI, Python, PostgreSQL, BigQuery, Firebase, Google Cloud
+									Storage, Cloud Run, Cloud Workflows, Docker, Tailwind CSS.
 								</li>
 								<li>
 									Contributed to the full-stack development of an enterprise
@@ -89,8 +89,8 @@ export default function Portfolio() {
 								<li>
 									Built high-performance file ingestion pipelines supporting
 									large-scale CSV/Excel uploads via GCS signed URLs, with
-									real-time processing status updates using Firebase
-									Firestore and Realtime Database
+									real-time processing status updates using Firebase Firestore
+									and Realtime Database
 								</li>
 								<li>
 									Integrated BigQuery as the analytics data warehouse for
@@ -103,13 +103,12 @@ export default function Portfolio() {
 								</li>
 								<li>
 									Maintained backend services with FastAPI (async),
-									SQLModel/SQLAlchemy, and Alembic-managed PostgreSQL
-									migrations
+									SQLModel/SQLAlchemy, and Alembic-managed PostgreSQL migrations
 								</li>
 								<li>
 									Configured CI/CD pipelines and containerized services for
-									deployment on Cloud Run, with secrets managed via GCP
-									Secret Manager
+									deployment on Cloud Run, with secrets managed via GCP Secret
+									Manager
 								</li>
 							</ul>
 						</div>

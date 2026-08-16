@@ -1,8 +1,9 @@
 // @ts-nocheck
-import * as React from "react";
+
+import { useMDXComponent } from "@content-collections/mdx/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useMDXComponent } from "next-contentlayer/hooks";
+import type * as React from "react";
 
 function clsx(...args: any) {
 	return args.filter(Boolean).join(" ");
@@ -72,10 +73,7 @@ const components = {
 		/>
 	),
 	p: ({ className, ...props }) => (
-		<p
-			className={clsx("leading-7 [&:not(:first-child)]:mt-6", className)}
-			{...props}
-		/>
+		<p className={clsx("leading-7 not-first:mt-6", className)} {...props} />
 	),
 	ul: ({ className, ...props }) => (
 		<ul className={clsx("my-6 ml-6 list-disc", className)} {...props} />
@@ -89,7 +87,7 @@ const components = {
 	blockquote: ({ className, ...props }) => (
 		<blockquote
 			className={clsx(
-				"mt-6 border-l-2 border-zinc-300 pl-6 italic text-zinc-800 [&>*]:text-zinc-600",
+				"mt-6 border-l-2 border-zinc-300 pl-6 italic text-zinc-800 *:text-zinc-600",
 				className,
 			)}
 			{...props}
@@ -127,7 +125,7 @@ const components = {
 	th: ({ className, ...props }) => (
 		<th
 			className={clsx(
-				"border border-zinc-200 px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right",
+				"border border-zinc-200 px-4 py-2 text-left font-bold [[align=center]]:text-center [[align=right]]:text-right",
 				className,
 			)}
 			{...props}
@@ -136,7 +134,7 @@ const components = {
 	td: ({ className, ...props }) => (
 		<td
 			className={clsx(
-				"border border-zinc-200 px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right",
+				"border border-zinc-200 px-4 py-2 text-left [[align=center]]:text-center [[align=right]]:text-right",
 				className,
 			)}
 			{...props}
@@ -154,7 +152,7 @@ const components = {
 	code: ({ className, ...props }) => (
 		<code
 			className={clsx(
-				"relative rounded border bg-zinc-300 bg-opacity-25 py-[0.2rem] px-[0.3rem] font-mono text-sm text-zinc-600",
+				"relative rounded-sm border bg-zinc-300/25 py-[0.2rem] px-[0.3rem] font-mono text-sm text-zinc-600",
 				className,
 			)}
 			{...props}
