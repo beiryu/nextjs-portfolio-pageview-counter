@@ -1,0 +1,96 @@
+---
+title: "TryFinder — B2B Prospect Search & Contact Discovery Platform"
+description: A Next.js 16 prospecting platform — a marketing site and an authenticated search workspace sharing one hand-built design system, where Supabase sessions guard every route and contact data stays masked until a search credit is spent to reveal it.
+url: https://tryfinder-ai.vercel.app/
+date: "2025-11-07"
+published: true
+---
+
+## Technology Stack
+
+Next.js 16 (App Router), React 19, TypeScript 5, Tailwind CSS 4, Supabase (`@supabase/ssr` + `supabase-js`), Framer Motion 12, Lottie, next-themes, Sonner, Lucide, ESLint 9 + Prettier, Vercel
+
+## Overview
+
+Duration: 10/2025 - 11/2025
+
+TryFinder is a contact-discovery tool for people who sell: a salesperson types a job title, an industry, or a LinkedIn URL and gets back decision-makers with verified emails, direct phone numbers, and the messaging channels — Twitter, WhatsApp, Telegram, Signal — that a CRM export never carries.
+
+The build is the whole product surface: a marketing site that has to convert cold traffic, and an authenticated workspace that has to make a metered search feel worth paying for. Both live in one Next.js 16 application, share one design system, and are separated by exactly one thing — whether Supabase says you have a session.
+
+That separation is the spine of the codebase. A visitor typing into the hero search box is not searching; they are being routed to sign-up. A signed-in user hitting the root URL never sees the landing page at all. There is no "public preview of the app" state to design, style, or defend, because the boundary is enforced before a page renders.
+
+## Auth as the Route Boundary
+
+Session handling runs through three Supabase clients, each for a different execution context, and the split matters because getting it wrong is how sessions silently fail to refresh:
+
+| Client | Where | Job |
+| --- | --- | --- |
+| `createBrowserClient` | `utils/supabase.ts` | Client components, with hand-written cookie get/set so session cookies are `Secure`, `SameSite=Lax`, 180-day |
+| `createServerClient` | `utils/supabase-server.ts` | Route handlers and Server Components, reading and writing through `next/headers` |
+| `createServerClient` | `proxy.ts` | Request interception — reads request cookies, writes refreshed ones onto the response |
+
+That last file is a **Next.js 16 detail worth naming: middleware is now `proxy`.** The renamed entry point does the same job, running before the cache on every request that isn't a static asset, and it is where the three redirect rules live:
+
+- **Protected routes without a session** → `/sign-in`, with the attempted path preserved in `redirectedFrom`
+- **Auth routes with a session** → `/dashboard`, so a logged-in user cannot land back on the sign-up form
+- **Root with a session** → `/dashboard`
+
+Enforcing this at the proxy rather than in each page means an unauthenticated request to `/settings` never reaches React. No loading flash, no guard hook, no page that has to know whether it's allowed to exist.
+
+Around it sits the full account lifecycle: email/password sign-up with client-side validation, a verification holding page that polls the user's `email_confirmed_at` and counts down to sign-in, an OAuth callback route that exchanges the code for a session, forgot-password, and a settings surface that tracks unsaved-change count and refuses to submit a password change unless all three fields agree.
+
+## The Search Workspace
+
+The dashboard is a filter sidebar and a results table, and most of the work is in how the two stay legible to each other.
+
+**Filters are collapsible sections that report themselves upward.** Name, location, and contact method each expand independently, and anything currently set renders as a removable chip in a persistent **Applied Filters** panel at the top. The panel changes height based on whether anything is applied, so an empty filter state takes up a single row instead of a block of dead space.
+
+The location filter carries a text input, a hierarchy of region checkboxes (states, metro areas, provinces, continents) with their counts, and a radius slider built as a transparent `range` input over a custom six-stop track — the native control for accessibility and keyboard support, a drawn one for the design.
+
+**Contact method has an AND/OR toggle**, which is the one filter control that is genuinely a query decision rather than a preference. *Mobile or work email* and *mobile and work email* are different searches against a contact database, and hiding that behind a checkbox list would quietly give users the wrong result set.
+
+Results render as expandable rows: identity, company, location, the channels a person is reachable on, and a contact block. Expanding one row collapses any other, so the table never becomes a wall of open panels.
+
+## Masking Is the Metering
+
+The most consequential decision in the app is a small pair of functions. Every email and phone number in a result row is passed through `maskEmail` or `maskPhone` before it renders — `ma***@co**.com`, `•••-•••-4426` — and only the row a user has explicitly revealed shows real values.
+
+This is not a privacy gesture. It is the business model rendered as UI. A prospecting tool sells access to specific strings, so the product has to prove those strings exist and are plausible before charging for them, without giving them away in the process. A masked row is a receipt for the search and an advertisement for the reveal at the same time.
+
+The credit counter that pairs with it is surfaced in three separate places rather than buried in billing:
+
+- **The dashboard empty state** — a progress bar reading *1 of 2 Searches Remaining* before the first search is ever run
+- **The header** — a green `2/2` badge welded to the Search nav item, visible on every page of the workspace
+- **The account page** — the same bar again, next to the plan
+
+A user should never discover their remaining balance by running out of it, so it travels with them.
+
+The reveal action also carries a deliberate loading state rather than resolving instantly. Work that costs something should look like it cost something; a contact panel that appears with no delay reads as free.
+
+## A Design System Built by Hand
+
+There is no component library here. The interface is assembled from primitives:
+
+- **68 icon components**, each an inline SVG in a single module, so an icon can take a `className` and respond to its parent's `focus-within` state — the input fields tint their own icons on focus, which an icon font or a sprite sheet cannot do
+- **A Tailwind theme transcribed from the design source**, including a fourteen-step grayscale that is mostly white-at-varying-alpha rather than gray, which is what gives a near-black surface its depth
+- **Three typefaces with distinct jobs** — Aeonik Pro (local, `next/font/local`) for display headings, Inter for UI labels, Inter Variable for body copy
+- **A shared `Policy` component** rendering privacy, terms, and cookie pages from one layout, with a print button, since these are documents people are expected to keep
+
+Every focus state in the app is the same two-layer ring — a tight white outline inside a wider translucent halo — applied through `focus-within` on the container rather than the input. The field lights up, not just the text cursor.
+
+## Motion That Knows When to Stop
+
+Scroll-triggered animation is centralised in one `ScrollAnimationWrapper` built on Framer Motion's `useInView`, with four shared variants (`fadeInUp`, `fadeInBottom`, and a stagger container/item pair). Sections reveal once and stay revealed — re-animating on scroll-up is the thing that makes marketing sites feel cheap.
+
+The variants check `prefers-reduced-motion` and drop their translate distances to zero when it's set, so opacity still fades but nothing moves.
+
+The hero runs a Lottie animation instead of a video or a static render, which keeps it vector-sharp at any viewport and lets it start playing without waiting on a media download. Feedback across the app runs through Sonner with a themed toast — custom colours per severity and a progress bar drawn in CSS off a `--toast-duration` variable, so the countdown is real rather than decorative.
+
+## What's Wired and What Isn't
+
+Worth stating plainly: **authentication, routing, session persistence, and the entire interaction surface are real.** You can sign up, verify by email, get bounced out of a protected route, sign in, land on the dashboard, drive every filter, expand every row, and sign out.
+
+**The data layer is not connected yet.** Search results, saved searches, and the enrichment detail panel render from fixtures; the account-deletion and settings-save handlers are stubbed at the API call; the legal pages carry placeholder body copy pending review. The build deliberately front-loaded the product surface — the shape of a result row, the state machine of a filter, the exact moment a contact becomes visible — because those are the decisions a backend then has to serve, not the other way around.
+
+What that ordering bought is a specification you can operate. Every question a contact-discovery API would need answered — what a query looks like, what a result must contain, what happens between clicking *Get Contact Info* and seeing a phone number, what the user is told about the credit it cost — is already resolved in working code rather than in a document that will drift from it.

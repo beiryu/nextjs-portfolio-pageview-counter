@@ -1,0 +1,113 @@
+---
+title: "Jinx — Digital-Goods Storefront & Payments Platform"
+description: A five-repo commerce platform for instant-delivery digital goods — a Next.js 16 storefront and operator dashboard on a NestJS API that runs its own crypto payment rails, reconciles peer-to-peer transfers nobody offers an API for, and treats every deliverable as a single inventory line that can only be sold once.
+url: https://jinx.to/
+date: "2026-08-17"
+published: true
+---
+
+## Technology Stack
+
+**Back end** — NestJS 11, TypeScript 5.9, PostgreSQL 16, Prisma 6, Redis 7, Bull, Passport JWT, argon2, Speakeasy TOTP, Cloudflare Turnstile, bitcoinjs-lib, ethers, @solana/web3.js, @scure/bip32 + bip39, Socket.IO, Resend, Handlebars, Supabase Storage, sharp, @react-pdf/renderer, web-push, Pino, Sentry, Swagger
+
+**Front end** — Next.js 16 (App Router, standalone output), React 19, Tailwind CSS 4, TanStack Query v5, Zustand, React Hook Form, Zod 4, Untitled UI, React Aria, Motion, Recharts, TipTap, socket.io-client
+
+**Operations** — Docker Compose, nginx, Let's Encrypt/certbot, single-VPS deployment with scripted deploy, nightly Postgres backup, and twice-daily certificate renewal
+
+## Overview
+
+Duration: 2026
+
+Jinx is a storefront for digital goods that have to arrive the moment money lands — gift cards, points balances, reward accounts. A customer browses the catalog, builds a cart, pays in crypto or through a hosted fiat checkout or from internal store credit, and receives the code before they have closed the tab.
+
+The product looks simple from the outside and is not, for one reason: **there is no shipping step to hide behind.** Everything a physical store gets to defer — is the item actually in stock, did the payment really clear, who does this deliverable belong to — has to be resolved correctly inside the few seconds between a confirmation arriving on-chain and a code appearing in someone's inbox. Getting it wrong doesn't delay an order, it hands the same secret to two people.
+
+It ships as five repositories deployed together, with all business logic held in one place:
+
+| Repo | Role | Domain |
+| --- | --- | --- |
+| `jinx-be` | REST API, WebSocket, background workers — the single source of truth | `api.jinx.to` |
+| `jinx-fe` | Customer storefront | `jinx.to` |
+| `jinx-admin` | Operator dashboard | `admin.jinx.to` |
+| `jinx-pdf` | Gift-card link generator and share viewer | `pdf.jinx.to` |
+| `deploy` | Compose, nginx, TLS, runbooks | — |
+
+Neither front end holds a database. Both are clients of the same `/v1` API, which is what keeps a price, a stock count, and a discount identical whether a customer or an operator is looking at it.
+
+## One Image, Two Roles
+
+The backend builds once and boots differently depending on a single environment variable, and the split is the reason the API stays responsive under load:
+
+- **`APP_ROLE=api`** — HTTP and WebSocket only. Queue processors and scheduled handlers are deliberately **not** registered
+- **`APP_ROLE=worker`** — headless. Runs all five Bull queues and every cron
+- **Unset** — both in one process, for local development
+
+Chain polling, payment forwarding, email sending, and reconciliation are all latency-tolerant and all bursty. Keeping them off the process that serves checkout means a congested network or a slow mail provider can never show up as a slow Add to Cart.
+
+## Inventory as Single-Use Lines
+
+The catalog is three levels deep — category, product, variant — but the unit that actually matters is the fourth: a **stock line**, one deliverable secret, moving through `AVAILABLE → RESERVED → SOLD`.
+
+Modelling inventory as individual lines rather than a count per variant is what makes double-delivery structurally impossible instead of merely unlikely. A count can be decremented twice by two concurrent checkouts; a line that is already `RESERVED` cannot be reserved again. Every order item points at the exact line it was allocated, so a support question months later — *which code did this person get* — is a lookup, not an investigation.
+
+The cost of that model is abandoned reservations, so a cron sweeps stale ones back to `AVAILABLE` every few minutes. That job is not housekeeping; without it, every cart someone opened and walked away from would quietly retire a sellable item.
+
+## Five Payment Rails
+
+An order is `PENDING` until exactly one payment object satisfies it. On confirmation the backend allocates lines, delivers content, emails a receipt, and completes the order — one path, whatever the customer paid with.
+
+| Rail | How confirmation arrives |
+| --- | --- |
+| **Crypto** — BTC, ETH, LTC, BCH, SOL, USDT (ERC-20/TRC-20), USDC | A derived HD address per payment; a chain monitor polls for confirmations, then forwards the funds on |
+| **Hosted fiat** — Cash App, Apple Pay, Google Pay | Gateway webhook; card details never touch the platform |
+| **Telegram Stars** | Bot API webhook |
+| **Manual P2P** — Chime, Venmo | No API exists. A cron polls a mailbox, parses the "you got paid" notification, and matches it to a pending payment by note key |
+| **Wallet credit** | Instant internal debit |
+
+Crypto is self-custodied rather than outsourced to a processor: addresses are derived per payment from an HD wallet, which is what allows an incoming transaction to identify its own order without the customer being asked to quote a reference. Rates come from a primary provider with a second one behind it, because a rate lookup failing must not be able to stop a sale.
+
+The peer-to-peer rail is the honest one. Chime and Venmo publish no merchant API, so the only signal that a transfer happened is an email about it — and the platform treats that email as a first-class record, matched to its payment by a generated note key rather than by amount, which is the only field a customer can be relied upon to reproduce exactly.
+
+**Wallet credit is the rail that makes the rest tolerable.** A returning customer tops up once and every later purchase clears instantly, which converts an unavoidable wait for block confirmations from a per-order tax into a one-time one.
+
+## Storefront
+
+Eight surfaces, each doing a job that a single catalog page would do badly:
+
+- **Shop** — ten categories, faceted browsing, search, and a hot-selling rail; product pages resolve a variant, a quantity within per-product limits, and a live stock count before offering Quick Buy or Checkout
+- **Updates** — a live restock feed, timestamped, newest first. In a category where stock sells out in minutes, *when it landed* is the product information
+- **Drops** — limited releases claimable by allowed users
+- **Vouches** — customer proof tied to a real order item and approved by staff, so a testimonial cannot be posted by someone who never bought anything
+- **Rewards** — the loyalty ladder
+- **FAQs, Support, Cart** — including a ticket surface backed by a WebSocket namespace
+
+The FAQ copy is worth noting as product work rather than filler: it leads with the two failure modes that actually cost customers money — sending the right coin on the wrong network, and signing up with a disposable inbox that later dies holding the delivery codes.
+
+## Loyalty That Resolves Itself
+
+The rewards system is a pricing engine, not a badge display. Eight ranks run from a base tier to a 20% discount at $30k lifetime spend, and three rules keep it from becoming a support burden:
+
+- **The discount is auto-applied at checkout** — no code to remember, no code to leak
+- **When a promo code and the loyalty rank collide, the larger one wins** — a returning customer is never quietly given the worse of two deals they qualify for
+- **Lifetime spend counts completed purchases only**, so a rank cannot be farmed with orders that never settled
+
+A referral link pays both sides, and the replacement warranty window scales with order size — fifteen minutes on a single item, forty-eight hours on a hundred — because verifying a bulk order legitimately takes longer than verifying one.
+
+## The Identity Edge Case
+
+The sharpest constraint in the data model is one line: **email is not globally unique by design.** One address may hold a customer account *and* a staff account, because the people running the store are also customers of it.
+
+Prisma cannot express that, so it is enforced by two partial unique indexes written in SQL directly — unique per portal, not unique overall. The rule that falls out of it governs every query in the codebase: never look a user up by email alone, always scope by role bucket. Authorization itself is composable role buckets shared between the API and the admin app, so a permission is defined once and mirrored rather than re-derived client-side.
+
+## Operations
+
+The whole runtime is one Compose file — Postgres, Redis, a migrator that must complete before anything else starts, the API, the worker, three front ends, nginx, and certbot. Only nginx publishes ports; Postgres and the API bind to loopback.
+
+Two operational details that are easy to get wrong and expensive to discover late:
+
+- **Front-end environment variables are build-time**, baked in as Docker build arguments. Changing one requires a rebuild, not a restart — a restart appears to succeed and changes nothing
+- **Health endpoints report status without leaking shape**: a database check, and a public configuration report that answers *is this configured* without naming a single variable or value
+
+Support runs over Socket.IO with Web Push for notifications, transactional mail goes through templated Handlebars, uploaded proof images are watermarked server-side, and receipts and monthly reports are rendered in-process rather than through an external document service.
+
+The thread running through this build is that instant delivery is an inventory problem wearing a payments costume. The payment rails are the visible engineering — five of them, one self-custodied, one reconstructed from email because no API exists — but the decision that keeps the store correct is much smaller: a deliverable is a row, a row can be reserved once, and everything else is arranged so that nothing can talk it out of that.
