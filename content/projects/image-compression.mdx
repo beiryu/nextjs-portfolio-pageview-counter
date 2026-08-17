@@ -1,6 +1,6 @@
 ---
-title: "Implementing The Image Compression Algorithm Following The JPEG Standard"
-description: JPEG is an image compression algorithm widely used on electronic devices and applications. This algorithm uses lossy compression method, meaning that some image information will be lost after compression
+title: "JPEG Codec — Compression Engine from Scratch"
+description: A full JPEG-standard image compression pipeline implemented from first principles in Python — colour space transform, block DCT, quantisation, and entropy coding — parallelised across blocks and deployed as a working web tool.
 repository: beiryu/image-compression
 date: "2023-04-01"
 published: true
@@ -8,30 +8,40 @@ published: true
 
 ## Technology Stack
 
-Python, Bootstrap, Parallel Programming, Pythonanywhere, Image compression, JPEG algorithm, Optimization
+Python, NumPy, Parallel Programming, Bootstrap, PythonAnywhere
 
-## Introduction to the problem
+## Overview
 
-- JPEG is an image compression algorithm widely used on electronic devices and applications. This algorithm uses lossy compression method, meaning that some image information will be lost after compression.
-- The algorithm works by dividing an image into small 8x8 pixel blocks, performing discrete cosine transform (DCT) on each block to convert the image data into frequency coefficients, then removing some coefficients to reduce the amount of data needed to represent the image. The final compressed image is a collection of these frequency coefficients, which can be used to reconstruct the original image with some negligible loss of detail.
-- The input of the JPEG algorithm is a digital image (represented as a matrix of pixel values).
-- The output of the algorithm is a compressed image file that is saved as an image file (e.g. JPEG, JPG).
+Duration: 4/2023
 
-## Implementing the JPEG image compression algorithm
+An implementation of the JPEG compression standard built from the specification rather than by calling an imaging library — the transform, the quantisation, and the entropy coding written directly, then parallelised and deployed as a web tool where an image can be uploaded and compressed at a chosen quality level.
 
-Steps in the JPEG image compression process:
+The value of building a codec from scratch is that compression is where several disciplines meet at once: signal processing in the transform, human perception in the quantisation tables, and information theory in the entropy coding. Implementing it means understanding *why* each stage exists rather than which function to call.
 
-- Color space conversion: Color images are usually represented as RGB values (red, green, and blue). First, the image is converted to a different color space, such as YCbCr, to separate information about brightness (Y) and information about color components (Cb and Cr).
-- DCT decomposition: The image is divided into non-overlapping 8x8 pixel blocks. Each 8x8 block undergoes Discrete Cosine Transform (DCT) to convert from the time domain to the frequency domain.
-- Quantization: The result from the previous step is quantized, meaning that the frequency values are rounded or truncated to reduce precision. This quantization process causes some loss of information, but helps reduce the size of data.
-- Discarding unnecessary information: Some image data that is not necessary for compression is removed or encoded using compression methods such as Huffman coding.
-- Storage: The compressed values after the above steps are stored in a JPEG image file.
+## The Pipeline
 
-## List of references
+**Colour space conversion.** RGB is converted to YCbCr, separating luminance (Y) from the two chrominance components (Cb, Cr). This is the first perceptual decision in the format: human vision is substantially more sensitive to brightness detail than to colour detail, so separating them allows the colour channels to be discarded more aggressively than the brightness channel without a visible difference.
 
-- Wallace, G. K. (1992). The JPEG still picture compression standard. IEEE Transactions on Consumer Electronics, 38(1), xviii-xxxiv.
-- Pennebaker, W. B., & Mitchell, J. L. (1992). JPEG: Still image data compression standard. Van Nostrand Reinhold.
-- Sayood, K. (2000). Introduction to data compression. Academic Press.
-- Li, H., Zeng, B., Li, Z., & Wu, X. (2004). A fast DCT-SVD image compression algorithm. IEEE Transactions on Circuits and Systems for Video Technology, 14(3), 381-386.
-- Lee, K. M., & Ho, Y. S. (2003). A new fast and efficient image codec based on the discrete cosine transform. IEEE Transactions on Circuits and Systems for Video Technology, 13(7), 688-695.
-- Alex Townsend (March 2017). JPEG: Image compression algorithm
+**Block decomposition and DCT.** The image is divided into non-overlapping 8×8 blocks, and each block undergoes a Discrete Cosine Transform from the spatial domain into the frequency domain. The output is a set of coefficients describing the block as a sum of frequency patterns, with the low-frequency components — the broad structure — concentrated in one corner.
+
+**Quantisation.** This is where the loss happens, and where the compression comes from. Each coefficient is divided by a value from a quantisation table and rounded. The table applies coarse division to the high-frequency coefficients, which encode fine detail the eye barely resolves, and fine division to the low-frequency ones. Most high-frequency coefficients round to zero, and it is that field of zeros the next stage exploits. The quality setting is, precisely, a scale factor on this table.
+
+**Entropy coding.** The quantised coefficients are read in a zigzag order that groups the zeros into long runs, then compressed with run-length and Huffman coding. This stage is fully lossless — it packs the data the previous stage decided to keep.
+
+**Storage.** The coded blocks are written with the tables required to reverse the process into a standard-conforming file.
+
+## Parallelisation
+
+Block independence is the property that makes JPEG parallelise cleanly: the transform and quantisation of any 8×8 block depend on no other block. The implementation exploits this by distributing blocks across workers, with the entropy coding stage handled after the parallel section, since Huffman coding depends on global symbol statistics.
+
+## Deployment
+
+The codec runs behind a web interface where an image is uploaded, a quality level chosen, and the result returned alongside the original with the achieved compression ratio — so the perceptual cost of each quality setting is visible rather than described.
+
+## References
+
+- Wallace, G. K. (1992). *The JPEG still picture compression standard.* IEEE Transactions on Consumer Electronics, 38(1).
+- Pennebaker, W. B., & Mitchell, J. L. (1992). *JPEG: Still image data compression standard.* Van Nostrand Reinhold.
+- Sayood, K. (2000). *Introduction to data compression.* Academic Press.
+- Li, H., Zeng, B., Li, Z., & Wu, X. (2004). *A fast DCT-SVD image compression algorithm.* IEEE Transactions on Circuits and Systems for Video Technology, 14(3).
+- Lee, K. M., & Ho, Y. S. (2003). *A new fast and efficient image codec based on the discrete cosine transform.* IEEE Transactions on Circuits and Systems for Video Technology, 13(7).

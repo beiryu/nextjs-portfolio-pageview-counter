@@ -1,6 +1,6 @@
 ---
-title: "Own Habit"
-description: Own Habit is a habit tracking app that helps you track your habits and achieve your goals.
+title: "Own Habit — Offline-First Habit Tracker"
+description: A habit tracker with no account and no server — every habit, streak, and journal entry lives on the device, installable as a progressive web app, so the product works instantly and collects nothing about the people using it.
 repository: beiryu/do-habit
 url: https://do-habit.vercel.app/
 published: false
@@ -8,15 +8,35 @@ published: false
 
 ## Technology Stack
 
-Typescript, React, TailwindCSS, Vite, Shadcn/UI, Vercel, PWA
+TypeScript, React, Vite, Tailwind CSS, shadcn/ui, PWA, Vercel
+
+## Overview
+
+Own Habit is a habit tracker built around a single deliberate constraint: **no registration, no account, no backend.**
+
+Habit trackers have the worst funnel in consumer software. Someone decides to change something about their life, opens an app, and is immediately asked to create an account — and a meaningful share of them never come back. Removing that step entirely means the product is usable within a second of the page loading, and the person is marking their first day before they would otherwise have finished typing an email address.
+
+The trade is real and accepted: no sync across devices, no cloud backup. In exchange, the product has no signup friction, no privacy question to answer, no data to breach, and no server cost.
 
 ## Features
 
-- No registration required
-- Mark completed days
-- Track your progress
-- Maintain a journal for each habit
-- Achievements to motivate and celebrate your progress
+- **No registration** — open it and start
+- **Daily completion marking** with a clear, fast interaction, since this is the action repeated every single day and everything else is secondary
+- **Streak and progress tracking**, visualised so the pattern is visible at a glance
+- **Per-habit journalling** — a note attached to each habit, because *why* a streak broke is more useful than the fact that it did
+- **Achievements** to mark meaningful milestones
+- **Installable** as a progressive web app, so it sits on the home screen and launches like a native app
+- **Fully offline** — the app works with no connection at all, which is exactly when someone is most likely to check off a morning habit
+
+## Engineering
+
+- **Local persistence** as the single source of truth, with the schema versioned so a future update cannot corrupt existing data
+- **Service worker** caching the application shell for instant, offline-capable launches
+- **shadcn/ui on Radix primitives**, so the interactive controls are keyboard and screen-reader accessible without reimplementation
+- **Vite build** producing a small enough bundle that first load is effectively instant
+- **No analytics, no tracking, no third-party requests** — a claim the network tab can verify
+
+A small product with an opinion. The engineering interest is in how much can be removed — accounts, servers, sync, tracking — while the product still does its job completely.
 
 <div align="center">
   <img src="./own-habit/demo.png" alt="Own Habit" />

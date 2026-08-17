@@ -1,79 +1,50 @@
 ---
-title: "AI Podcast Clipper"
-description: Convert full podcasts into viral short-form clips ready for YouTube Shorts or TikTok. The tool uses different AI models to transcribe the video, automatically detect the most engaging moments in podcasts and create clips cropped to the active speaker's face.
+title: "AI Podcast Clipper — Long-Form to Short-Form"
+description: An automated pipeline that turns full podcast episodes into publish-ready vertical clips — transcription, moment selection, speaker-tracked cropping, and burned-in captions — running on serverless GPU compute with durable job orchestration.
 repository: beiryu/ai-podcast-clipper
 published: false
 ---
 
 ## Technology Stack
 
-Python, Next.js, AWS, Stripe, Tailwind CSS, TypeScript, Modal, Inngest, FFmpeg, PyTorch, Whisper AI, LangChain, Redis, Docker
+Python, PyTorch, Whisper, FFmpeg, Modal, Inngest, Next.js, TypeScript, Tailwind CSS, AWS S3, Redis, Docker, Stripe
 
 ## Overview
 
-Duration: 6/2024 - now (oncoming 🚀)
+Duration: 6/2024 - ongoing
 
-AI Podcast Clipper is a cutting-edge tool that transforms long-form podcast content into highly engaging short-form video clips optimized for social media platforms. Using a sophisticated AI pipeline, the system analyzes audio and video content to identify the most compelling moments, handles speaker detection and face tracking, and produces professional-quality clips ready for immediate distribution on platforms like YouTube Shorts, TikTok, and Instagram Reels.
+Every podcast produces hours of material that never reaches an audience beyond the people who already subscribe. Clipping it into short vertical video is the highest-return distribution work available, and it is also the most tedious — which is exactly the shape of problem worth automating.
 
-## AI Models & Capabilities
+This platform takes a full episode and returns finished clips: transcribed, selected for the most compelling moments, cropped to follow whoever is speaking, captioned, and exported at the aspect ratio of the destination platform.
 
-- **Speech Recognition**: Whisper AI implementation for accurate transcription across multiple languages and accents
-- **Semantic Analysis**: Fine-tuned transformer models to identify engaging topics, humor, controversies, and valuable insights
-- **Emotional Detection**: Audio analysis for speaker excitement, intensity, and emotional peaks
-- **Face Detection & Tracking**: Computer vision algorithms to identify and follow active speakers
-- **Smart Cropping**: Dynamic framing adjustment based on speaker position and movement
-- **Content Classification**: Automatic tagging and categorization of clip topics and themes
-- **Engagement Prediction**: ML model trained on viral content patterns to prioritize high-potential moments
+## The Pipeline
 
-## Video Processing Pipeline
+- **Transcription** — Whisper for accurate, word-timed transcripts across accents and languages, which everything downstream depends on
+- **Moment selection** — the transcript analysed for the segments that stand alone: a complete thought, a strong opening, a payoff at the end. A clip that starts mid-sentence is worthless regardless of how good the content is
+- **Speaker detection and tracking** — computer vision identifying the active speaker and following them through the frame
+- **Dynamic cropping** — reframing 16:9 to 9:16 around the tracked speaker, rather than a static centre crop that cuts people out of shot
+- **Caption generation** — word-timed captions burned in with styling, since most short-form video is watched muted
+- **Multi-format export** — 9:16, 1:1, and 16:9 from the same source
+- **Thumbnail selection** from the clip's own frames
 
-- **Media Ingestion**: Support for various input formats including MP4, MOV, MP3 with video reconstruction
-- **Parallel Processing**: Distributed computation for handling multiple podcast episodes simultaneously
-- **Automatic Chunking**: Intelligent segmentation of long-form content into optimal clip lengths
-- **Visual Enhancement**: Color correction, stabilization, and resolution optimization
-- **Text Overlay**: Automatic caption generation with customizable styles and positioning
-- **Multi-format Export**: Dimension and aspect ratio optimization for different platforms (9:16, 1:1, 16:9)
-- **Thumbnail Generation**: AI-selected preview frames with engagement-optimized composition
+## Architecture
 
-## Technical Architecture
+The engineering constraint is that video processing is expensive, slow, and fails in the middle. The architecture is built around that rather than around the happy path:
 
-- **Serverless Compute**: Modal.com integration for scalable, on-demand processing
-- **Background Jobs**: Inngest for reliable workflow orchestration and job management
-- **Cloud Storage**: AWS S3 for secure media storage with intelligent lifecycle policies
-- **Caching Layer**: Redis implementation for performance optimization
-- **Containerized Processing**: Docker-based video processing for consistent environments
-- **API Design**: RESTful endpoints with GraphQL integration for flexible data retrieval
-- **Webhook System**: Event-driven architecture for third-party integrations
-- **Monitoring**: Comprehensive logging and performance metrics for ML model evaluation
+- **Serverless GPU compute** through Modal — inference runs on GPUs that exist only for the duration of the job, so cost tracks usage rather than provisioned capacity sitting idle between episodes
+- **Durable orchestration** through Inngest — the pipeline is a sequence of steps with independent retries, so a transcription failure does not discard completed work and a crash mid-render resumes rather than restarting
+- **Containerised processing** for FFmpeg and model dependencies, keeping the environment identical between development and production
+- **S3 for media** with lifecycle policies, since raw episode uploads are large and short-lived
+- **Redis caching** on the paths that repeat
+- **Parallel episode handling**, so a user uploading a back catalogue is not processed one at a time
 
-## User Experience
+## Product
 
-- **Intuitive Dashboard**: Clean interface for project management and clip monitoring
-- **Drag-and-Drop Upload**: Frictionless content submission process
-- **Real-time Processing Updates**: Live progress indicators during clip generation
-- **Preview & Editing**: Browser-based review with fine-tuning capabilities
-- **Custom Branding**: Logo insertion, color themes, and visual identity options
-- **Batch Processing**: Queue multiple episodes for sequential processing
-- **Sharing Integration**: Direct publishing to connected social media accounts
-- **Analytics Dashboard**: Performance tracking of published clips with engagement metrics
+- **Drag-and-drop upload** with support for common video and audio formats
+- **Live processing status** driven from real pipeline state, with per-step progress — the difference between a user waiting patiently and a user assuming it broke
+- **Browser preview and adjustment** — every generated clip reviewable and trimmable before export
+- **Custom branding** — logo placement, caption styling, and colour themes applied across a batch
+- **Batch queueing** for multiple episodes
+- **Subscription billing** through Stripe, metered against processing minutes
 
-## Business & Monetization
-
-- **SaaS Subscription Model**: Tiered pricing based on processing minutes and features
-- **Stripe Integration**: Secure payment processing with subscription management
-- **Usage Analytics**: Detailed reporting on processing time and resource utilization
-- **Team Collaboration**: Multi-user access with role-based permissions
-- **White Label Option**: Enterprise solution for podcast networks and media companies
-- **API Access**: Developer integration options for custom workflows
-
-## Future Development
-
-- Integration with podcast hosting platforms for direct episode access
-- Advanced style transfer for visual customization of clips
-- Audience sentiment analysis from comments to refine clip selection algorithm
-- Multi-language support with automatic translation overlays
-- AI-generated B-roll insertion for enhanced visual engagement
-- Collaborative editing features for team environments
-- Mobile application for on-the-go clip management
-
-This project demonstrates the powerful intersection of AI, media processing, and content optimization, providing creators with an invaluable tool to expand their audience reach through strategic repurposing of long-form content.
+This project is about production AI infrastructure rather than model work: orchestrating expensive, failure-prone, long-running jobs reliably enough that a user trusts the platform with a two-hour upload.

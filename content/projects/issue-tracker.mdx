@@ -1,6 +1,6 @@
 ---
-title: "Issue Tracker"
-description: Issue Tracker is the visual tool that empowers your team to manage any type of project, workflow, or task tracking
+title: "Issue Tracker — Team Workflow Management"
+description: A project and issue tracking application for small teams — typed issue lifecycle, assignment and filtering, and a dashboard view — built on Next.js with Prisma over serverless Postgres and rate-limited API routes.
 repository: beiryu/issue-tracker
 date: "2024-10-01"
 url: https://issue-tracker-beiryu.vercel.app/
@@ -9,4 +9,31 @@ published: true
 
 ## Technology Stack
 
-NextJs, Radix UI, Prisma, TypeScript, TailwindCSS, Neon, NextAuth, Upstash, Vercel
+Next.js (App Router), TypeScript, Radix UI, Tailwind CSS, Prisma, Neon (serverless Postgres), Auth.js, Upstash, Vercel
+
+## Overview
+
+Duration: 10/2024
+
+A team issue tracker covering the full lifecycle of a work item: create, assign, move through status, filter, and review at a glance. Built as a complete application rather than a CRUD demo — authentication, authorisation, validation, pagination, and rate limiting are all present, because those are the parts that separate something a team can actually use from something that only works in a screenshot.
+
+## Features
+
+- **Issue lifecycle** — open, in progress, and closed as a typed status model, with transitions reflected everywhere the issue appears
+- **Assignment** — issues assigned to team members, with an assignee filter and a per-user view
+- **Rich descriptions** — markdown-backed issue bodies rather than plain text
+- **Filtering and sorting** driven through the URL, so a filtered view is a shareable link rather than local UI state
+- **Server-side pagination**, so the list stays fast as the issue count grows
+- **Dashboard** — status breakdown and recent activity in one view
+- **Authenticated access** with session-based sign-in and per-action authorisation checks
+
+## Engineering
+
+- **Prisma over Neon** — a typed schema against serverless Postgres, so the database scales to zero between uses and the query layer cannot drift from the migrations
+- **Server Actions and route handlers** for mutations, with validation at the boundary rather than trusting the client
+- **Radix UI primitives** for dialogs, dropdowns, and select controls, so keyboard interaction and focus management are correct by construction
+- **Upstash rate limiting** on the mutating endpoints — a small addition that is the difference between a public deployment being usable and being abused
+- **Optimistic UI** on status changes, reconciling against the server response
+- **TypeScript end to end**, from schema to component props
+
+A compact, complete application: the whole point of building it was to get every layer right — auth, validation, pagination, rate limiting — rather than only the parts that show up in the interface.

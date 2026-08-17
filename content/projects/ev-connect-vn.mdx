@@ -1,6 +1,6 @@
 ---
-title: "EV Connect Vietnam"
-description: A smart EV charging map platform helping Vietnamese users find available charging stations, share knowledge, and navigate the transition to electric vehicles through real-time location data and community support.
+title: "EV Connect Vietnam — Charging Network Platform"
+description: A charging station platform for Vietnam's EV transition — a live availability map, a running-cost calculator that answers the question every prospective buyer actually asks, and a community layer built to fill the gaps in official station data.
 repository: beiryu/ev-connect-vn
 url: https://evconnect.vn/
 date: "2025-10-01"
@@ -9,94 +9,49 @@ published: false
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Vercel, React Server Components, Next Auth, Prisma, PostgreSQL, Cloudinary, Google Maps API
+Next.js (App Router), TypeScript, Tailwind CSS, React Server Components, Auth.js, Prisma, PostgreSQL, Cloudinary, Google Maps API, Vercel
 
 ## Overview
 
-Duration: 7/2024 - now (oncoming 🚀)
+Duration: 7/2024 - ongoing
 
-EV Connect Vietnam is a comprehensive platform designed to support Vietnam's transition from gasoline vehicles to electric vehicles. Inspired by successful models in China and other countries, the platform provides essential tools and community resources to make EV adoption seamless for Vietnamese users. The MVP focuses on solving critical pain points: finding available charging stations, understanding cost savings, sharing experiences, and building a supportive community of EV enthusiasts.
+Vietnam is moving from petrol to electric faster than its charging information is keeping up. Drivers can find a station on a map and still arrive to find it occupied, broken, or the wrong connector. That gap — between a station existing and a station being usable right now — is the problem this platform addresses.
 
-## Smart Charging Station Map
+The MVP is deliberately narrow: **find a working charger, and understand what running an EV actually costs you.** Everything else is deferred until those two are solid, starting in Ho Chi Minh City rather than attempting national coverage with thin data.
 
-- **Interactive Map**: Real-time map showing all available charging stations near user's location
-- **Live Availability**: Real-time display of available charging ports and current occupancy status
-- **Station Details**: Comprehensive information including charging levels, connector types, operating hours, and pricing
-- **Location Services**: Google Maps integration for navigation and finding nearest stations
-- **Crowdsourcing**: Community-powered data contributions to expand station database
-- **Favorites & Reporting**: Users can bookmark preferred stations and report broken/malfunctioning units
+## Charging Station Map
 
-## Cost Calculator & Savings Tracker
+- **Interactive map** of stations near the driver's location, built on Google Maps so navigation hands off to a tool people already have
+- **Availability status** — how many ports are free, not just that the station exists
+- **Station detail** — charging speed, connector types, operating hours, and pricing, which is the information that decides whether a driver bothers going
+- **Community-contributed data** — drivers add and correct stations, with a validation step before contributions go live, because official data alone will never be complete or current enough
+- **Fault reporting** — a broken unit flagged by one driver saves every driver behind them
+- **Favourites** for the stations a driver actually uses
 
-- **Fuel vs. Electricity Comparison**: Calculate and compare operating costs between gas and electric vehicles
-- **Custom Inputs**: Users can input daily distance, vehicle type, and local fuel prices
-- **Savings Breakdown**: Detailed analysis of fuel, maintenance, and tax savings with electric vehicles
-- **Vehicle Recommendations**: AI-powered suggestions for suitable EV models based on user needs
-- **Maintenance Cost Tracking**: Compare long-term maintenance expenses between combustion and electric cars
-- **Visual Analytics**: Easy-to-understand charts and graphs showing cost savings over time
+## Cost Calculator
 
-## Community Q&A & Knowledge Sharing
+The single strongest conversion tool for EV adoption is arithmetic, and most prospective buyers never do it:
 
-- **Discussion Forum**: Reddit-style Q&A platform for EV-related questions and answers
-- **Expert Guides**: Curated blog articles and video tutorials for EV beginners
-- **User Profiles**: Badge system recognizing active community contributors
-- **Topic Categories**: Organized discussions on charging, maintenance, vehicle reviews, and troubleshooting
-- **Real-time Help**: Quick responses from experienced EV owners
-- **Local Insights**: Vietnam-specific tips and recommendations from local users
+- **Petrol versus electricity comparison** based on the driver's own daily distance, vehicle, and local fuel price
+- **Full cost breakdown** — fuel, maintenance, and tax differences, not just the cost per kilometre
+- **Home charging optimisation** — local time-of-use electricity rates entered once, then the cheapest charging windows identified, with warnings for peak-rate periods
+- **Long-term projection** — cumulative savings visualised over time, which is where the argument actually becomes persuasive
 
-## Home Charging Optimization
+## Community Layer
 
-- **Time-based Pricing**: Input local electricity rates by hour to find optimal charging times
-- **Auto-scheduling**: Recommendations for cheapest charging windows
-- **Cost Tracking**: Monthly electricity cost monitoring for home charging
-- **Future IoT Integration**: Planned integration with smart charging devices for automated scheduling
-- **Peak Hour Warnings**: Alerts to avoid charging during expensive peak hours
-- **Energy Efficiency Tips**: Best practices for reducing home charging costs
-
-## Peer-to-Peer Charging Network
-
-- **Host Registration**: Homeowners can list their private charging stations
-- **Booking System**: Reserve time slots at private/public stations in advance
-- **QR Code Payments**: Seamless checkout using VNPay and other local payment methods
-- **Rating System**: Mutual ratings for hosts and drivers to build trust
-- **Transaction History**: Complete record of all charging sessions and payments
-- **Revenue Sharing**: Hosts can monetize their charging infrastructure
-
-## Current Focus Areas
-
-- **Starting City**: Concentrating on Ho Chi Minh City market for initial validation
-- **Community-driven Data**: Leveraging crowdsourcing to build comprehensive station database
-- **Simple MVP**: Focus on core features: mapping and community support
-- **Gradual Expansion**: Scale to additional cities based on user adoption and feedback
-- **Partner Integration**: Collaborate with local EV manufacturers and charging networks
+- **Question and answer forum** organised by topic — charging, maintenance, vehicle comparison, troubleshooting
+- **Guides and tutorials** for people considering their first EV
+- **Contributor recognition** through a badge system, since a crowdsourced data platform lives or dies on whether contributing feels worthwhile
+- **Vietnam-specific guidance** from local owners, which is the part no international EV resource provides
 
 ## Technical Implementation
 
-- **Next.js App Router**: Modern routing and server-side rendering for optimal performance
-- **Server Components**: React Server Components for improved load times and SEO
-- **Real-time Updates**: WebSocket connections for live charging status
-- **Map Integration**: Google Maps API for location services and navigation
-- **Database Design**: PostgreSQL with Prisma ORM for efficient data management
-- **Crowdsourcing Pipeline**: Validation system for user-contributed station data
-- **Caching Strategy**: Intelligent caching to reduce API calls and improve speed
+- **Server Components** for the map shell and station pages, keeping initial load fast on mobile connections
+- **PostgreSQL with Prisma** modelling stations, ports, connector types, and availability history
+- **A contribution pipeline** with validation and moderation before user-submitted data reaches the map
+- **Geospatial querying** for proximity search
+- **Caching on read-heavy paths** to keep map interaction responsive and API usage bounded
+- **Bilingual interface** — Vietnamese first, English available
+- **Offline access** to saved favourites and recently viewed stations, for the parts of a journey where connectivity is unreliable
 
-## User Experience
-
-- **Vietnamese-first Design**: UI/UX tailored for local users
-- **Multilingual**: Vietnamese and English language support
-- **Mobile-optimized**: Responsive design perfect for finding stations on the go
-- **Offline Capabilities**: Saved favorites and recently viewed stations accessible offline
-- **Fast Performance**: Optimized for quick loading even on slower connections
-- **Accessibility**: Following WCAG standards for inclusive access
-
-## Future Roadmap
-
-- Integration with Vietnamese payment services (MoMo, ZaloPay, VNPay)
-- Native mobile applications for iOS and Android
-- AI-powered route planning with charging stops
-- Integration with local EV manufacturers (VinFast, etc.)
-- Fleet management features for businesses
-- Carbon footprint tracking and rewards
-- B2B partnerships with shopping malls, hotels, and commercial properties
-
-This project showcases the ability to build practical, community-driven solutions that address real market needs, demonstrating expertise in full-stack development and understanding of local market dynamics in supporting Vietnam's sustainable mobility transition.
+This project is about building for a market in transition: identifying the two questions that actually block adoption, solving those completely, and designing the data layer so the community can fill in what no official source will.

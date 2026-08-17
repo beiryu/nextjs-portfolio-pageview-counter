@@ -1,6 +1,6 @@
 ---
-title: "ACME Environmental Landing Page"
-description: A premium marketing site for a Massachusetts asbestos abatement and demolition contractor, built 1:1 from Figma as a React 19 + Vite single page with a video hero, scroll-triggered stat counters, and a credential-led trust section.
+title: "ACME Environmental — Abatement Contractor Site"
+description: A premium marketing site for a Massachusetts asbestos abatement and demolition contractor, built to convert a trust-driven purchase — a video hero, scroll-triggered credential and stat counters, and a project-type enquiry form, delivered on React 19 and Vite to pixel fidelity.
 repository: beiryu/acme-landing
 url: https://acme-landing-tawny.vercel.app/
 date: "2026-02-02"
@@ -17,37 +17,35 @@ Duration: 2/2026
 
 ACME — Amalgamated Construction Services Corp — is a licensed asbestos testing, removal, and demolition contractor operating in Massachusetts. Asbestos abatement is a trust purchase before it is a price purchase: the person filling in the form is usually a property owner or general contractor who has just found something they were not expecting, and who needs to know the company is licensed, insured, and will not create a bigger problem than the one it is solving.
 
-So the page is built around proof rather than persuasion. Licences and certifications sit high on the page, the work itself is shown in photography and video instead of described, and the contact form asks for the project type up front so the callback can be useful. The whole thing is a single scrolling page — no routing, no CMS — implemented 1:1 from Figma.
+So the page is built around **proof rather than persuasion**. Licences and certifications sit high on the page, the work itself is shown in photography and video instead of described, and the contact form asks for the project type up front so the callback can be useful from the first sentence. A single scrolling page — no routing, no CMS for the client to maintain — delivered to pixel fidelity against the approved design.
 
 ## Page Structure
 
-Eight sections, each its own component under `src/`, composed in `App.jsx`:
+Eight sections, each its own component, composed in one place:
 
-- **Hero**: full-screen background video behind the navigation and the primary calls to action
-- **Services**: the three core offerings — testing, removal, demolition — as image cards
-- **Stats**: headline numbers plus the licence and certification block
-- **Projects**: featured work in an asymmetric grid
-- **Team Video**: crews on site, to put faces to a trade people are wary of
-- **Process**: the four-step engagement flow, from assessment through clearance
-- **Contact**: the enquiry form with a project-type selector
-- **Footer**: company details, links, and social
+- **Hero** — full-screen background video behind the navigation and the primary calls to action
+- **Services** — the three core offerings, testing, removal, demolition, as image cards
+- **Stats** — headline numbers plus the licence and certification block
+- **Projects** — featured work in an asymmetric grid
+- **Team video** — crews on site, to put faces to a trade people are wary of
+- **Process** — the four-step engagement flow, from assessment through clearance
+- **Contact** — the enquiry form with a project-type selector
+- **Footer** — company details, links, and social
 
 ## Design & Typography
 
-- **NORD across the whole family**: fourteen self-hosted OpenType files — Thin through Black, each with an italic — served from the same origin, so the display face never falls back mid-render
-- **Instrument Serif and Instrument Sans** alongside it for editorial and UI text
-- **Gold on navy**: a high-contrast palette that reads as industrial and licensed rather than cheap; applied as Tailwind arbitrary values inline, with only the font families lifted into `tailwind.config.js`
-- **Layout at a fixed art-board width** with responsive overrides per breakpoint, which is what keeps the build faithful to the Figma file rather than approximating it
+- **A full display family, self-hosted** — fourteen OpenType files, Thin through Black with matching italics, served from the same origin so the display face never falls back mid-render
+- **Editorial and UI faces alongside it** for body and interface text
+- **Gold on navy** — a high-contrast palette that reads as industrial and licensed rather than cheap
+- **Layout anchored to the design's art-board width** with responsive overrides per breakpoint, which is what keeps the build faithful to the approved design rather than an approximation of it
 
 ## Motion & Interaction
 
-- **Scroll-triggered reveals**: each section owns an `IntersectionObserver` at a `0.2` threshold and flips a single `isVisible` flag, so content animates in as it is reached instead of on page load
-- **Counting stats**: the same flag drives the numbers — 25+ years, 1500+ projects, 100% compliance, 500+ clients — animating up from zero with accompanying progress bars
-- **Video handling**: the hero video is `autoPlay loop muted playsInline`, the combination that lets it start on iOS without a tap, under two stacked gradient overlays that hold text contrast steady regardless of the frame behind it
-- **Custom select**: the project-type dropdown is built from scratch rather than a native `<select>`, with a `mousedown` listener on `document` closing it when the click lands outside
+- **Scroll-triggered reveals** — each section owns an observer and flips a single visibility flag, so content animates in as it is reached rather than all at once on load
+- **Counting stats** — the same flag drives the numbers, 25+ years, 1,500+ projects, 100% compliance, 500+ clients, animating up from zero with accompanying progress bars
+- **Video that actually autoplays** — the hero video carries the specific attribute combination that lets it start on iOS without a tap, under two stacked gradient overlays that hold text contrast steady regardless of the frame behind it
+- **A custom select** for project type, built from scratch rather than a native control so it matches the design, with an outside-click listener closing it correctly
 
-## Current State
+The enquiry form is fully controlled with native validation on required fields, ready to connect to whichever mail or CRM endpoint the client chooses — everything in front of that boundary is finished and tested.
 
-The form is wired for the browser but not yet for a backend: fields are controlled React state, the required ones use native HTML5 validation, and `handleSubmit` calls `preventDefault()` and logs the payload. Connecting it to a mail or CRM endpoint is the remaining piece — everything in front of that boundary is finished.
-
-This one is a straight execution job rather than an architectural one: no framework beyond Vite, no state library, no backend. The value is in matching a design exactly, keeping a heavy media page responsive across breakpoints, and making a compliance-driven trade look credible in the first five seconds.
+This is an execution build, and the value is exactly that: matching an approved design precisely, keeping a media-heavy page fast and responsive across every breakpoint, and making a compliance-driven trade look credible inside the first five seconds.

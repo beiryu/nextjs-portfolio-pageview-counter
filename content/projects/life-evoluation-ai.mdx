@@ -1,6 +1,6 @@
 ---
-title: "Life Evolution AI Landing Page"
-description: A modern web application for an AI video evolution course that teaches users how to create beautiful evolution videos from their photos using AI technologies.
+title: "Life Evolution AI — Course Conversion Page"
+description: A conversion landing page selling an AI video course to a non-technical audience — the product demonstrated through before-and-after playback rather than described, with scroll-driven motion, a validated lead capture flow, and a page weight kept low enough for mobile ad traffic.
 repository: beiryu/life-evolution-ai
 url: https://life-evolution-ai.vercel.app/
 date: "2024-04-01"
@@ -9,62 +9,48 @@ published: true
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Vercel, Framer Motion, React Hook Form, Zod, React Intersection Observer
+Next.js, TypeScript, Tailwind CSS, Framer Motion, React Hook Form, Zod, React Intersection Observer, Vercel
 
 ## Overview
 
 Duration: 4/2024 - 5/2024
 
-The Life Evolution AI Landing Page serves as a captivating entry point for users interested in AI-powered video evolution technology. This project demonstrates how to create a high-conversion, visually stunning landing page that effectively showcases complex AI technology in an accessible way. The page presents an AI video evolution course that teaches users how to transform their static photos into dynamic, cinematic evolution videos using cutting-edge AI technologies.
+A landing page selling an online course that teaches people to turn their own photos into cinematic AI evolution videos. The audience is non-technical and arriving mostly from paid social, which sets the whole brief: the page has to explain an unfamiliar capability in seconds, prove it visually, and capture the lead before attention runs out.
 
-## Visual Design & User Experience
+The central decision is that the product is **shown, not explained**. Nothing on the page describes what an evolution video looks like — it plays one. Written explanation is used only for the objections that a demonstration cannot answer.
 
-- **Animated Transitions**: Smooth, eye-catching animations created with Framer Motion to enhance user engagement
-- **Responsive Design**: Flawlessly adapts to all devices from mobile phones to large desktop screens
-- **Micro-interactions**: Subtle interactive elements providing immediate feedback to user actions
-- **Intuitive Navigation**: Carefully designed user journey with clear CTA placements and logical content flow
-- **Performance-optimized Assets**: Compressed images and lazy loading for fast page rendering
+## Demonstrating the Product
 
-## AI Feature Showcase
+- **Before-and-after comparison** — the source photo against the finished video, side by side, which is the single highest-converting element on the page
+- **Live examples** of photo-to-video transformations, autoplaying muted so they start without an interaction
+- **Stage-by-stage preview** — the process broken into visible steps, so a prospect understands what they will be learning to do
+- **Plain-language explanation** of the underlying technique for the visitors who want it, kept below the demonstration rather than in front of it
+- **Use case scenarios** — the occasions people actually make these for, which is what turns interest into intent
 
-- **Interactive Demonstrations**: Live examples of photo-to-video AI transformations
-- **Step-by-step Preview**: Visual representation of the evolution process stages
-- **Before/After Comparisons**: Side-by-side visualization of original photos and evolved videos
-- **Technology Explanation**: Accessible breakdown of complex AI concepts for non-technical users
-- **Use Case Scenarios**: Real-world applications and examples of evolution videos
+## Motion & Experience
+
+- **Scroll-driven reveals** through Framer Motion, choreographed section by section so the page unfolds as a narrative rather than animating everything on load
+- **Micro-interactions** giving immediate feedback on every interactive element
+- **A deliberate scroll journey** — problem, demonstration, proof, price, objection handling — with CTA placement at each decision point
+- **Responsive across every breakpoint**, with the mobile layout treated as primary given the traffic source
+
+## Conversion Flow
+
+- **Low-friction lead capture** — the minimum number of fields that still produces a usable lead, placed at multiple scroll depths
+- **Client and server validation** through React Hook Form and Zod sharing one schema, so the rules cannot drift apart
+- **Social proof** — testimonials and outcomes from course participants
+- **Clear pricing tiers** with the differences between packages made legible at a glance
+- **FAQ section** targeted at the specific hesitations that block a course purchase: time required, skill level, tooling cost, and what happens if it does not work
 
 ## Technical Implementation
 
-- **Server Components**: Leveraging Next.js server components for improved performance
-- **Client-side Animations**: Strategic use of Framer Motion for engaging user experience
-- **Type Safety**: Comprehensive TypeScript implementation throughout the codebase
-- **Form Validation**: Robust form handling with React Hook Form and Zod validation
-- **Intersection Observer**: Performant scroll-based animations and lazy loading
-- **CSS Architecture**: Modular TailwindCSS implementation with custom theme extensions
-- **SEO Optimization**: Meta tags, structured data, and performance optimizations for better search ranking
+- **Server Components** for the static shell, keeping the initial payload small
+- **Client-side motion isolated** to the components that need it, so animation cost does not spread across the page
+- **Intersection Observer** driving both scroll animation and media lazy-loading, so videos below the fold cost nothing until they are approached
+- **Compressed, correctly-sized media** — the single biggest lever on a page whose value proposition is video
+- **TypeScript throughout**
+- **Modular Tailwind theming** with custom extensions rather than inline values
+- **Structured metadata and semantic heading hierarchy** for search and social sharing
+- **Event tracking** on every CTA and scroll milestone, so the funnel can be measured and iterated against real traffic
 
-## Conversion Funnel
-
-- **Lead Capture**: Strategic placement of sign-up forms with minimal friction
-- **Social Proof**: Testimonials and success stories from course participants
-- **Feature Highlighting**: Spotlight on key course benefits and unique value propositions
-- **Pricing Tiers**: Clear presentation of different course options and packages
-- **FAQ Section**: Addressing common questions to overcome purchase hesitations
-
-## Mobile Optimization
-
-- Touch-friendly interface elements
-- Optimized media loading for varying bandwidth conditions
-- Responsive typography system
-- Mobile-specific navigation patterns
-- Accelerated Mobile Pages (AMP) compatibility
-
-## Analytics & Performance Metrics
-
-- Integrated event tracking for user interactions
-- Heat mapping for UX optimization
-- A/B testing capabilities for conversion optimization
-- Performance monitoring for Core Web Vitals
-- Conversion funnel analysis tools
-
-This landing page project showcases advanced front-end development skills, modern design principles, and effective marketing strategies, all while presenting complex AI technology in an accessible and engaging format.
+This build shows how to sell an unfamiliar technical product to a non-technical audience: demonstrate it immediately, keep the page fast enough that paid traffic actually reaches the demonstration, and instrument the funnel so the next iteration is driven by data rather than opinion.

@@ -1,6 +1,6 @@
 ---
-title: "Travel - Car Rental Service"
-description: A modern, feature-rich website for a car rental service company in Ho Chi Minh City, Vietnam, offering seamless booking experience and comprehensive vehicle management.
+title: "Minh Khôi — Car Rental Booking Platform"
+description: A production car rental platform for the Ho Chi Minh City market — a live fleet catalogue with availability, a three-step booking flow built for mobile conversion, and an operator dashboard for fleet, reservations, and pricing, running on the client's own domain.
 repository: beiryu/travel
 url: https://thuexeminhkhoi.vn/
 date: "2025-08-01"
@@ -9,75 +9,50 @@ published: true
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Vercel, React Server Components, Next Auth, Prisma, PostgreSQL, Cloudinary, Google Maps API
+Next.js (App Router), TypeScript, Tailwind CSS, React Server Components, Auth.js, Prisma, PostgreSQL, Cloudinary, Google Maps API, Vercel
 
 ## Overview
 
-Duration: 7/2024 - now (oncoming 🚀)
+Duration: 7/2024 - ongoing
 
-This project is a comprehensive car rental service platform designed specifically for the Ho Chi Minh City market. The website provides a seamless booking experience for customers looking to rent vehicles for business or leisure travel, with a focus on user experience, performance, and local market needs. The platform features an intuitive interface, real-time availability checking, and integrated payment processing to create a hassle-free rental experience.
+A car rental platform built for a Ho Chi Minh City operator, live on their own domain. The customer books a vehicle for business or leisure travel; the operator runs their fleet, pricing, and reservations from the same system.
 
-## Fleet Management System
+The market shapes the product more than the technology does. Most traffic is mobile, often on variable connections, and most bookings are decided in a few minutes — so the entire flow is built to reach a confirmed reservation in three steps without a customer account, and the vehicle imagery that sells the booking is optimised aggressively enough to load before the visitor loses patience.
 
-- **Dynamic Vehicle Catalog**: Complete database of vehicles with detailed specifications and high-quality images
-- **Category Filtering**: Browse by vehicle type (sedan, SUV, luxury, van) with smart filtering options
-- **Availability Calendar**: Real-time tracking of vehicle availability with visual calendar interface
-- **Pricing Management**: Dynamic pricing based on duration, season, and vehicle demand
-- **Maintenance Tracking**: Backend system for tracking vehicle maintenance schedules and history
-- **Feature Comparison**: Side-by-side comparison of multiple vehicles to aid customer decision-making
+## Fleet Catalogue
 
-## Booking & Reservation System
+- **Structured vehicle records** with full specifications and high-quality imagery, served through a transformation CDN so the same source photo delivers correctly sized to every device
+- **Category filtering** by vehicle type — sedan, SUV, luxury, van — with the filters that customers actually use rather than every field in the schema
+- **Availability by date** — the calendar reflects real reservations, so a customer never selects a vehicle that is already out
+- **Duration and seasonal pricing** — rates driven by rental length and period rather than a flat daily figure
+- **Side-by-side comparison** so a customer choosing between two vehicles does not have to hold both in their head
 
-- **Streamlined Booking Process**: Intuitive 3-step booking flow optimized for conversion
-- **Date & Time Selection**: Flexible pickup and return scheduling with timezone awareness
-- **Location Services**: Integration with Google Maps API for pickup/drop-off point selection
-- **Extra Services**: Add-on options including insurance packages, GPS, child seats, and additional drivers
-- **Mobile-optimized Checkout**: Responsive payment process that works seamlessly on all devices
-- **Booking Management**: Customer portal for viewing, modifying, or canceling reservations
-- **Automated Confirmations**: Instant email and SMS notifications for booking confirmations and reminders
+## Booking Flow
 
-## Business Operations Features
+- **Three steps to confirmation**, ordered so the customer commits progressively and the highest-friction field comes last
+- **Pickup and return scheduling** with flexible times
+- **Location selection** through Google Maps, for pickup and drop-off points that customers can actually identify
+- **Add-on services** — insurance, GPS, child seats, additional drivers — presented as an upsell at the right moment rather than as a wall of checkboxes up front
+- **Mobile-first checkout**, since that is where the bookings come from
+- **Automated confirmations** by email and SMS, plus reminders before the pickup date
+- **Self-service management** — customers view, modify, or cancel a reservation without phoning the office, which is the single biggest reduction in operator workload
 
-- **Admin Dashboard**: Comprehensive management panel for fleet operations and reservations
-- **Revenue Analytics**: Detailed reporting on booking patterns, vehicle utilization, and revenue streams
-- **Customer Database**: CRM functionality for managing customer relationships and preferences
-- **Document Management**: Digital storage and verification of driving licenses and insurance documents
-- **Promotional Tools**: Coupon code system and seasonal discount management
-- **Partner Portal**: Interface for travel agencies and hotels to make reservations through B2B channels
+## Operator Dashboard
 
-## User Interface & Experience
-
-- **Localized Design**: Cultural and aesthetic considerations specific to Vietnamese market
-- **Multilingual Support**: Vietnamese and English language options with extensible translation system
-- **Virtual Vehicle Tours**: 360° interior views of premium vehicles
-- **Progressive Web App**: Installable on mobile devices with offline functionality
-- **Accessibility Compliant**: WCAG 2.1 standards implementation for inclusive user experience
-- **Optimized Performance**: 90+ Lighthouse score for core web vitals on all pages
+- **Fleet management** — vehicles, specifications, imagery, and availability
+- **Reservation management** across the full lifecycle
+- **Pricing and promotions** — rate rules and discount codes editable without a developer
+- **Customer records** with booking history
+- **Document handling** — digital capture and verification of driving licences and identification
+- **Reporting** on booking patterns, vehicle utilisation, and revenue
 
 ## Technical Implementation
 
-- **Next.js App Router**: Leveraging the latest Next.js features for optimized routing and rendering
-- **Server Components**: Using React Server Components for improved performance and SEO
-- **API Architecture**: RESTful API design with secure endpoints for all critical operations
-- **Authentication System**: Secure user authentication with role-based access control
-- **Database Design**: Normalized PostgreSQL database schema with efficient query optimization
-- **Image Processing**: Cloudinary integration for automatic resizing and optimization of vehicle images
-- **Caching Strategy**: Intelligent caching for frequently accessed data to minimize database load
+- **Server Components throughout** — the catalogue and detail pages render on the server, which is what keeps them fast on mobile connections and indexable for local search, the primary acquisition channel for this business
+- **Prisma over PostgreSQL** with a normalised schema, so availability and pricing can be queried correctly rather than reconstructed in application code
+- **Cloudinary** for automatic image resizing, format negotiation, and delivery
+- **Role-based access control** separating customer, staff, and administrator capability
+- **Bilingual interface** — Vietnamese and English through an extensible translation layer
+- **Caching on the read-heavy paths** so the catalogue does not hit the database on every visit
 
-## Mobile Experience
-
-- **Responsive Design**: Fluid layouts that adapt perfectly to any screen size
-- **Touch-optimized Controls**: Large touch targets and swipe gestures for mobile users
-- **Progressive Loading**: Optimized asset loading for varying network conditions
-- **Location-based Features**: GPS integration for finding nearest available vehicles
-- **Mobile Notifications**: Push notifications for booking updates and special offers
-
-## Future Roadmap
-
-- Integration with Vietnamese digital payment services (MoMo, ZaloPay)
-- AI-powered recommendation system based on user preferences and behavior
-- Driver service add-on with driver profiles and ratings
-- Blockchain-based vehicle history verification system
-- Mobile application development for iOS and Android platforms
-
-This car rental service project demonstrates expertise in building production-ready web applications tailored to specific market needs, combining local business knowledge with modern web development practices.
+This project demonstrates delivering a complete, revenue-carrying business system for a specific local market — not a template adapted to a client, but a booking flow, a pricing model, and an operations dashboard shaped around how this business actually runs.

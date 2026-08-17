@@ -1,7 +1,6 @@
 ---
-title: "SketchPad AI"
-description: An innovative web application that leverages artificial intelligence to convert simple whiteboard sketches into professional-quality thumbnails and graphics, bridging the gap between ideation and production.
-repository: beiryu/canva-clone
+title: "SketchPad AI — Sketch to Production Graphics"
+description: A design tool that turns rough whiteboard sketches into finished thumbnails and graphics through a diffusion-model pipeline — a browser canvas editor on a type-safe Hono and Postgres backend, with authentication, asset storage, and subscription billing wired end to end.
 url: https://sketchpad-ai.vercel.app/
 date: "2024-05-01"
 published: true
@@ -9,82 +8,49 @@ published: true
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Vercel, OpenAI, Replicate, PostgreSQL, Drizzle ORM, Hono, Next Auth, Polar, Shadcn UI, Cloudinary, Zod, Lucide Icons, React Hook Form
+Next.js, TypeScript, Tailwind CSS, shadcn/ui, Hono, PostgreSQL, Drizzle ORM, Auth.js, OpenAI, Replicate, Cloudinary, Polar, Zod, React Hook Form, Vercel
 
 ## Overview
 
-Duration: 5/2024 - now (oncoming 🚀)
+Duration: 5/2024 - ongoing
 
-SketchPad AI is a groundbreaking web application that transforms the creative workflow by converting rudimentary whiteboard sketches into polished, professional-quality graphics and thumbnails using advanced AI models. The platform serves as an intelligent design assistant for creators, marketers, and product teams who need to quickly transform conceptual sketches into presentation-ready visuals without requiring advanced design skills or specialized software.
+SketchPad AI closes the gap between a rough idea and a presentable asset. A marketer, creator, or product team member sketches a layout the way they would on a whiteboard, and the platform returns a finished graphic — no design software, no design skills, no waiting on a designer for a thumbnail that has to ship today.
 
-## AI-Powered Design Features
+The product bet is that most "design work" in a content pipeline is not creative direction, it is execution on an idea the person already has in their head. Sketching is the fastest way to get that idea out; everything after it can be automated.
 
-- **Sketch-to-Image Transformation**: Core functionality that converts hand-drawn sketches to professional graphics using diffusion models
-- **Style Transfer**: Apply various artistic and design styles to transformed images
-- **Intelligent Enhancement**: Automatic improvement of line quality, proportions, and visual balance
-- **Text Recognition & Vectorization**: Convert hand-written text in sketches to editable typography
-- **Design Element Detection**: Identify and refine UI components, icons, and common design patterns
-- **Color Scheme Generation**: Intelligent color palette suggestions based on sketch content and context
-- **Background Removal/Replacement**: Isolate sketch elements and place them on customizable backgrounds
+## The Generation Pipeline
 
-## Creative Workflow Tools
+- **Sketch to image** — the core transformation, running hand-drawn input through diffusion models hosted on Replicate
+- **Style application** — the same sketch rendered against different visual directions, so a user compares outputs instead of committing to the first result
+- **Structure recognition** — detecting the common shapes a sketch implies (panels, cards, headings, iconography) so the output respects the intended layout rather than reinterpreting it
+- **Prompt assistance** — language-model support for turning a user's short description into a fuller generation prompt
+- **Background isolation and replacement** — separating the subject so it can be placed on a chosen background
+- **Multi-format export** — raster and vector output at controllable resolution, sized for the platforms the asset is actually going to
 
-- **Real-time Preview**: Instant visualization of AI transformations as users sketch
-- **Version History**: Track evolution of designs with comprehensive history and branching
-- **Template Library**: Collection of starting points for common design needs
-- **Collaboration Features**: Real-time sharing and multi-user editing capabilities
-- **Annotation System**: Add notes and feedback directly on designs
-- **Export Options**: Multiple format support including PNG, JPG, SVG, and PDF with resolution control
-- **Asset Management**: Organize and reuse created graphics across multiple projects
+## Editor & Workflow
+
+- **A browser canvas editor** with the drawing, selection, and layer controls needed to prepare and adjust a sketch before generation
+- **Generation history** — every result kept and retrievable, so a user can go back to an earlier direction instead of regenerating and hoping
+- **Project organisation** — work grouped into projects rather than dumped into a single library
+- **Asset reuse** — generated graphics saved and reusable across projects
+- **Templates** — starting points for the most common output formats
 
 ## Technical Implementation
 
-- **AI Model Pipeline**: Integration of multiple specialized models for different aspects of image transformation
-- **Canvas Architecture**: High-performance drawing interface built with custom WebGL rendering
-- **Backend API Design**: Efficient Hono-based API layer for handling AI processing requests
-- **Authentication System**: Secure user management with Next Auth and role-based permissions
-- **Database Structure**: Optimized PostgreSQL schema with Drizzle ORM for type-safe queries
-- **Caching Strategy**: Multi-level caching for AI-processed results to improve performance
-- **Serverless Functions**: Distributed processing architecture for handling compute-intensive transformations
-- **WebSocket Integration**: Real-time updates and collaborative features
+- **A Hono API layer** — lightweight, fully typed, running the generation orchestration and the CRUD surface with end-to-end type inference into the client
+- **Postgres with Drizzle ORM** — a type-safe schema where a migration and the query layer cannot silently disagree
+- **Auth.js** for session management and access control
+- **Cloudinary** for image storage, transformation, and CDN delivery, keeping generated assets off the application's own bandwidth
+- **Polar** for subscription billing and plan entitlements
+- **Async generation handling** — generation is slow and failure-prone by nature, so requests are tracked with explicit state and surfaced to the user with real progress rather than a spinner that might mean anything
+- **Zod validation** on every boundary, shared between client and server
 
 ## User Experience
 
-- **Intuitive Drawing Interface**: Simplified controls designed for quick ideation
-- **Progressive Disclosure**: Features revealed contextually as users need them
-- **Onboarding Flow**: Interactive tutorial system for new users
-- **Responsive Design**: Fully functional across desktop, tablet, and mobile devices
-- **Keyboard Shortcuts**: Comprehensive shortcut system for power users
-- **Accessibility Considerations**: High-contrast mode, screen reader support, and keyboard navigation
-- **Dark/Light Themes**: Customizable interface appearance for different working environments
+- **Progressive disclosure** — the interface starts as a canvas and reveals controls as they become relevant, rather than opening on a toolbar of forty icons
+- **Responsive across devices**, so a sketch can be captured on a tablet and finished on a desktop
+- **Keyboard shortcuts** for the editor actions used most
+- **Light and dark themes**
+- **Clear credit visibility** — users always know what a generation costs them before they run it
 
-## Business & Professional Use
-
-- **Team Workspaces**: Shared environments for design collaboration
-- **Brand Asset Management**: Storage and application of brand colors, logos, and style guidelines
-- **Project Organization**: Folder structure for managing related designs
-- **Analytics Dashboard**: Insights into usage patterns and popular design elements
-- **Export Automation**: Scheduled generation of assets in multiple formats and sizes
-- **Integration Capabilities**: Connections with popular design tools and project management systems
-- **Permission Controls**: Granular access settings for team members and external collaborators
-
-## Performance & Scalability
-
-- **Optimized Asset Delivery**: CDN-backed resource serving with intelligent compression
-- **Progressive Loading**: Prioritized rendering of interface elements for perceived performance
-- **Compute Resource Management**: Efficient allocation of AI processing power based on user needs
-- **Horizontal Scaling**: Architecture designed for seamless growth with increasing user base
-- **Error Handling**: Comprehensive recovery mechanisms for AI processing failures
-- **Analytics & Monitoring**: Real-time system performance tracking and anomaly detection
-- **A/B Testing Framework**: Infrastructure for testing new features and optimizations
-
-## Future Development
-
-- Integration with 3D modeling capabilities for product visualization
-- Motion graphics generation from static sketches
-- Advanced animation controls for creating interactive prototypes
-- Industry-specific templates and transformations for specialized fields
-- AR preview functionality for visualizing designs in real-world contexts
-- Mobile application for capturing and transforming sketches on the go
-
-This project showcases the powerful intersection of intuitive design tools and advanced AI capabilities, providing a glimpse into the future of creative workflows where technology amplifies human creativity rather than replacing it.
+This project sits at the intersection of a genuinely useful AI capability and the unglamorous product engineering that makes it shippable: type safety from database to component, billing and entitlements that actually gate usage, and an async pipeline that stays honest with the user when a model is slow or a generation fails.

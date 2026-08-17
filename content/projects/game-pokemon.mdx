@@ -1,6 +1,6 @@
 ---
-title: "Game Pokemon"
-description: Build a simulation of the Hero arena game on a console
+title: "Hero Arena — Turn-Based Battle Engine"
+description: A console battle simulation in C/C++ built around a five-element affinity system where team composition and environment modify every combat statistic — with a file-backed roster, an attack-speed scheduler, and persistent match history.
 repository: beiryu/game-resistance
 date: "2021-03-21"
 published: true
@@ -8,170 +8,78 @@ published: true
 
 ## Technology Stack
 
-Language: C/C++
+C/C++, File I/O, Data Structures, Game Systems Design
 
-## General requirements
+## Overview
 
-- Build a simulation of the Hero arena game on a console (no need for a graphical interface).
-- Input: list of Heroes of the participating teams in the match.
-- Output: the result of the match (win or draw; if win, then who won) displayed on the screen. In addition to displaying the result, also display the list and stats of the Heroes in the match.
-- ListHero.txt
+Duration: 3/2021
+
+A turn-based arena battle engine running entirely in a console. Two teams of three heroes fight; the engine resolves the match and reports the outcome with the full end-state of every combatant.
+
+What makes it an engineering problem rather than a scripting exercise is the modifier system. A hero's effective statistics are never their base statistics — they are recomputed from **three interacting sources**: elemental relationships with teammates, elemental relationships with opponents, and the randomly-selected battle environment. Getting that resolution order right, and keeping it consistent, is the whole design.
+
+## The Roster
+
+Heroes load at startup from a plain text file, one per line:
+
+```
+<name>;<element>;<health>;<attack>;<defense>;<attack speed>
+```
 
 ```plaintext
 Sniper;Fire;454;36;2;29
 Troll;Earth;620;48;2.5;15
-Gyrycopter;Metal;492;41;2;30
 Treant Protector;Wood;700;62;1.5;38
-Trasex;Metal;473;40;2;27
 Lanaya;Water;492;53;4;29
-Ursa;Earth;587;45;5;35
-Gondar;Earth;473;45;6;40
-Luna;Metal;435;43;3;18
 Naga Siren;Water;549;56;6;32
 ```
 
-## Gameplay description
+The roster is editable from within the program and written back to file, so content is data rather than code — new heroes require no rebuild.
 
-### Characters
+**Statistics**: health (zero means dead), attack (damage dealt), defense (damage resisted), and attack speed, which is the interval of one attack cycle — lower is faster. An attack resolves as `attack − defense` against the target, with the attacker's next action scheduled by their attack speed.
 
-1. **List of characters**
-   See the attached file "ListHero.txt".
+## The Five-Element System
 
-   When the program starts up, it will load the heroes from "ListHero.txt" and store them in a list/vector.
-
-   Each line in the file is the info of a hero; structured as follows:
-
-   \<hero name>;\<attribute>;\<health>;\<attack>;\<defense>;\<attack speed>
-
-   **Example:** Treant Protector;Wood;700;62;1.5;38
-
-   The Hero list can be updated/added from the keyboard and stored in the "ListHero.txt" file.
-
-2. **Character stats**
-
-   Each Hero has four stats:
-
-   - Health: if the health stat reaches 0, the character will be considered dead.
-   - Attack: the strength of the damage dealt to the opponent.
-   - Defense: the ability to resist part of the opponent's attack strength.
-   - Attack speed: the time for 1 cycle of a Hero's attack, the smaller the stat, the faster the attack speed, and vice versa.
-
-   **Example:**
-
-   There are two Heroes currently in a duel:
-
-   1. Sniper;Fire;454;36;2;29
-   2. Troll;Earth;620;48;2.5;15
-
-   Assuming Sniper attacks Troll, Troll will lose (36-2.5 units of health) (Troll will have 586.5 units of health left) and 29 milliseconds later Sniper can attack again.
-
-### Attributes
-
-Each Hero will belong to an elemental attribute in the Five Elements (Gold/Wood/Water/Fire/Earth). In the ListHero.txt file, it is saved as: Fire/Water/Metal/Earth/Wood.
-
-As the Five Elements exist in pairs of mutual generation and mutual restraint as shown in the image below:
+Every hero belongs to one of the five classical elements — Metal, Wood, Water, Fire, Earth — which sit in the traditional generating and overcoming cycles.
 
 <div align="center">
-  <img src="./pokemon/five-elements.png" alt="Five Elements" />
+  <img src="./pokemon/five-elements.png" alt="Five elements cycle" />
 </div>
 
-Should: Follow the rule in which Heroes will buff or counter each other's stats when fighting against each other or together in a team.
+**Within a team:**
+- A countered hero suffers a 10% increase to their attack interval — they act more slowly
+- A supported hero gains 15% additional health
 
-### Fighting Together
+**Against an opponent:**
+- A countered hero's defense drops by 50%
+- The countering hero's attack rises by 10%
 
-**Counter:** If a Hero is countered, their time to attack will increase by 10%.
+**Environment:** after both teams are selected, the engine randomly assigns one of the five elements as the battle environment, applying a further modifier layer — matching elements are unaffected, generated elements gain 5% health and 10% faster action, and overcome elements lose 3% health.
 
-_Example:_ If there are two Heroes in the same team, one with the fire attribute and the other with the water attribute, the fire attribute Hero's attack speed will slow down (attack speed increases by 10%).
+The result is that team composition matters before a single attack lands. Two heroes chosen for raw statistics can be strictly worse than two weaker heroes chosen for synergy — which is the intended design outcome.
 
-**Synergy:** If two Heroes have a synergistic relationship, the Hero that is being helped will gain an additional 15% health.
+## Match Resolution
 
-_Example:_ If there are two Heroes in the same team, one with the earth attribute and the other with the metal attribute, the metal attribute Hero will gain an additional 15% health.
+Heroes engage in pairs following the initial ordering, with each combatant acting on their own attack-speed schedule rather than in strict alternation. The winning team is the one with more survivors when the timer expires. Matches run against an NPC opponent, which selects three heroes at random, or between two players sharing the machine, with an agreed time limit.
 
-### Fighting Against
+## Persistence
 
-If a Hero is countered, their defense will decrease by 50% and the counter-attacking Hero's attack will increase by 10%.
+Every result is written to a log with a timestamp, both rosters, and the outcome:
 
-_Example:_ In a fight between two Heroes, one with the wood attribute (health 400, attack 30, defense 3) and the other with the earth attribute (health 500, attack 35, defense 2), when the wood attribute Hero attacks the earth attribute Hero, the stats of both Heroes will be: Wood Hero (health 400, 33, 3) | Earth Hero (health 500, 35, 1).
-
-### Battle
-
-1. **Winning and Losing**
-
-   Heroes will fight in pairs, following the initial order.
-
-   The winning team is the team with more surviving Heroes.
-
-2. **Time**
-
-   If fighting against an NPC, the default time for a match is 1 minute.
-
-   If two players fight against each other, the match time will be agreed upon by the two players via the keyboard (see section 3.7).
-
-3. **Environment**
-
-   After both sides have chosen their list of Heroes, the system will randomly select an environment for the battle from 5 attributes (metal/wood/water/fire/earth).
-
-   Therefore, the stats of the Heroes will change according to the following rules:
-
-   | Property of the head >< Property of the Hero | Effect on stats                  |
-   | -------------------------------------------- | -------------------------------- |
-   | Same                                         | Stats remain the same as default |
-   | Mutual promotion                             | HP stats will increase by 5%     |
-   | Mutual promotion                             | Speed stats will decrease by 10% |
-   | Mutual restraint                             | HP stats will decrease by 3%     |
-
-### User battles NPC
-
-NPC will randomly choose 3 heroes from the list of heroes loaded from the ListHero.txt file.
-
-The system displays the list of heroes for the player to choose from.
-
-The player will choose 3 heroes by entering the number corresponding to the hero's position in the list from the keyboard.
-
-### User battles User
-
-The operation is on the same interface on the same PC.
-
-After logging in, User 1 will choose the User vs User mode.
-
-User 1 chooses 3 heroes.
-
-User 2 chooses 3 heroes.
-
-User 1/2 chooses the time for the match: there are 3 options 1 minute (1000); 2 minutes (2000); and 5 (5000) minutes.
-
-## Result
-
-The results will be displayed on the screen and automatically saved to the Log.txt file.
-
-For example, displaying on the screen:
-
+```
 Ti win
-
 ---
-
 Team Ti - Team Teo
-
 ---
-
 Treant Protector:452;62;1.5;38 - Sniper;0;36;2;29
-
----
-
-Trasex:3;40;2;27 - Lanaya;Water;0;53;4;29
-
----
-
+Trasex:3;40;2;27 - Lanaya;0;53;4;29
 Troll:0;48;2.5;15 - Naga Siren;0;56;6;32
+```
 
----
-
-- Each line represents the information of a match.
-- The information is stored in the following structure: \<time hour/minute/second/day/month/year>\<Player 1|NPC name>\<List of Player 1|NPC's Heroes>\<Player 2>\<List of Player 2's Heroes>\<Result>
-- Players can view the match history in the log file (only displaying the time on the screen); if they want to see the detailed information of a specific match, they need to provide the time from the keyboard.
-
-## Description of player management system
+Match history is browsable by timestamp, with full detail retrievable for any individual match.
 
 <div align="center">
-  <img src="./pokemon/management-system.png" alt="Management System" />
+  <img src="./pokemon/management-system.png" alt="Player management system" />
 </div>
+
+An early project, and a genuinely good one for learning where complexity actually comes from in a system: not the combat loop, but keeping three overlapping modifier sources resolving consistently every time a statistic is read.

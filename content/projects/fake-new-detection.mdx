@@ -1,6 +1,6 @@
 ---
-title: "Fake News Detection"
-description: Fake news is a burning problem of society, especially in the current information explosion era. This project will allow you to work with Vietnamese text data, build a fake news prediction model and deploy this model to a simple website
+title: "Vietnamese Fake News Detection — NLP Classifier"
+description: A text classification system for Vietnamese news built end to end — language-specific preprocessing with proper word segmentation, feature extraction, multiple compared models, and a deployed web interface where an article can be pasted in and classified live.
 repository: beiryu/fake-new-detection
 date: "2021-10-01"
 published: true
@@ -8,68 +8,40 @@ published: true
 
 ## Technology Stack
 
-Python, Stopword, Tokenizer, Streamlit, Scikit learn
+Python, scikit-learn, VnCoreNLP, Streamlit, NLP, Feature Engineering
 
 ## Overview
 
-Fake news is currently a pressing issue in society, especially in the age of explosive information. This project will allow you to work with Vietnamese text data, build a fake news prediction model, and deploy this model on a simple website.
+Duration: 10/2021
 
-## Tasks
+A machine learning system that classifies Vietnamese news articles as genuine or fabricated, taken from raw text through to a deployed, usable interface.
 
-- Preprocessing Vietnamese text
-- EDA
-- Building a machine learning model
-- Deploying the model
+Vietnamese makes this harder than the equivalent English task in one specific and important way: **it is not whitespace-tokenised.** A Vietnamese "word" is frequently multiple syllables separated by spaces — `hoc sinh` is one word meaning "student", not two words. Splitting on whitespace, the default in almost every NLP tutorial, destroys the semantic units the model needs before training even begins. Handling that correctly is the difference between a model that works and one that appears to.
 
-## Goals
+## Preprocessing
 
-To become familiar with the process of working with data science problems with raw text data, and learn how to use some popular libraries.
+The pipeline addresses Vietnamese-specific requirements rather than applying a generic recipe:
 
-## Details
+- **Word segmentation** through VnCoreNLP, so multi-syllable words are treated as single tokens — the single most consequential step in the pipeline
+- **Normalisation** — case folding and Unicode normalisation, which matters in Vietnamese where the same diacritic can be encoded multiple ways and would otherwise produce distinct tokens for identical words
+- **Stopword removal** using a Vietnamese-specific list, since English stopword lists are useless here
+- **Noise removal** — HTML tags, special symbols, and punctuation stripped from scraped article text
+- **Feature extraction** — the cleaned token stream converted to numeric vectors, since the models require numerical input
 
-1. **Data source**: [VNFD Dataset](https://github.com/thanhhocse96/vfnd-vietnamese-fake-news-datasets/blob/master/CSV/vn_news_223_tdlfr.csv)
+## Exploratory Analysis
 
-- Dataset of 223 Vietnamese news articles, with 2 labels: 1 (fake news) and 0 (real news)
-- Data description: [Description of VNFD dataset](https://github.com/thanhhocse96/vfnd-vietnamese-fake-news-datasets/tree/master/CSV)
+Before modelling: checking for missing and malformed records, measuring class balance — critical here, because an imbalanced dataset makes accuracy a misleading metric and a model that always predicts the majority class look successful — and profiling text statistics including article length distribution across both classes.
 
-1. **Vietnamese text pre-processing**
+## Modelling
 
-- Basic text pre-processing steps include: lowercase, stopword removal, stemming, normalization depending on each field, noise removal (HTML tags, special symbols such as @, #,...), punctuation removal
-- Reference sources: [Overview of text pre-processing](https://maelfabien.github.io/machinelearning/NLP_1/#i-what-is-preprocessing)
-- In this project, you need to observe the dataset and choose, experiment with pre-processing methods on your own.
+Multiple classifiers were trained on the preprocessed corpus and compared rather than settling on the first one that produced a number. Both linear and non-linear approaches were evaluated, with the trained models serialised for use at inference time in the deployed application.
 
-**Note 1**: for stopword removal and tokenization, you can refer to some Vietnamese sources:
+The dataset is the VFND Vietnamese fake news corpus — 223 labelled articles across two classes. That is a small corpus, and the honest conclusion from working with it is that the preprocessing pipeline and the evaluation methodology are where the real work is; absolute accuracy on 223 samples is not a claim worth making. The pipeline is what would scale to a larger corpus unchanged.
 
-- Stopword: [Source](https://github.com/stopwords/vietnamese-stopwords/blob/master/vietnamese-stopwords.txt)
-- Tokenizer: [VnCoreNLP](https://github.com/vncorenlp/VnCoreNLP#install)
+**Data source:** [VFND Vietnamese Fake News Dataset](https://github.com/thanhhocse96/vfnd-vietnamese-fake-news-datasets)
 
-**Note 2**: if using stopword removal and tokenizer (or other normalization tools for Vietnamese), please cite the reference link. If using one of the above suggested sources, just mention the used tool in the paper.
+## Deployment
 
-## Exploratory Data Analysis (EDA)
+The trained models are served behind a Streamlit interface: paste an article, select which model to run, and get a classification back. Deployed publicly rather than left as a notebook — because a model that only runs on the machine it was trained on has not really been delivered.
 
-- Check for missing data, incorrect data types (if any)
-- Check if there is any class imbalance in the distribution
-- Obtain statistical information about the text (average length of each record, etc.)
-
-## Model Training
-
-- Recommended library: [scikit-learn](https://scikit-learn.org/stable/user_guide.html)
-- Linear or non-linear models can be selected
-- At least two machine learning models should be chosen (but not too many),
-  trained on the pre-processed dataset and evaluated
-- After training, the models need to be saved for inference in step 5
-
-**Note**: The input data for machine learning models needs to be numerical, so feature extraction of the text is required before feeding it into the learning model.
-
-## Model Deployment
-
-- Recommended library: [Streamlit](https://docs.streamlit.io/)
-  Streamlit allows for simple Python-based interface coding to support free web deployment of machine learning models for demo purposes. The library is quite easy to use, and you can refer to the interface ideas in the [Streamlit gallery](https://streamlit.io/gallery).
-- When running the demo, I want to input a text directly, select one of the trained models, and output whether it is a fake or real news. Therefore, you need to load the saved models in step 4.
-- After testing the web demo locally, refer to the [Deploy Streamlit](https://docs.streamlit.io/streamlit-community-cloud/get-started/deploy-an-app) and follow the instructions to deploy the website on the Internet.
-
-**Note 1:** You need a Github account to host this website.
-
-**Note 2:** Due to the small dataset used, the prediction accuracy when testing the demo is not entirely required.
-
-**Note 3:** The interface only needs to be visually appealing, allowing users to input text, select the model type, and display whether it is fake or real news.
+This project covers the full data science cycle on a language most tooling is not designed for: understanding why the standard preprocessing pipeline fails on Vietnamese, replacing the parts that need replacing, comparing models honestly, and shipping the result as something someone can actually use.

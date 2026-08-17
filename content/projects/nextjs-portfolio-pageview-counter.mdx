@@ -1,6 +1,6 @@
 ---
-title: "NextJS Portfolio Pageview Counter"
-description: My personal portfolio website, showcasing my projects and skills
+title: "beiryu.io.vn — Portfolio Platform"
+description: My own portfolio platform — an MDX-backed project archive with per-project view counting through Redis, statically generated pages with incremental revalidation, and a motion layer that stays accessible and never blocks first paint.
 repository: beiryu/nextjs-portfolio-pageview-counter
 url: https://beiryu.io.vn
 date: "2024-09-21"
@@ -9,8 +9,38 @@ published: true
 
 ## Technology Stack
 
-Next.js, Vercel, Analytics API, TailwindCSS, Contentlayer, Upstash
+Next.js (App Router), React, TypeScript, Tailwind CSS, Content Collections, MDX, Framer Motion, Upstash Redis, Biome, Vercel
 
-## General
+## Overview
 
-This is my personal portfolio website, showcasing my projects and skills. It's built with modern web technologies to provide a fast, responsive, and visually appealing experience.
+Duration: 9/2024 - ongoing
+
+The site you are reading this on. It is a project archive rather than a résumé page: every engagement gets a full write-up, statically generated from MDX, with real view counts so the archive reflects what people actually read.
+
+Being my own site, it is also where the tooling decisions get made without a client's constraints — which is why it runs Content Collections rather than a heavier content pipeline, and Biome rather than a separate linter and formatter.
+
+## Content Pipeline
+
+- **MDX as the source of truth** — each project is a file with typed frontmatter, validated at build time against a schema, so a missing title or a malformed date fails the build rather than rendering blank
+- **Content Collections** compiles the MDX and derives slugs and routes, with the raw source dropped from the output so documents are not serialised twice
+- **Syntax highlighting at build time** through rehype-pretty-code, including line and word highlighting, so no highlighting runtime ships to the browser
+- **Automatic heading anchors and slugs**, making every section of a long write-up directly linkable
+- **GitHub-flavoured markdown** support throughout
+
+## View Counting
+
+Per-project view counts run on Upstash Redis:
+
+- **A single batched read** fetches every project's count in one round trip on the index page, rather than one request per card
+- **Increment on view** through a dedicated route handler, deduplicated so a refresh does not inflate the number
+- **Incremental revalidation** keeps pages static while counts stay current
+- **Keys are derived from the content path**, so the counter survives refactors of the content pipeline without losing history
+
+## Interface
+
+- **A motion layer** built on Framer Motion with staggered reveals and page transitions, applied so that content is never hidden waiting for hydration
+- **A scroll-aware project header** that flips state by measuring the hero's real height rather than a fixed offset — a hardcoded threshold is wrong at some viewport size, and measuring is correct at all of them
+- **A uniform card grid** with row-stretched heights, so cards in a row match regardless of description length
+- **Keyboard navigation** throughout, with visible focus states
+
+Small, but it is the one project where every decision is mine — and it is the place where the patterns that later show up in client work get tried first.

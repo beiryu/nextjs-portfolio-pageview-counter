@@ -1,6 +1,6 @@
 ---
-title: "Let's Talk Wise - AI Interview Assistant"
-description: An advanced AI-powered interview preparation platform with a Chrome extension that helps candidates practice, analyze, and improve their interview skills through realistic AI-driven simulations.
+title: "Let's Talk Wise — AI Interview Coaching Platform"
+description: An interview preparation platform pairing a web application with a Chrome extension — candidates run realistic AI-led mock interviews, get scored on content and delivery, and practise directly from the job listing they are applying to.
 repository: beiryu/lets-talk-wise
 date: "2024-12-01"
 published: true
@@ -8,67 +8,54 @@ published: true
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Shadcn UI, React, Vite, Chrome Extension API, OpenAI API, WebRTC, IndexedDB, Vercel Edge Functions, AWS Polly
+Next.js, TypeScript, Tailwind CSS, shadcn/ui, React, Vite, Chrome Extension APIs, OpenAI, WebRTC, IndexedDB, AWS Polly, Vercel
 
 ## Overview
 
-Duration: 12/2024 - now (oncoming 🚀)
+Duration: 12/2024 - ongoing
 
-Let's Talk Wise is an innovative AI interview assistant designed to revolutionize how candidates prepare for job interviews. The platform combines a web application with a Chrome extension, providing users with AI-powered interview simulations, real-time feedback, and personalized coaching. Using advanced natural language processing and speech analysis algorithms, the system creates realistic interview scenarios across various industries and positions, helping users build confidence and improve their performance.
+Let's Talk Wise helps candidates prepare for job interviews by actually putting them through one. The platform runs an AI interviewer that asks role-appropriate questions, listens to the answer, and returns structured feedback on both **what** was said and **how** it was said — the two things a candidate cannot assess about themselves in the moment.
 
-## AI Capabilities
+It ships as two surfaces: a web application for full practice sessions and progress tracking, and a Chrome extension that lets a candidate start a tailored mock interview from the job listing they are looking at, at the moment their motivation is highest.
 
-- **Natural Language Understanding**: Contextual comprehension of user responses with sentiment analysis
-- **Adaptive Question Generation**: Dynamic question flow based on user's previous answers
-- **Speech Analysis**: Real-time assessment of speech patterns, pacing, filler words, and tone
-- **Behavioral Pattern Recognition**: Identification of strengths and improvement areas in communication style
-- **Personalized Feedback**: AI-generated actionable insights tailored to individual performance
-- **Industry-Specific Knowledge**: Specialized question sets for different professional domains
-- **Multi-lingual Support**: Interview practice in multiple languages with accent recognition
+## Interview Engine
 
-## Key Features
+- **Adaptive questioning** — the next question is chosen from the previous answer, so a session follows the shape of a real interview rather than reading down a fixed list
+- **Role and industry targeting** — question sets specialised by profession and seniority, so a backend engineer and an account manager do not get the same interview
+- **Spoken interviewer** — questions delivered as natural speech through AWS Polly, so the candidate practises listening and responding under time pressure rather than reading
+- **Answer evaluation** — responses assessed for relevance, structure, and persuasiveness against the question that was asked
+- **Delivery analysis** — pacing, filler words, and tone measured from the audio, which is where most interview coaching actually lives
+- **Multi-language practice** for candidates interviewing outside their first language
 
-- **Interactive Interview Simulations**: Realistic job interview scenarios with AI interviewer
-- **Chrome Extension Integration**: Practice directly from job listing pages on popular career sites
-- **Video Response Analysis**: Facial expression and body language feedback
-- **Answer Quality Assessment**: Content evaluation based on relevance, structure, and persuasiveness
-- **Progress Tracking**: Longitudinal analysis of improvement across multiple practice sessions
-- **Custom Interview Creation**: Tailored practice sessions for specific positions or companies
-- **Interview Recording**: Save and review past practice sessions with timestamped feedback
+## Chrome Extension
+
+The extension is the distribution strategy as much as a feature. It activates on job listings across major career sites, reads the role context from the page, and launches a practice session tailored to that specific posting — turning a passive browsing moment into a practice session without the candidate ever navigating to the product.
 
 ## Technical Architecture
 
-- **Microservices Backend**: Scalable service architecture for different AI processing needs
-- **Real-time Processing**: WebRTC implementation for low-latency audio/video analysis
-- **Browser Extension**: Seamless integration with job listing websites using Chrome Extension API
-- **State Management**: Efficient data flow with React Context API and custom hooks
-- **Offline Capabilities**: IndexedDB implementation for offline access to practice materials
-- **Speech Synthesis**: Natural voice responses using AWS Polly for realistic conversations
-- **Responsive Design**: Adaptive UI components built with Shadcn UI and TailwindCSS
+- **Real-time media** — WebRTC for low-latency audio and video capture, so analysis happens against the live session rather than an uploaded file after the fact
+- **Speech synthesis** through AWS Polly for the interviewer voice
+- **Extension architecture** — content scripts reading listing context, a background service worker holding session state, and a shared authentication bridge with the web application
+- **Local-first storage** — IndexedDB holds practice material and session data on device, keeping recordings out of transit where they do not need to be there
+- **Shared component layer** — the web app and the extension UI draw on the same design system, so the two surfaces stay visually and behaviourally consistent
+- **Edge-deployed API routes** for the latency-sensitive parts of the loop
 
-## User Experience
+## Candidate Experience
 
-- **Intuitive Dashboard**: Comprehensive overview of practice history and improvement metrics
-- **Interactive Feedback**: Visual representation of performance metrics with actionable tips
-- **Gamification Elements**: Achievement system to encourage consistent practice
-- **Accessibility Features**: Full keyboard navigation and screen reader support
-- **Dark/Light Mode**: Theme switching for comfortable use in different environments
-- **Guided Onboarding**: Interactive tutorial for new users to maximize platform benefits
+- **Session dashboard** — practice history and improvement over time, so a candidate can see progress rather than guessing at it
+- **Timestamped feedback** — comments anchored to the moment in the recording they refer to, which is the difference between actionable and abstract
+- **Custom sessions** — practice targeted at a specific role or company
+- **Progress tracking** across repeated sessions on the same question set
+- **Accessible by construction** — full keyboard navigation and screen reader support
+- **Light and dark themes**
 
-## Privacy & Security
+## Privacy
 
-- **End-to-end Encryption**: Secure storage of all practice sessions and personal data
-- **Anonymized Data Processing**: Privacy-first approach to AI model training
-- **GDPR Compliance**: Complete user data control with export and deletion options
-- **Local Processing**: Critical analysis performed on-device when possible to minimize data transfer
-- **Transparent AI**: Clear explanation of how AI evaluates and generates feedback
+Interview recordings are personal data of an unusually sensitive kind — someone's worst answers, recorded. The platform treats that accordingly:
 
-## Future Roadmap
+- **On-device processing** wherever the analysis can be run locally, minimising what leaves the machine at all
+- **Encrypted storage** for sessions that do need to be retained
+- **User-controlled retention** — export and deletion available without a support request
+- **Transparent scoring** — the platform explains what it evaluated and why, rather than returning an unexplained number
 
-- Integration with ATS (Applicant Tracking Systems) for tailored preparation
-- Industry expert feedback database for comparison with AI recommendations
-- Peer review system for collaborative practice
-- AR/VR interview environments for immersive preparation
-- AI-generated portfolio suggestions based on interview performance
-
-This project demonstrates cutting-edge AI implementation in a practical application that tangibly improves users' career prospects while showcasing advanced frontend development, extension architecture, and natural language processing capabilities.
+This project combines a real-time media pipeline, a browser extension with its own distribution logic, and an AI evaluation loop, into a product where the technical difficulty is invisible and the value is immediate.

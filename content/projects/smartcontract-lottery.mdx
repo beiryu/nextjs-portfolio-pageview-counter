@@ -1,6 +1,6 @@
 ---
-title: "Smart Contract Lottery"
-description: Users can enter lottery with ETH based on a USD fee. An admin will choose when the lottery is over. The lottery will select a random winner
+title: "Smart Contract Lottery — On-Chain Prize Draw"
+description: An Ethereum lottery contract in Solidity — entry priced in USD and converted at the live ETH rate, funds held in contract escrow, and a verifiably random winner selection, with the state machine and access control that keep a contract holding real value safe.
 repository: beiryu/smartcontract-lottery
 date: "2022-06-21"
 published: true
@@ -9,3 +9,39 @@ published: true
 ## Technology Stack
 
 Solidity, Truffle, Ganache, Web3.js, OpenZeppelin
+
+## Overview
+
+Duration: 6/2022
+
+A decentralised lottery running entirely on-chain. Participants enter by sending ETH, the entry fee is denominated in USD and converted at the current exchange rate so the price stays stable as ETH moves, and when the draw closes a random winner receives the accumulated pot.
+
+Smart contract development inverts the usual risk model, and that is what makes it worth building. Code is immutable once deployed, every function is publicly callable by anyone, the contract holds real value at all times, and there is no way to ship a patch. A bug is not an incident to be fixed on Monday — it is a permanent, exploitable, funded vulnerability.
+
+## Contract Design
+
+**A strict state machine.** The lottery moves through explicit states — closed, open, calculating a winner — and every function is gated on the correct state. This is the single most important structural decision in the contract: without it, entries can arrive during winner calculation, or the draw can be triggered twice, and either one corrupts the pot. State transitions are one-directional and enforced by modifiers rather than by convention.
+
+**USD-denominated pricing.** The entry fee is defined in USD and converted to the required ETH amount at the current rate, so the barrier to entry does not swing with the market. Entries below the threshold revert rather than being partially accepted.
+
+**Escrow by construction.** Funds accumulate in the contract itself. There is no owner withdrawal path for participant funds — the only way value leaves the contract is a payout to the drawn winner, which is a structural guarantee rather than a promise.
+
+**Access control.** Administrative actions — opening a round, closing entry, triggering the draw — are restricted to the owner through OpenZeppelin's audited ownership pattern, rather than a hand-rolled address check. Every participant-facing function stays permissionless.
+
+**Randomness.** Winner selection uses a verifiable random source rather than block properties. This matters more than any other single choice in the contract: block timestamps and hashes are influenceable by miners, and a lottery seeded from them is not a lottery — it is an invitation to whoever produces the block.
+
+## Security Considerations
+
+- **Checks-effects-interactions ordering** on the payout path, so contract state is updated before value is transferred and a reentrant call finds nothing left to drain
+- **OpenZeppelin primitives** for ownership and safety utilities rather than reimplementing patterns that have already been audited and attacked in the wild
+- **Explicit reverts with reasons** on every invalid entry condition, so a failed transaction tells the caller what was wrong instead of consuming gas silently
+- **Gas-conscious storage** — participant tracking structured to avoid unbounded iteration in state-changing functions, which is a denial-of-service vector once the entry list grows
+
+## Development Workflow
+
+- **Truffle** for compilation, migration, and the test suite
+- **Ganache** as a local chain for fast iteration against deterministic state
+- **Web3.js** for the contract interaction layer
+- **Tests covering the failure paths** — underpriced entries, actions in the wrong state, unauthorised administrative calls — because in a contract that holds funds, the reverts are the feature
+
+This project is about writing code under constraints most software never faces: adversarial by default, immutable once shipped, and funded. It is the cleanest possible exercise in getting a state machine and its access control right the first time.

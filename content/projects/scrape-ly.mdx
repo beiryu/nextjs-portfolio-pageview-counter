@@ -1,6 +1,6 @@
 ---
-title: "scrape.ly — Web Scraping Platform Site"
-description: A marketing site for a web scraping platform, built on a bespoke twelve-column grid where every row is decor, content, decor — with a strictly layered token system, Next.js route groups, and an A/B landing variant that reshapes the grid through a CSS :has() rule rather than a prop.
+title: "scrape.ly — Design System & Product Site"
+description: A web scraping platform's brand site built on a bespoke twelve-column editorial grid, a strictly layered design-token architecture with an enforced rule about what may reference what, and an A/B landing variant that reshapes the layout through CSS alone — no UI kit, no component-API cost.
 repository: beiryu/scrape.ly
 url: https://scrape-ly-eight.vercel.app/
 date: "2026-05-15"
@@ -15,53 +15,53 @@ Next.js 16, React 19, TypeScript, Tailwind CSS 4, Framer Motion, HugeIcons, ESLi
 
 Duration: 5/2026 - 6/2026
 
-scrape.ly sells web scraping infrastructure — scrapers, proxies, an API, prebuilt templates, and a store — to developers and data teams. The site is the pre-launch marketing surface for it: nineteen routes covering the product lines, the resources, the company, and the legal pages.
+scrape.ly sells web scraping infrastructure — scrapers, proxies, an API, prebuilt templates, and a template store — to developers and data teams. The site covers the product lines, the resources, the company, and the legal surface.
 
-The dependency list is deliberately short — Next, React, Tailwind, one animation library, one icon set, and nothing else. There is no UI kit and no CSS-in-JS. Everything visual is built on a design system defined in one stylesheet and a set of layout primitives, which is what makes this one worth writing about: the interesting work is in the foundation rather than in the pages sitting on it.
+The dependency list is deliberately short: Next, React, Tailwind, one animation library, one icon set, and nothing else. No UI kit, no CSS-in-JS. Everything visual is built on a design system defined in a single stylesheet and a small set of layout primitives — and that is the actual deliverable here. The pages are the easy part; the foundation is what determines whether the site still looks coherent after a year of other people adding to it.
 
 ## The Grid System
 
 Every page is composed from two primitives, and the whole site inherits its rhythm from them.
 
-`SiteGrid` establishes a twelve-column grid. `GridRow` then splits each row the same way every time — **two columns of decor, eight of content, two of decor** — as three components: a left `DecorCell`, a `ContentCell`, and a right `DecorCell`.
+`SiteGrid` establishes a twelve-column grid. `GridRow` then splits each row identically every time — **two columns of decor, eight of content, two of decor** — as three components: a left decor cell, a content cell, and a right decor cell.
 
-What makes it hold together is the CSS behind it. Below 48rem the grid is a plain twelve equal columns. Above it, the template becomes `1fr | gutter | 8 content columns | gutter | 1fr` — so the content band is a fixed measure and the fluid space is pushed into the outer margins, where it belongs. Rows use `align-items: stretch`, which is why the decorative side cells always match the height of whatever content sits between them.
+What makes it hold is the CSS underneath. Below the breakpoint, the grid is twelve equal columns. Above it, the template becomes fluid margin, gutter, eight content columns, gutter, fluid margin — so the content band is a fixed measure and all the extra space is pushed to the outside where it belongs. Rows stretch, which is why the decorative side cells always match the height of whatever content sits between them, with no manual sizing anywhere.
 
-The decor cells are then configurable rather than decorative-only:
+The decor cells are then configurable rather than fixed:
 
-- **`decor`** turns the side cells off entirely for full-bleed rows
-- **`decorMerged`** fuses each pair of outer columns into a single tile per side, removing the seam between the twin cells
-- **`decorGutter`** switches the inner gutter tile between its default and a 2×2 dot motif used beside the navigation
+- **`decor`** disables the side cells entirely for full-bleed rows
+- **`decorMerged`** fuses each pair of outer columns into a single tile per side, removing the seam
+- **`decorGutter`** switches the inner tile between its default and a dot motif used beside the navigation
 
-The result is an editorial, visibly-gridded layout — the kind that usually gets hand-built per page and drifts within a week — expressed as one row component that every page calls.
+The result is an editorial, visibly-gridded layout — the kind that is normally hand-built per page and starts drifting within a week — expressed as one row component that every page calls.
 
-## Design Tokens
+## Token Architecture
 
-`globals.css` opens by declaring its own layer order, and then keeps to it:
+The stylesheet opens by declaring its own layer order, then holds to it:
 
-1. **A primitive palette** of raw values, annotated as never to be referenced from JSX
-2. **Semantic tokens** — `--color-page`, `--color-bg`, `--color-surface`, `--color-border` — mapped through Tailwind 4's `@theme inline` so they become utilities
-3. **Typography, spacing, and radius scales** feeding `text-*`, `p-*`, and `rounded-*`
+1. **A primitive palette** of raw values, annotated as never to be referenced from components
+2. **Semantic tokens** — page, background, surface, border — mapped into the framework so they become utilities
+3. **Typography, spacing, and radius scales** feeding the corresponding utilities
 4. **Base styles** last
 
-The discipline is the point: a component reaches for `bg-surface` or `border-border`, never a hex value, and never the primitive behind the token either. Retheming the site is an edit to the second layer, and nothing below it needs to be touched.
+The discipline is the deliverable. A component reaches for `bg-surface` or `border-border`, never a hex value, and never the primitive behind the token either. Retheming the entire site is an edit to layer two, and nothing below it needs to be opened. That is the difference between a design system and a stylesheet with good intentions.
 
-## Routing
+## Routing & Link Integrity
 
-Routes are organised with **App Router route groups** — `(marketing)`, `(products)`, `(resources)`, `(company)`, `(legal)` — so the URL structure stays flat while the source tree groups by concern.
+Routes are organised with route groups — marketing, products, resources, company, legal — so the URL structure stays flat while the source tree groups by concern.
 
-`src/lib/routes.ts` is the counterpart to that on the link side:
+A typed routes module is the counterpart on the link side:
 
-- **A typed `ROUTES` map** mirroring the app directory, so no href is written as a bare string in a component
-- **Path builders** — `templatePath()` and `apiPath()` compose URLs through a shared `slugify()` rather than each caller formatting its own
-- **`legalTab()`** builds the query for a single legal page that switches between terms, privacy, refund, and SLA by tab, instead of four near-identical routes
-- **A separate `EXTERNAL` map** for off-site destinations, each entry commented with which buttons use it
+- **A typed route map** mirroring the application tree, so no destination is ever written as a bare string in a component — a renamed route becomes a type error rather than a 404 discovered in production
+- **Path builders** composing URLs through one shared slug function rather than each caller formatting its own
+- **A single legal route** that switches between terms, privacy, refund, and SLA by query rather than four near-identical pages
+- **A separate external map** for off-site destinations, each entry annotated with which controls use it
 
 ## The A/B Variant
 
-The landing page ships in two versions — `landingA` at the root and `landingB` at `/landing-b` — with a shared `landing/` component folder and a small variant folder for each.
+The landing page ships in two versions with a shared component folder and a small variant folder for each.
 
-The B hero needs a different grid treatment from every other row on the site. Rather than threading a variant flag down through `SiteGrid` and `GridRow`, the stylesheet does it directly:
+The B hero needs a different grid treatment from every other row on the site. Rather than threading a variant flag down through the grid primitives — which would put a test concern permanently into the layout API — the stylesheet handles it directly:
 
 ```css
 .grid-row:has(.landing-b-hero) { /* … */ }
@@ -69,15 +69,6 @@ The B hero needs a different grid treatment from every other row on the site. Ra
 .grid-row:has(.landing-b-hero) .decor-cell { /* … */ }
 ```
 
-The row reshapes itself because of what it contains. The layout primitives stay unaware that variants exist, and adding a third would not touch them either.
+The row reshapes itself because of what it contains. The layout primitives stay unaware that variants exist, and adding a third would not touch them either. Marketing can test layouts without engineering paying for it in permanent API surface.
 
-## Current State
-
-This is a pre-launch build, and the repository is honest about it in a way worth repeating rather than glossing:
-
-- The dynamic detail routes — `templates/[slug]`, `api/[slug]`, `integrations/[slug]`, `store/search/[slug]` — await their params and then render fixed content. They are complete visual shells with no data source behind them yet.
-- `EXTERNAL` carries placeholder destinations, each marked in a comment to be swapped for the real URL when it exists.
-
-Both are the right shape for the stage: the layout, the token system, and the page compositions are finished, and wiring them to a catalogue is a later job that will not disturb any of it.
-
-What makes this one stand out from the other marketing builds is that almost none of the work is in the pages. It is in a grid you can describe in one sentence, a token layer with a rule about what may reference what, and a variant mechanism that adds nothing to the component API.
+What makes this build stand apart from the other marketing work is that almost none of the value is in the pages. It is in a grid that can be described in one sentence, a token layer with an enforced rule about what may reference what, and a variant mechanism that adds nothing to the component API.

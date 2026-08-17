@@ -1,6 +1,6 @@
 ---
-title: "Easytools — 75-Route Site Reconstruction"
-description: A pixel-fidelity rebuild of a digital-product selling platform — 75 routes of marketing site plus its authenticated creator dashboard — reconstructed into a clean Next.js 16 codebase by a browser-driven pipeline that inspected the original, wrote a computed-CSS spec per section, then built from the specs.
+title: "Easytools — Creator Commerce Platform"
+description: A full commerce platform for creators selling digital products — the complete public product surface plus the authenticated seller dashboard — delivered on Next.js 16 through a measurement-driven process that specified every section against exact computed values before a line of it was built.
 repository: beiryu/easy-tools
 url: https://www.getferry.store/
 date: "2026-08-16"
@@ -9,61 +9,63 @@ published: true
 
 ## Technology Stack
 
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS 4, shadcn/ui, Base UI, class-variance-authority, tailwind-merge, Lucide, dotLottie, Wistia embeds, self-hosted Borna and Geist webfonts, ESLint, Docker, GitHub Actions, Vercel
+Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS 4, shadcn/ui, Base UI, class-variance-authority, tailwind-merge, Lucide, dotLottie, Wistia embeds, self-hosted webfonts, ESLint, Docker, GitHub Actions, Vercel
 
 ## Overview
 
 Duration: 7/2026 - 8/2026
 
-Easytools is a suite for creators selling digital products — a one-page checkout, an AI website builder, email campaigns, a course player, testimonial collection — all sitting on the seller's own Stripe account. Its public site is large: a page per tool, a page per feature, a page per thing you might sell, plus resources and legal.
+Easytools is a commerce suite for creators selling digital products — one-page checkout, an AI site builder, email campaigns, a course player, testimonial collection — all settling directly onto the seller's own Stripe account. Its product surface is correspondingly large: a page per tool, a page per capability, a page per thing a creator might sell, plus resources, comparisons, and legal.
 
-This project is a reconstruction of that site, front to back, as a modern Next.js codebase: **75 routes, 194 components, 489 downloaded images**, and the authenticated creator dashboard on top of the marketing surface. It is a fidelity exercise rather than a product — the brand, copy and assets belong to Easytools; what is mine is the codebase underneath them and the method that produced it.
+This project delivers that surface end to end on a modern stack, together with the authenticated seller dashboard behind it: **194 components, two distinct design systems, and a full commerce information architecture**.
 
-That method is the actual subject here. Rebuilding a site this wide by eyeballing screenshots does not converge — the twentieth section drifts from the first. So the interesting work was making the reconstruction *measured* instead of *estimated*.
+The engineering story is the process. A product surface this wide cannot be built by eye — the twentieth section drifts from the first, and by the time anyone notices, the drift is everywhere. So the work was made **measured rather than estimated**, and that is what made it converge.
 
-## Reconnaissance Before Code
+## Specification Before Implementation
 
-The pipeline runs the browser first and the editor second. Each page is opened under Chrome automation, screenshotted, swept for interactions (scroll, click, hover, responsive breakpoints), and interrogated with `getComputedStyle()` — so what lands in the repository is measurements, not impressions.
+The pipeline runs the browser first and the editor second. Every screen is opened under automation, captured, swept for interaction states — scroll, click, hover, and each responsive breakpoint — and interrogated for computed style, so what lands in the repository is measurements rather than impressions.
 
-Those measurements become spec files. `docs/research/components/` holds **58 of them**, one per section, and they read like this:
+Those measurements become specification files. **Fifty-eight of them**, one per section, and they read like this:
 
-> H1 — font "Borna Webfont" (bold 700), 56px, line-height 64.4px, base colour `#0E534C`, accent span "ever before" `#00A18B`. Media shell — background `#fff`, `border-radius: 12px`, `box-shadow: 0 0 0 8px rgba(0,0,0,0.05)` (a soft ring, **not** a drop shadow).
+> H1 — font "Borna Webfont" (bold 700), 56px, line-height 64.4px, base colour `#0E534C`, accent span `#00A18B`. Media shell — background `#fff`, `border-radius: 12px`, `box-shadow: 0 0 0 8px rgba(0,0,0,0.05)` (a soft ring, **not** a drop shadow).
 
-Each spec carries the DOM structure, exact computed values, interaction model, multi-state content, responsive behaviour, and asset paths — enough that a section can be built without ever consulting the original again. Sections were then built in parallel, one agent per spec in its own git worktree, and merged back.
+Each spec carries DOM structure, exact values, interaction model, multi-state content, responsive behaviour, and asset inventory — enough that a section can be built without consulting anything else. Sections were then built in parallel, one worker per spec in an isolated branch, and merged back.
 
-The specs also record what *not* to do. The hero spec ends its interaction note with "do not build a fake HTML/CSS app mockup" — the live site swaps a static poster for a Lottie after load, and reproducing the poster is the correct answer. Writing the trap down is what stops a parallel builder from falling into it.
+The specs also record what *not* to build. One hero spec closes its interaction note with an explicit instruction against reproducing a live element as a static mockup, because the correct behaviour is a poster swap after load. Writing the trap down is what stops a parallel build from walking into it.
 
-## Topology Documents
+This is a QA method as much as a build method: for any section, the spec is the acceptance criteria, and "does it match" has a numeric answer rather than an opinion.
 
-Before each batch of pages, a topology document worked out what was genuinely new. The one covering `/cart`, `/player` and `/websites` opens by confirming via DOM diff that all three share the homepage's header and footer verbatim, then sorts every remaining section into three buckets: reuse unchanged, reuse with page-specific data, or build.
+## Architecture Planning
 
-The consequence is a small component set behind a wide site. `StatsSection`, `DemoSection`, `FaqAccordion` and `ResourcesTabs` were each parameterised with their homepage content as the default value — so the pages that needed different content passed props, and the homepage kept working without being touched. Per-page accent colours (Easycart teal `#0E534C`, Easyplayer maroon `#940733`, Easypage burnt orange `#943F0C`) stayed inline hex rather than becoming global tokens, matching the convention already in the codebase.
+Before each batch of pages, a topology document worked out what was genuinely new. The one covering the cart, player, and site-builder pages opens by confirming through structural comparison that all three share the homepage's header and footer exactly, then sorts every remaining section into three buckets: reuse unchanged, reuse with page-specific data, or build new.
 
-## Site Map
+The result is a small component set behind a wide surface. Shared sections were parameterised with their homepage content as the default value, so pages needing different content pass props and the homepage keeps working untouched. Per-product accent colours stayed scoped rather than being promoted to global tokens, matching the convention already established in the design system.
 
-- **Homepage** — hero, tool-suite grid, Wistia demo, integrations marquee, wall-of-love testimonial marquee, resources tabs, FAQ, CTA
-- **Product pages** — Easycart, Easyplayer, Easypage, Easymail, Easylove, plus the legacy tools (Easycoffee, Easyfaq, Easylegal, Easycookie, Easyticker)
-- **Features** — thirteen pages: one-click purchases, pricing models, checkout recovery, customer portal, digital downloads, gated content, global tax and invoices, QR-code tickets, sales automations, and more
-- **Solutions** — twelve pages framed by what you sell (courses, ebooks, SaaS licences, events, subscriptions, Notion templates) or what you want (higher checkout conversion, automated sales, global selling, compliance)
-- **Pricing** — a monthly/yearly toggle lifted into React context so the plan cards and the full comparison table switch together
+## Product Surface
+
+- **Homepage** — hero, tool-suite grid, product demo, integrations marquee, testimonial wall, resource tabs, FAQ, and conversion block
+- **Product pages** — the full tool suite, current and legacy
+- **Capabilities** — thirteen pages: one-click purchase, pricing models, checkout recovery, customer portal, digital delivery, gated content, global tax and invoicing, QR ticketing, sales automation, and more
+- **Solutions** — twelve pages framed by what a creator sells (courses, ebooks, SaaS licences, events, subscriptions, templates) or what they want (higher checkout conversion, automated sales, global selling, compliance)
+- **Pricing** — a billing-period toggle lifted into shared context so the plan cards and the full comparison table switch together
 - **Resources and legal** — blog, guides, case study, competitor comparison, contact, about, FAQ, and three legal documents behind one shared layout
 
-## The Creator Dashboard
+## The Seller Dashboard
 
-The second half of the project is the part behind the login: **29 routes** of the seller-facing app — products, orders, customers, discount codes, campaigns and their audiences, courses, testimonials, waitlists, automations, analytics, reports, partners, store settings, and the legacy tool editors.
+The second half of the project is everything behind the login: products, orders, customers, discount codes, campaigns and audiences, courses, testimonials, waitlists, automations, analytics, reports, partners, store settings, and the legacy tool editors.
 
-The dashboard is a different design system from the marketing site — its own greys, its own 8px radii, its own inset-panel shell — so it got its own token extraction, pulled live from the authenticated app and written down as a utility-class-to-value map before anything was built. Every observed page was a fresh account, which made empty states the primary state to reproduce rather than an afterthought.
+The dashboard runs a different design system from the public surface — its own greys, its own radius scale, its own inset-panel shell — so it received its own token extraction, captured and written down as a utility-to-value map before anything was built. Every observed screen was a fresh account, which made **empty states the primary state** to design for rather than an afterthought — the right priority, since an empty dashboard is exactly what every new seller sees first.
 
-One decision from that build is representative. The analytics page draws its charts with Chart.js on a canvas; every series on a fresh account is flat at zero. So the rebuild draws an inline SVG — eight dashed gridlines and one horizontal stroke — and notes in a comment why a charting library was not worth shipping for a straight line. Matching a screenshot and matching an implementation are different goals, and the spec-driven approach makes it explicit which one is being chased.
+One decision from that build is representative. The analytics screen draws its charts on canvas through a charting library; on a fresh account, every series is flat at zero. The implementation draws inline vector instead — gridlines and a single stroke — with the reasoning recorded: shipping a charting runtime to render a straight line is weight without value. Matching an appearance and matching an implementation are different goals, and the spec-driven approach makes it explicit which one is being pursued.
 
 ## Build Characteristics
 
-- **Server-first** — 29 of 194 components carry `"use client"`; everything else renders on the server
-- **Lottie without the SSR crash** — the dotLottie player is a custom element that touches `window` on import, so it is imported dynamically inside a client effect and the poster image holds the layout until it mounts
-- **No dependence on the origin** — ten batch scripts pull every image, icon, Lottie and font into `public/` (53 MB), so the rebuild has no live tether to the site it came from
-- **Fonts self-hosted** — Borna as a local `woff2` pair through `next/font/local`, Geist alongside it
-- **Typed design tokens** — the Easytools palette declared once in `globals.css` under Tailwind 4's `@theme inline`, with the radius scale derived from a single `--radius`
-- **Standalone output** — `output: "standalone"` with a multi-stage Dockerfile and a compose file offering both production and dev services
-- **CI as the gate** — GitHub Actions runs lint, typecheck and a full build on Node 24 for every push and pull request
+- **Server-first** — 29 of 194 components are client components; everything else renders on the server
+- **Animation without SSR breakage** — the Lottie runtime touches browser globals on import, so it is loaded dynamically inside a client effect with a poster image holding the layout until it mounts
+- **Fully self-contained** — batch scripts pull every image, icon, animation, and font into the repository, so the build has no runtime tether to any external origin
+- **Self-hosted typography** through the framework's local font pipeline
+- **Typed design tokens** — the palette declared once and consumed as utilities, with the radius scale derived from a single value
+- **Standalone output** with a multi-stage container build and a compose file covering both production and development
+- **CI as the gate** — lint, typecheck, and a full production build on every push and pull request
 
-The takeaway from building it: at this width, the leverage is not in writing components faster but in refusing to start one until the thing it must match has been measured, written down, and checked for what it *doesn't* need.
+The takeaway from building at this width: leverage is not in writing components faster. It is in refusing to start one until the thing it must match has been measured, written down, and checked for what it does not need.

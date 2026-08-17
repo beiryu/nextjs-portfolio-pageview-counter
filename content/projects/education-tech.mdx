@@ -1,6 +1,6 @@
 ---
-title: "Online Course"
-description: A modern, feature-rich online course platform built with Next.js, Prisma, and TypeScript. This platform allows creators to build and publish courses while providing users with an intuitive learning experience.
+title: "Online Course Platform — Authoring & Delivery"
+description: A course platform covering both sides of the marketplace — an authoring interface where instructors structure and publish courses, and a learning interface with progress tracking, built on Next.js with Prisma over a typed schema.
 repository: beiryu/online-course
 url: https://page-daisy.vercel.app/
 date: "2024-04-01"
@@ -9,19 +9,36 @@ published: false
 
 ## Technology Stack
 
-NextJs, TypeScript, TailwindCSS, Vercel
+Next.js (App Router), TypeScript, Tailwind CSS, Prisma, PostgreSQL, Auth.js, Vercel
 
 ## Overview
 
-Duration: 4/2024 - now
+Duration: 4/2024 - ongoing
 
-A modern, feature-rich online course platform built with Next.js, Prisma, and TypeScript. This platform allows creators to build and publish courses while providing users with an intuitive learning experience.
+A course platform serving two distinct users with opposing needs. Instructors need a structured authoring tool that does not require technical skill; learners need to get into the content and stay oriented in it. Building both properly in one system means the data model has to serve authoring and consumption equally, rather than being designed for one and adapted for the other.
 
-## Key features
+## Instructor Experience
 
-- Course creation and management for instructors
-- Intuitive learning interface for students
-- Progress tracking and analytics
-- Responsive design using Tailwind CSS
-- User authentication and authorization
-- Content management system for course materials
+- **Course structure** — courses composed of chapters and lessons, reorderable, so the shape of a course can change as it is written rather than being fixed on creation
+- **Draft and publish states** at both course and lesson level, so an instructor can add to a live course without exposing unfinished work
+- **Content management** for lesson material, attachments, and media
+- **Course metadata** — title, description, category, pricing, and cover imagery
+- **Instructor dashboard** covering published courses, enrolment, and learner progress
+
+## Learner Experience
+
+- **A focused player interface** that keeps the current lesson primary and the course structure available without dominating
+- **Progress tracking** at lesson level, persisted, so a learner returning after a week resumes exactly where they stopped
+- **Course-level completion** visualised, which is the primary driver of course completion rates
+- **Sequential navigation** with clear next and previous actions
+- **Enrolment management** across multiple courses
+
+## Engineering
+
+- **Prisma over PostgreSQL** — a normalised schema modelling courses, chapters, lessons, enrolments, and progress records, where progress is a first-class relation rather than a JSON blob
+- **Auth.js** with role separation between instructor and learner capability
+- **Server Components** for content delivery, keeping the learner-facing pages fast and cacheable
+- **Server-side authorisation** on every content route, so paid material cannot be reached by URL manipulation
+- **Type safety end to end** from schema to component
+
+A complete two-sided application: the value is in the data model serving both roles cleanly, and in the authorisation being correct at the layer that matters rather than hidden in the interface.

@@ -1,6 +1,6 @@
 ---
-title: "RomConsult — Consultant Booking Platform"
-description: A marketplace where clients browse digital marketing and cloud consultants, book them across timezones, and pay — a Next.js 16 front end on an accessibility-first component layer, backed by a NestJS API with queues, TOTP two-factor auth, and a documented self-hosted deployment.
+title: "RomConsult — Consultant Booking Marketplace"
+description: A full marketplace where clients browse digital marketing and cloud consultants, book them across timezones, and pay — a Next.js 16 front end on an accessibility-first component layer, backed by a NestJS API with background queues, TOTP two-factor auth, and a production self-hosted deployment.
 repository: beiryu/rom-consult
 url: https://rom-consult-cm6t.vercel.app/
 date: "2026-04-29"
@@ -19,63 +19,61 @@ published: true
 
 Duration: 4/2026 - 5/2026
 
-RomConsult is a booking marketplace for digital marketing and cloud consulting. Clients browse services, pick a consultant, book a slot, and pay; consultants apply to join and manage their own work; both sides get a dashboard. The repository holds the whole system — `rom-consult-fe` and `rom-consult-be` — and this write-up centres on the front end, with the API and deployment covered as the context it runs in.
+RomConsult is a booking marketplace for digital marketing and cloud consulting. Clients browse services, pick a consultant, book a slot, and pay; consultants apply to join and manage their own work; both sides get a dashboard. This is the full system — front end, API, and deployment — not a single layer of it.
 
-The domain has two constraints that drive most of the design. Bookings cross timezones, so the client and the consultant have to be shown the same slot in their own local terms without either of them doing arithmetic. And money moves through the platform, which is why the site carries a full legal surface — terms, refund policy, disclaimer, acceptable use, and an AML/CFT policy — as first-class routes rather than footer afterthoughts.
+The domain has two constraints that drive most of the design. **Bookings cross timezones**, so the client and the consultant have to see the same slot in their own local terms without either of them doing arithmetic — the single most common source of disputes in any booking product. And **money moves through the platform**, which is why the site carries a complete legal surface — terms, refund policy, disclaimer, acceptable use, and an AML/CFT policy — as first-class routes rather than footer afterthoughts.
 
 ## Application Surface
 
-Twenty-five routes under the App Router, in four groups:
+Four route groups under the App Router:
 
-- **Commerce**: `browse-services`, a service detail page, then checkout and payment as separate steps under `browse-services/[serviceId]/`
-- **Dashboard**: bookings, orders, and profile behind authentication
-- **Accounts**: login, signup, and a `become-a-consultant` application flow
-- **Marketing and legal**: about, contact, FAQ, support, plus six policy pages including AML/CFT
+- **Commerce** — service browsing, a service detail page, then checkout and payment as separate, resumable steps
+- **Dashboard** — bookings, orders, and profile behind authentication
+- **Accounts** — login, signup, and a full consultant application flow
+- **Marketing and legal** — about, contact, FAQ, support, plus six policy pages including AML/CFT
 
-There is also a `components-showcase` route — an in-repo gallery of the design system, which is how a component library stays reviewable without a separate Storybook deployment.
+There is also a live component gallery route — an in-repo showcase of the design system, which is how a component library this size stays reviewable without paying for a separate Storybook deployment.
 
 ## Front-end Architecture
 
 The data layer is split cleanly in three, so nothing reaches for `fetch` from a component:
 
-- **`src/api/`** — one typed client per domain: auth, bookings, cart, consultant applications, contact messages, orders, products, support tickets, users
-- **`src/hooks/use-*`** — TanStack Query wrappers over those clients, owning cache keys and invalidation
-- **`src/stores/`** — Zustand for the state Query should not hold, chiefly the auth session
+- **Typed API clients**, one per domain: auth, bookings, cart, consultant applications, contact messages, orders, products, support tickets, users
+- **Query hooks** wrapping those clients, owning cache keys and invalidation in one place
+- **Client state** for what the query cache should not hold, chiefly the auth session
 
-Components follow the Untitled UI convention — `foundations`, `base`, `application`, `marketing`, `shared-assets` — around 290 files in total, built on **React Aria Components**. That choice is the accessibility story: keyboard interaction, focus management, and ARIA semantics for menus, dialogs, and comboboxes come from the library rather than being reimplemented per component, which is what usually decays first on a build this size.
+Components follow a consistent convention — foundations, base, application, marketing, shared assets — around 290 files in total, built on **React Aria Components**. That choice is the accessibility story: keyboard interaction, focus management, and ARIA semantics for menus, dialogs, and comboboxes come from the library rather than being reimplemented per component, which is exactly what decays first on a build this size.
 
-Timezone and country tables live in `src/utils/`, feeding the booking UI so a slot can be rendered in the viewer's own zone.
+Timezone and country tables feed the booking UI directly, so a slot always renders in the viewer's own zone.
 
 ## Session Handling
 
-`lib/api-client.ts` is small but does the thing most token setups get wrong:
+The API client is small but does the thing most token setups get wrong:
 
-- **A request interceptor** pulls the access token straight from the Zustand store and sets the `Authorization` header, so no component ever passes a token
-- **A response interceptor** catches `401`, and if a refresh token exists, marks the failed request with a `_retry` flag, refreshes, writes the new pair back to the store, and replays the original request with the new token — the caller never sees the interruption
-- **Refresh uses a separate Axios instance**, so a failing refresh cannot recurse back through the same interceptor and loop
-- **Failure is unambiguous**: a rejected refresh, or a `401` with no refresh token at all, logs the session out rather than leaving it half-alive
+- **A request interceptor** pulls the access token from the session store and sets the authorization header, so no component ever handles a token
+- **A response interceptor** catches expiry, marks the failed request, refreshes, writes the new pair back, and replays the original request with the new token — the caller never sees the interruption
+- **Refresh uses a separate client instance**, so a failing refresh cannot recurse back through the same interceptor and loop indefinitely
+- **Failure is unambiguous**: a rejected refresh, or an expiry with no refresh token at all, ends the session cleanly rather than leaving it half-alive
 
-Two-factor auth is real rather than decorative: the API issues TOTP secrets with Speakeasy and renders enrolment QR codes, which the front end pairs with `qr-code-styling` and an `input-otp` field.
+Two-factor authentication is real rather than decorative: the API issues TOTP secrets and renders enrolment QR codes, which the front end pairs with proper QR rendering and a dedicated one-time-code input.
 
 ## Backend Services
 
-The NestJS API is organised by domain — `booking`, `cart`, `order`, `product`, `consultant-application`, `support-ticket`, `contact-message`, `user` — over Prisma and PostgreSQL, with Redis for caching. Beyond CRUD:
+The NestJS API is organised by domain — booking, cart, order, product, consultant application, support ticket, contact message, user — over Prisma and PostgreSQL, with Redis for caching. Beyond CRUD:
 
-- **Background work**: Bull queues with dedicated processors and schedulers under `src/workers/`, and Bull Board mounted so queue state is inspectable in production rather than guessed at
-- **Hardening**: Helmet, rate limiting via Throttler, compression, and Terminus health endpoints
-- **Observability**: Sentry for errors, Pino for structured logs
-- **Operations**: `nestjs-command` CLI entry points, Prisma migrations with Faker-backed seeds, and Swagger generated from the controllers
-- **Comms**: Handlebars email templates sent through Resend, with `nestjs-i18n` for message translation
+- **Background work** — queues with dedicated processors and schedulers, and a queue dashboard mounted so queue state is inspectable in production rather than guessed at
+- **Hardening** — security headers, rate limiting, compression, and health endpoints
+- **Observability** — error tracking and structured logging
+- **Operations** — CLI entry points, database migrations with seeded fixtures, and API documentation generated from the controllers
+- **Communications** — templated transactional email with translation support
 
 ## Deployment
 
-The repository documents a deliberately hybrid production topology rather than pushing everything into containers:
+The system ships with a deliberately hybrid production topology rather than pushing everything into containers:
 
-- **Docker for stateful services only** — Postgres and Redis
-- **PM2 for the Node API**, so the process is supervised without a container around it
+- **Containers for stateful services only** — Postgres and Redis
+- **A supervised process for the Node API**, so it is managed without a container around it
 - **The front end as a prebuilt image**, explicitly to avoid building on the server
-- **Nginx on the host**, not containerised, terminating SSL via Certbot and reverse-proxying both apps
+- **Nginx on the host**, terminating SSL and reverse-proxying both applications
 
-The linked demo runs the front end on Vercel; the guide above is what the full self-hosted stack expects.
-
-This is the broadest project of the set — a real marketplace with money, identity, and scheduling in it — and the parts worth pointing at are the boring ones done properly: a token refresh that cannot loop, an accessibility layer that comes from the component library instead of good intentions, and queues you can actually look inside once it is running.
+This is the broadest system in the portfolio — a real marketplace with money, identity, and scheduling in it — and the parts worth pointing at are the unglamorous ones done properly: a token refresh that cannot loop, an accessibility layer that comes from the component library instead of good intentions, and background queues you can actually look inside once it is running.

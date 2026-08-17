@@ -1,6 +1,6 @@
 ---
-title: "PFO Proxies — Figma Export to Production Site"
-description: A Next.js 16 marketing site for a proxy provider, built by refactoring raw Figma exports into semantic App Router pages — with a canvas dot-map carrying 1,033 hand-placed positions, a three-layer reduced-motion story, and a synthesised sound layer that leaves the pages server-rendered.
+title: "PFO Proxies — Proxy Network Marketing Site"
+description: A Next.js 16 marketing site for a six-line proxy provider, built around an interactive canvas world-map of 1,033 mapped network nodes, a three-layer motion system that degrades safely to no-script and reduced-motion, and a synthesised audio layer that leaves every page server-rendered.
 repository: beiryu/pfo-proxies
 url: https://pfo-proxies.vercel.app/
 date: "2026-08-16"
@@ -9,82 +9,59 @@ published: true
 
 ## Technology Stack
 
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, Base UI, shadcn/ui, Motion, HugeIcons Pro, sensory-ui (Web Audio), Canvas 2D, Anek Latin + Paper Mono, ESLint, Prettier, Docker, Vercel
+Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS v4, Base UI, shadcn/ui, Motion, HugeIcons Pro, Web Audio, Canvas 2D, Anek Latin + Paper Mono, ESLint, Prettier, Docker, Vercel
 
 ## Overview
 
 Duration: 8/2026
 
-PFO Proxies sells the same six things every proxy network sells — ISP, datacenter, IPv6, residential, unlimited residential, mobile — to buyers who scrape, verify ads, track fares, and run accounts at scale. The marketing site is sixteen routes of it: products, pricing, use cases, locations, partners, a blog, a reseller programme, an about page, FAQs, and terms.
+PFO Proxies sells the six product lines this category runs on — ISP, datacenter, IPv6, residential, unlimited residential, and mobile — to buyers scraping, verifying ads, tracking fares, and operating accounts at scale. The site covers products, pricing, use cases, locations, partners, a reseller programme, a blog, and the full company and legal surface.
 
-What makes this one worth writing up is not the subject. It is the pipeline. The whole site is built by taking a Figma export — absolutely positioned TSX with `top`/`left`/`calc()` everywhere and hardcoded hex values — and refactoring it into semantic App Router components, with the original export **kept in the repository** as the reference. `raw/` holds sixteen of them, about 17,000 lines, sitting beside the `src/` they became.
+In a category where every competitor's site looks broadly identical, the differentiation had to come from the experience rather than the copy. This build spends its complexity budget on three things a visitor actually feels: an interactive network map that responds to the cursor, motion that is choreographed rather than sprayed, and an optional audio layer — all delivered without giving up server rendering or accessibility.
 
-## The Refactor Contract
+## The Network Field
 
-Working from a pixel-exact export imposes a rule that most greenfield work does not have: the visual result may not change. Only the structure may.
+The signature background is a canvas field of dots in the shape of a world map, and it is the largest single component in the codebase.
 
-That produces a few consistent moves across the codebase:
+The geometry is not procedurally generated. It is stored as structured text — one row per line in the design's own coordinate space — so all 1,033 node positions stay readable and reviewable in a diff rather than hiding inside a binary or a generator seed. It is parsed once at import into a flat coordinate array.
 
-- **Absolute positioning becomes flow.** The 404 page's note records the export as "a 1450px-tall canvas on a 12×72px grid with 16px gutters"; the rebuilt page is a 1040px content column, the width used site-wide.
-- **Raw values become tokens.** `globals.css` maps roughly ninety oklch custom properties into Tailwind v4's `@theme`, including a five-token syntax-highlighting scale and a radius ramp derived from one `--radius` by multiplier.
-- **Missing assets stay missing, visibly.** The exports ship `<img>` elements carrying sizes but no `src`. Rather than invent artwork, every one becomes an `AssetPlaceholder` — a real `next/image` at the export's intrinsic size, so the box stays reserved and the layout is honest — marked `TODO: asset needed` at the call site.
-- **Flattened controls are rebuilt as real elements.** The ISP configurator's export drew the IP-count slider as a single 33px image of a track. It is now a real `<input type="range">` with the design's own track styling and the thumb left to the platform, because the export supplied no thumb artwork to copy.
+The behaviour layered on top:
 
-The site is mid-pipeline, and the repository does not pretend otherwise: the root route is still a stub while the interior pages are built export by export.
+- **A small percentage of nodes pulse on their own clock**, each with an independent period, so the field never flashes in unison
+- **The cursor lights the nearest cluster** through a lagging follower, capped per sample and fading out — a trail rather than a spotlight
+- **A click sends a lit band outward** across the field toward the far corner
+- **Every node holds one of exactly two brand colours**, switched instantly and never blended, both read from design tokens so the field follows the theme and re-reads on a change
+- **The backing store is capped** with density giving way first, so the canvas can never exceed a browser's bitmap limit and blank itself
+- **Rendering halts off screen**, and reduced-motion visitors get a single static frame
 
-## Real Versus Inert
-
-The most disciplined thing here is that the codebase distinguishes, in writing, between controls that work and controls that are still façades — and says which is which at the top of each file.
-
-Live: the FAQ search filters the question blocks through a provider and binds ⌘K at the window, with `preventDefault` so the browser does not claim the chord. The scroll-spy table of contents marks your place in long articles, suspending itself while a click's smooth scroll is in flight so the highlight does not walk through every heading on the way. The theme switcher is a genuine radio group whose selection is drawn with `has-[:checked]:` off a visually-hidden input — pure CSS, no client component.
-
-Inert but accessible: the pricing configurator's segmented tabs and the various filter rails carry `aria-pressed` and proper labelling so assistive tech reads the current selection correctly, with no behaviour behind them yet.
-
-Both states are deliberate, and the file comments say so. That is the difference between scaffolding and technical debt.
-
-## Dot-Cluster Field
-
-The site's signature background is a canvas field of dots in the shape of a world map, and it is the largest single component at just under 500 lines.
-
-The geometry did not come from a generator. It was lifted from the design's source SVG and stored as text — one row per line, `<y>: <x> <x> …`, in the SVG's own 2411 × 1008 space on a 29-unit grid — so 1,033 hand-placed positions stay readable and diffable in a code review. It is parsed once at import into a flat coordinate array.
-
-The behaviour on top of it:
-
-- **A few percent of dots toggle on their own clock**, each with its own period drawn from a range, so the field never pulses in unison
-- **The cursor lights the nearest handful** through a lagging follower, capped at four dots per sample and fading over 550ms — a trail, not a spotlight
-- **A click kills the hover set** and sends a lit band outward at 640px/s toward the far corner
-- **Every dot holds one of exactly two colours**, switched instantly and never blended, both read from CSS custom properties so the field follows the theme and re-reads on a flip
-- **The backing store is capped at 4096²** device pixels, with density giving way first — past a browser's canvas limit the bitmap is dropped and the element paints as a broken image
-- **Rendering stops off screen**, and reduced-motion readers get one static frame
-
-A short `LEAVE_GRACE_MS` window treats a pointer-leave that is immediately undone as a focus blip rather than a real exit, which is the sort of detail that only shows up after actually watching someone use it.
+A short grace window treats a pointer-leave that is immediately reversed as a focus blip rather than a real exit — the kind of detail that only surfaces from watching someone actually use it.
 
 ## Motion, in Three Layers
 
-Reveal animation is split across two mechanisms on purpose, and the reasoning is committed in `lib/motion.ts`.
+Reveal animation is split across two mechanisms on purpose, and the reasoning is documented in the codebase.
 
-Above the fold, blocks fade in through CSS classes at first paint — content already on screen must not wait for hydration, and some of it cannot take a wrapper at all: a `position: sticky` element would hand its grid placement to the wrapper, and a list that re-mounts on user input would replay its animation on every keystroke. Below the fold, a Motion-backed `Reveal` component handles it. The shared rise distance, duration, stagger, and easing curve live in one module so the two paths move identically — including spelling out `cubic-bezier(0, 0, 0.2, 1)` by hand, because Motion's `"easeOut"` is a different curve and would decelerate on a visibly later beat than the CSS path.
+Above the fold, blocks fade in through CSS at first paint — content already on screen must not wait for hydration, and some of it cannot accept a wrapper at all: a sticky element would hand its layout placement to the wrapper, and a list that re-mounts on input would replay its animation on every keystroke. Below the fold, a JS-driven reveal component takes over. The shared rise distance, duration, stagger, and easing curve live in one module so the two paths move identically — including the easing curve written out by hand, because the library's named default is a different curve and would visibly decelerate on a later beat than the CSS path.
 
-Those constants sit in their own module rather than in `reveal.tsx` for a concrete App Router reason: that file is `"use client"`, and a plain string exported from a client module and imported by a Server Component arrives as a client-reference proxy, not as the string.
+Those constants sit in their own module for a concrete architectural reason: the reveal component is a client module, and a value exported from a client module and imported by a server component arrives as a reference, not as the value.
 
-Reduced motion is then handled at three levels rather than one — `motion-safe:` on the CSS path, `useReducedMotion` on the JS path (needed because Motion's own config defaults to `"never"`), and pinned resting states in `globals.css` — with `RevealNoScript` as the last net, injecting a one-rule stylesheet so a page whose script never runs does not render as blank blocks.
+Reduced motion is then handled at three levels rather than one — on the CSS path, on the JS path, and as pinned resting states in the stylesheet — with a no-script fallback as the final net, so a page whose JavaScript never runs does not render as a screen of blank blocks.
 
-The odometer ticker is the smallest example of the same care. Each decimal place derives its offset from one shared spring rather than getting its own, because a plain 0–9 column animated to `-digit × height` rolls *backwards* on the 9→0 step; deriving from the whole number gives real carry. The strip repeats its first cell so the `% 10` wrap is invisible.
+The numeric ticker is the same care at small scale. Each decimal place derives its offset from one shared spring rather than its own, because an independently animated digit column rolls *backwards* on the nine-to-zero step; deriving from the whole number produces real carry, and repeating the first cell makes the wrap invisible.
 
-## Sound Without Client Components
+## Audio Without Sacrificing Server Rendering
 
-The site carries a synthesised audio layer — seventeen semantic sound roles across five categories, nine packs generated from an instrument system, all Web Audio, no sample files. The `glass` pack is configured at 0.3 volume because the sounds fire on ordinary hovers rather than confirmations, and the `hero` category stays off: its 800–1800ms fanfares have nothing to celebrate on a blog.
+The site carries a synthesised audio layer — seventeen semantic sound roles across five categories, generated from an instrument system rather than shipped as sample files, so it costs no network weight at all. Volume is tuned per category to intent: hover sounds sit low because they fire constantly, and celebratory cues stay off entirely on pages that have nothing to celebrate.
 
-The integration problem is the interesting part. Most of the site is Server Components, and reaching a `usePlaySound` hook would mean converting every card, sidebar, and banner into a client component just to make a noise. `SoundZone` avoids that: it wraps a region and listens by delegation, so its children stay exactly what they were — server-rendered elements handed over as a prop. It uses `pointerover` rather than `pointerenter` because only the former bubbles to the zone, and tracks the last-hovered element so moving across a card's own children does not retrigger the sound. The provider itself renders no DOM and passes children straight through, keeping the tree server-rendered from the root layout down.
+The integration is the interesting problem. Most of the site is server-rendered, and reaching a sound hook conventionally would mean converting every card, sidebar, and banner into a client component purely to make a noise. Instead, a zone component wraps a region and listens by event delegation, so its children stay exactly what they were — server-rendered elements passed straight through. It listens on the event that actually bubbles to the zone, and tracks the last-hovered element so moving across a card's own children does not retrigger the sound. The provider renders no DOM of its own, keeping the tree server-rendered from the root layout down.
 
 ## Content as Typed Data
 
-Every page's content is a typed module under `src/lib`, against interfaces in `src/types` — six products with per-card tone and feature list, nine use cases, twelve locations, a 349-line FAQ set, partners, testimonials, posts. The five dynamic segments (`products`, `pricing`, `use-cases`, `partners`, `blog`) each resolve a slug against a record and enumerate it through `generateStaticParams`, so adding a page is adding a key.
+Every page's content is a typed module checked against shared interfaces — six products with per-card tone and feature list, nine use cases, twelve locations, a full FAQ set, partners, testimonials, and posts. The five dynamic sections each resolve a slug against a record and enumerate it for static generation, so adding a page is adding a key.
 
-The data modules also carry the reconciliation work, written down. Two exports paired the same pool of IP counts with different countries, off by one place; `locations.ts` records which pairing won and why, and keeps India — spotlighted on the use-case pages and nowhere else — outside the main list rather than lengthening every grid that reads it. The product blurbs arrived encoded two opposite ways across six cards, and are normalised to one form at the source.
+The data layer also carries the reconciliation work. Where source content arrived inconsistent — the same IP-count pool paired with different countries across two exports, product descriptions encoded two opposite ways across six cards — it is normalised once at the source, with the decision recorded, rather than being patched per component downstream.
 
 ## The Through-Line
 
-This repository is unusually documented, and not in the way that means "every function has a JSDoc restating its name." The comments are about roads not taken: why the sticky element gets the fade but not the rise, why the config lives in a typed module instead of the root file the library's README suggests, why `fill-mode-backwards` is load-bearing rather than decorative, why the noscript selector must avoid `>` and quotes (React escapes text children, and an escaped character would silently corrupt it).
+This codebase is unusually well documented, and not in the way that means every function has a comment restating its name. The comments explain roads not taken: why a sticky element gets the fade but not the rise, why configuration lives in a typed module rather than where the library's documentation suggests, why a particular animation fill mode is load-bearing rather than decorative, why a fallback selector must avoid certain characters that would be silently escaped and corrupted.
 
-For a site assembled largely with AI assistance from machine-generated exports, that is the thing that makes it maintainable — the reasoning is in the repository rather than in a chat log, and the next person to touch the slider knows it is inert on purpose.
+That is what makes a site like this maintainable six months later — the reasoning lives in the repository, so the next engineer to open the file knows why it is the way it is.

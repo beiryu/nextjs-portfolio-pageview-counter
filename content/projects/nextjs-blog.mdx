@@ -1,6 +1,6 @@
 ---
-title: "NextJS Blog"
-description: The blog is currently building, with the aim of sharing coding experiences, interviews, math, and side issues. Manage posts through Notion database (similar to CMS)
+title: "Engineering Blog — Notion-Backed Publishing"
+description: A personal engineering blog that uses Notion as its CMS — posts authored in a database and rendered as statically generated pages, with incremental revalidation, newsletter capture, and a custom domain.
 repository: beiryu/nextjs-blog
 date: "2023-05-21"
 url: https://blog.beiryu.io.vn
@@ -9,4 +9,32 @@ published: true
 
 ## Technology Stack
 
-Next.js, Typescript, Tailwind CSS, Notion API, Convertkit, Vercel, .Tech
+Next.js, TypeScript, Tailwind CSS, Notion API, ConvertKit, Vercel
+
+## Overview
+
+Duration: 5/2023 - ongoing
+
+A publishing platform for writing about engineering practice, interview preparation, mathematics, and the smaller problems worth recording. It runs on a deliberately unusual content pipeline: **Notion is the CMS**.
+
+That choice solves the real problem with a personal blog, which is not building it but continuing to write for it. Authoring in Notion means drafting on any device, in a tool already open, with no local repository, no build step, and no markdown files to manage — while the published site remains a fast, statically generated Next.js application rather than a Notion page share.
+
+## How It Works
+
+- **Notion as the content database** — each post is a database row with typed properties for title, slug, summary, tags, publication state, and date, so the database schema *is* the content model
+- **Block rendering** — Notion's block tree is mapped to the site's own components, so headings, code blocks, callouts, and images render in the site's typography rather than Notion's
+- **Static generation with incremental revalidation** — pages are prebuilt and served from the edge, then revalidated on an interval, so publishing is a Notion toggle rather than a deploy
+- **Draft and publish states** driven by a database property, so unfinished work never appears
+- **Tag-based indexes** generated from the same source
+
+## Features
+
+- **Syntax-highlighted code blocks** with language detection
+- **Reading time and post metadata** derived at build time
+- **Tag filtering** across the archive
+- **Newsletter capture** through ConvertKit, integrated into the post flow rather than bolted on as a popup
+- **Full metadata and social previews** generated per post
+- **Custom domain** on a global edge deployment
+- **Responsive typography** tuned for long-form reading rather than inherited from a default
+
+The architecture is the point: separating the authoring experience from the delivery platform means the writing tool can be whatever keeps you writing, while readers still get a static, fast, properly indexed site.

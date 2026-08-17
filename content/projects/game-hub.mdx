@@ -1,6 +1,6 @@
 ---
-title: "Game Hub"
-description: GameHub is a video game discovery web app that helps you find new and interesting games to play. With GameHub, you can search for games by platform, genre, and more
+title: "Game Hub — Video Game Discovery App"
+description: A game discovery application over a large public games API — search and multi-axis filtering by platform, genre, and rating, with a responsive grid, skeleton loading states, and client state kept lean enough that filtering feels instant.
 repository: beiryu/game-hub
 url: https://game-hub-two-drab.vercel.app/
 date: "2023-03-01"
@@ -9,8 +9,33 @@ published: true
 
 ## Technology Stack
 
-ReactJs, Chakra UI, Zustand, TaiwindCSS
+React, TypeScript, Chakra UI, Zustand, Vite
 
-## General
+## Overview
 
-🚀 A video game discovery web app that helps you find new and interesting games to play
+Duration: 3/2023
+
+A discovery interface for finding games worth playing. The user narrows a very large catalogue by the axes that actually matter — platform, genre, publisher, rating, release period — and gets back a browsable grid with the detail needed to make a decision.
+
+The interesting problem in a discovery UI is not fetching data, it is making the filtering feel immediate when every filter change is a network request. Most of the work here is in the query and state layer.
+
+## Features
+
+- **Multi-axis filtering** — platform, genre, publisher, and rating combined, with the active filter set always visible so the user knows why they are seeing these results
+- **Search** across the catalogue, debounced so typing does not fire a request per keystroke
+- **Sorting** by relevance, rating, release date, and popularity
+- **Responsive grid** adapting column count to viewport rather than snapping between two fixed layouts
+- **Skeleton loading states** that match the shape of the real cards, so the layout does not shift when data arrives
+- **Game detail view** with screenshots, trailers, platform availability, and rating breakdown
+- **Dark and light themes**
+
+## Engineering
+
+- **Zustand for filter state** — a single store holding the active query, so every filter control reads and writes the same source of truth and no component owns a stale copy
+- **Query caching** so returning to a previously seen filter combination is instant rather than refetching
+- **Image optimisation** through the API's own sizing parameters, requesting the dimensions actually rendered rather than downloading full-resolution art for a thumbnail grid
+- **Typed API layer** — response shapes modelled in TypeScript so a schema change surfaces at compile time
+- **Chakra UI** for accessible components and a consistent theme scale
+- **Custom hooks per resource**, keeping data fetching out of components entirely
+
+A focused build about doing one interaction extremely well: making a large catalogue feel small.

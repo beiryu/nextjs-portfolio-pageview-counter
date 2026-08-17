@@ -1,0 +1,56 @@
+---
+title: "Voice AI Platform — TTS & Voice Conversion"
+description: A self-hosted voice AI platform running three open speech models behind a single product — text-to-speech, voice conversion, and generative audio — with GPU inference containers, queue-based processing, and a credit system, so the whole stack runs without a per-character vendor bill.
+published: false
+---
+
+## Technology Stack
+
+PyTorch, FastAPI, Next.js 15, React, TypeScript, Tailwind CSS, PostgreSQL, Prisma, Redis, Inngest, AWS (S3, EC2), Docker, Auth.js
+
+## Overview
+
+Duration: 6/2024 - ongoing
+
+A voice AI platform covering the three things creators actually need from this category: turning text into natural speech, converting one voice into another, and generating audio from a description. The distinguishing decision is that it **self-hosts the models** rather than reselling a commercial API.
+
+That changes the economics and the product surface at the same time. Commercial voice APIs bill per character and forbid fine-tuning, which caps both the margin and what the product can offer. Running the models directly means voices can be fine-tuned on customer data, inference cost is compute rather than a per-request fee, and the platform controls its own latency and availability. The cost is that GPU inference, queueing, and model serving become the team's problem — which is where most of this build went.
+
+## The Models
+
+- **StyleTTS2** — text-to-speech with control over style, prosody, and emotional delivery
+- **Seed-VC** — voice conversion, transforming one speaker's voice into another while preserving the spoken content
+- **Make-An-Audio** — generative audio for environmental sound, music beds, and effects from a text description
+- **Fine-tuning pipeline** — a training workflow for adapting a model to a new voice from a short sample
+- **Inference optimisation** — runtime conversion and quantisation to bring generation time down on the same hardware
+
+## System Architecture
+
+- **Containerised model services** — each model isolated with its own dependencies and resource limits, so one model's CUDA requirements cannot break another's, and each scales independently
+- **Queue-based processing** through Inngest — generation is slow and bursty, so requests are queued, tracked, and retried rather than held open on an HTTP connection that will time out
+- **FastAPI inference endpoints** with automatic schema documentation
+- **GPU acceleration** with CPU fallback, so the stack still runs in development without a GPU
+- **Streaming delivery** — audio is returned in chunks as it is produced, so the user hears the beginning before the end is finished
+- **S3 for audio storage** with scoped access controls
+- **PostgreSQL and Prisma** for the application data, Redis for caching and hot inference results
+- **A credit system** — usage tracked and quotas enforced at the database level, because a platform with real compute cost per request cannot rely on client-side limits
+
+## Product Surface
+
+- **Generation workspace** covering all three capabilities in one interface
+- **Voice library** — saved, named, and favourited voices, including fine-tuned ones
+- **Waveform editing** — trimming, splitting, and combining generated audio in the browser
+- **Pronunciation control** — custom dictionary and phoneme adjustment, which is what separates usable TTS from nearly-usable TTS
+- **Speech parameters** — pitch, rate, pause, and emphasis
+- **Multiple export formats** at selectable quality
+- **Generation history** with search and filtering
+- **Live progress** during processing, driven from the queue state rather than an indeterminate spinner
+
+## Operational Concerns
+
+- **Rate limiting and quota enforcement** to protect finite GPU capacity
+- **Content safeguards** around voice generation, which is a genuine misuse risk in this category and not optional
+- **Structured error handling** with graceful degradation when a model service is unavailable
+- **Metrics and logging** across both application and inference layers, so slow generations can be attributed to a model rather than guessed at
+
+This project is the full stack of running AI in production rather than calling someone else's: model serving, GPU containers, asynchronous processing, usage metering, and a product interface that stays honest with the user while something expensive happens in the background.

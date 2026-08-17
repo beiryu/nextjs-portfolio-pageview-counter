@@ -1,6 +1,6 @@
 ---
-title: "Resizing images using seam carving method"
-description: Resizing images using the "seam carving" method
+title: "Seam Carving — CUDA Parallel Optimisation"
+description: A content-aware image resizing engine implemented in C/C++ and progressively optimised across three CUDA versions — profiling each stage of the algorithm, moving the parallelisable work to the GPU, and using shared memory to cut convolution cost.
 repository: beiryu/seam-carving-parallel-programming
 date: "2022-11-01"
 published: true
@@ -8,162 +8,89 @@ published: true
 
 ## Technology Stack
 
-C/C++, Cuda, Parallel Programming
+C/C++, CUDA, GPU Parallel Programming, Profiling & Optimisation
 
-## Seam carving
+## Overview
 
-It operates by establishing a number of seams (the least important paths) in an image and automatically removing the seams to reduce the size of the image or inserting connections to expand it. In this project, the goal is to remove the least important seams.
+Duration: 11/2022
 
-The purpose of the algorithm is to align objects in the image, display the image without distortion on different sized devices (mobile phones, large screens).
+Seam carving resizes an image by removing the least important paths through it rather than scaling uniformly, so faces, buildings, and text keep their proportions while empty sky and flat background absorb the change. It is the correct way to fit one image to many screen sizes without distortion.
 
----
+It is also expensive. Nearly every stage is O(n²), and the naive implementation scales linearly with the number of seams removed — which makes it a genuinely good candidate for GPU parallelisation and a good subject for measuring what parallelisation actually buys you.
 
-**Input**: an RGB image with size [W, H, 3] and the number of seams to be removed N
-
-**Output**: an image with N seams removed in the width direction, size: [W-N, H, 3] without distorting important objects.
+**Input**: an RGB image `[W, H, 3]` and a seam count N
+**Output**: an image `[W-N, H, 3]` with N low-energy seams removed and no distortion to important content
 
 <div align="center">
   <img src="./seam-carving-parallel-programming/1.png" alt="Seam carving" />
 </div>
 
-## Steps to perform basic seam carving algorithm
+## The Algorithm
 
-Convert image to .pnm if it is not in the correct format
-
-**Process**
-
-- Compute weight/density/energy for each pixel.
-  - Convert the image to grayscale.
-  - Blur the image using Gaussian Blur.
-  - Detect edge points using Sobel Filter.
-  - Build Energy Map from the edges along the horizontal and vertical directions, respectively.
-- From the Energy Map, construct a list of seams. Seams are sorted by energy, where seams with low energy are considered less important for the image content. Seams can be computed through the dynamic programming approach.
-- Remove the required low-energy seams.
+- **Energy computation per pixel** — convert to greyscale, apply a Gaussian blur, run a Sobel filter to detect edges, then build an energy map from the horizontal and vertical gradients
+- **Seam identification** — find the minimum-energy path from top to bottom using dynamic programming
+- **Seam removal** — delete the identified path and repeat
 
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/2.png"
-    alt="Seam carving Metric"
-  />
+  <img src="./seam-carving-parallel-programming/2.png" alt="Seam carving metric" />
 </div>
 
-<div align="center">
-  <img
-    src="./seam-carving-parallel-programming/3.png"
-    alt="Seam carving Formula"
-  />
-</div>
+The seam search is where the algorithmic work is. Let `F[i][j]` be the minimum cumulative energy of a seam ending at pixel `(i, j)`:
 
-## Algorithm analysis for finding the path with the least energy
-
-Calculating a seams line involves finding a line with the lowest energy cost from the top to the bottom of the image. This can be achieved through algorithms such as Dijkstra, dynamic programming, or greedy...
-
-Dynamic programming is a programming method that stores the results of sub-calculation to simplify the computation of a complex result. Dynamic programming can be used to calculate seams lines. If we try to calculate the vertical seam with the lowest energy, for each pixel in a row, we calculate the energy of the current pixel plus the energy of one of the three possible pixels above it.
-
-The implementation of finding seams using dynamic programming is used. Let F[i][j] be the minimum energy of seams ending at pixel[i][j]. From there, we have a simple recurrence formula as follows.
-
+```
 F[i][j] = min(F[i+1][j-1], F[i+1][j], F[i+1][j+1]) + e[i][j]
+```
 
-At each row, compute each value in the row of the temporary matrix according to the dynamic programming formula.
-
-At each step, the trace matrix[i][j] stores the index value of argmin(F[i+1][j-1], F[i+1][j], F[i+1][j+1]) to track the optimal value of the seams.
-
-<div align="center">
-  <img
-    src="./seam-carving-parallel-programming/4.png"
-    alt="Seam carving Dynamic Programming"
-  />
-</div>
-
-## Installation step by step
+A parallel trace matrix stores `argmin` at each step, so the optimal path can be reconstructed by backtracking once the table is complete.
 
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/5.png"
-    alt="Seam carving Dynamic Programming Output"
-  />
+  <img src="./seam-carving-parallel-programming/4.png" alt="Dynamic programming table" />
 </div>
 
-**Comment**
+## Baseline Measurement
 
-We can see a graph between the number of seams removed and the time taken to create almost a bisector of the first quadrant angle. This means that when we need to remove twice the number of seams, the execution time also increases by almost twice. This is quite bad. This is because the Seam-Carving algorithm has a large complexity when executed sequentially because most of the steps in the algorithm have a complexity of O(n^2). For example:
-
-- Converting the image to grayscale takes O(n^2), as each pixel is processed independently.
-- The convolution steps (blurring the image, finding edges, constructing the energy map) take O(n^2) to perform convolution on each image pixel.
-- The dynamic programming step of finding the seam with the smallest importance or removing a previously found seam both have a complexity of O(n^2).
-- Removing seams takes O(n^2), with each row being processed independently. Similar to copying a matrix but not counting pixels that belong to removed seams.
-
-**It can be concluded that applying parallel computing in this problem is very appropriate since most of the main steps of the algorithm can be parallelized.**
-
-## Version 1
-
----
-
-In the first parallel version, we implemented parallelization as follows:
-
-- Parallelize the conversion of images to grayscale
-- Parallelize convolution functions directly from GMEM
-- The host performs dynamic programming calculations
-- The host performs finding the smallest value seams in N seams
-- The host performs sequential backward tracing based on the `traceMap` array to find this seam (or the pixels to be deleted)
-- Parallelize the deletion of pixels by flattening the input array, copying the elements that are not on the seam to the output array
+The sequential implementation was profiled first, because optimising without a baseline is guessing. The result was close to a straight line: doubling the seam count doubled the runtime, confirming that the cost is dominated by the per-pixel stages rather than by any single bottleneck.
 
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/6.png"
-    alt="Seam carving Parallel Programming Output"
-  />
+  <img src="./seam-carving-parallel-programming/5.png" alt="Sequential performance" />
 </div>
 
-- For the blur steps, we used convolution to find features in parallelization. Our group used SMEM to speed up the algorithm.
+Every major stage — greyscale conversion, the three convolutions, the DP table, and the removal pass — is O(n²) and operates on pixels largely independently. That is exactly the profile that justifies moving to the GPU.
+
+## Version 1 — Naive Parallelisation
+
+Greyscale conversion, the convolution kernels, and the pixel-removal pass moved to the device; the dynamic programming and backtracking stayed on the host.
 
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/7.png"
-    alt="Seam carving Parallel Programming Output"
-  />
+  <img src="./seam-carving-parallel-programming/6.png" alt="First parallel version" />
 </div>
 
-**Comments**
+**Result:** a clear win at low seam counts, and no better than baseline at high ones. The cause was measurable rather than theoretical — host-to-device and device-to-host transfer per seam dominated once the seam count grew. Parallelising the work is not enough if the data crosses the bus on every iteration.
 
-After testing the parallel computing part, we realized that the time to copy data from host to device and from device to host is quite significant. Therefore, when running with a large number of seams using the device, the running time becomes less efficient.
+## Version 2 — Shared Memory Convolution
 
-For a small number of seams (equal to 10), the power of parallelization will be demonstrated. However, when the number of seams increases, the performance of this optimization is equivalent to the basic version.
-
-The reason why SMEM is faster in some cases is because SMEM is located on the SM → with much faster access speed than DRAM (GMEM). Data will be copied to the SMEM of the same block before convolution, and the threads will use this shared data → increasing the speed.
-
-## Version 3
-
----
-
-For the third parallel version, we parallelize as follows:
-
-- For the dynamic programming step of finding the least important seam, parallelize on each row instead of sequentially for each pixel
-
-**Comments**
-
-- When parallelizing the steps, the seam-carving algorithm has significantly improved its execution time compared to the previous 2 versions.
-- In terms of ideology when parallelizing, the team did not change the original ideology and the parallelized version still significantly improved the time.
-
-## Development direction
-
-- We can optimize by using the idea of two-end BFS, from which we can calculate in two directions from top to bottom and from bottom to top, and then synthesize the results by taking the smallest total result of the row. It is easy to estimate that the algorithm speed will decrease by half. _F_[*n*/2]+_F_[*n*/2+1]
-- Currently, the main direction of the group is to optimize the time for one algorithm execution. However, in practice, when using the algorithm to measure performance, we always want to maximize the number of seams that can be run. This is the biggest limitation to the idea of optimizing the algorithm, making the algorithm unfavorable. A proposal may be to use one image in each deletion and perform only one deletion on the returned result.
-- This idea can also apply the Forward Energy method at http://cs.brown.edu/courses/cs129/results/proj3/taox/, which helps us not have to recalculate the energy step.
-  Forward Energy predicts which pixels will be adjacent after removing the seam and uses that to suggest the best seam to remove. This is in contrast to backward energy.
-  For the old algorithm, the formula for calculating the minimum energy of a pixel is based on the three adjacent pixels above.
-  This will be a major obstacle if all 3 pixels have similar values, leading to the removal of the seam (point with the smallest energy) and unintentionally removing an important part of the texture in the image.
+The convolution stages were rewritten to stage their tile into shared memory before computing.
 
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/9.png"
-    alt="Seam carving Parallel Programming Idea 1"
-  />
+  <img src="./seam-carving-parallel-programming/7.png" alt="Shared memory version" />
 </div>
 
+Shared memory sits on the streaming multiprocessor, with far lower access latency than global device memory. Because convolution reads each pixel repeatedly across neighbouring windows, loading the block once and having every thread read from shared memory removes the redundant global reads — the standard win for stencil operations, and it delivered.
+
+## Version 3 — Parallel Dynamic Programming
+
+The remaining host-side bottleneck was the DP table. Version 3 parallelises it **per row** — every cell in a row is computed concurrently, with rows processed in sequence, since row `i` depends on row `i+1`.
+
+**Result:** a significant improvement over both previous versions, and the largest single gain of the three. Notably, the algorithm's structure was not changed to achieve it — the same recurrence, mapped correctly onto the hardware.
+
+## Further Optimisation
+
+- **Bidirectional search** — computing the DP table from both ends and combining at the midpoint, roughly halving the dependent-sequential depth
+- **Forward energy** — the current backward-energy formulation can remove a seam that looks cheap but leaves a visible artefact where the newly adjacent pixels do not match. Forward energy scores a seam by the cost it *creates* after removal rather than the energy it currently occupies, which resolves that class of artefact and removes the need to recompute the energy map from scratch each iteration
+- **Batched removal** — removing multiple seams per pass, since in practice the goal is maximising throughput rather than minimising single-run latency
+
 <div align="center">
-  <img
-    src="./seam-carving-parallel-programming/10.png"
-    alt="Seam carving Parallel Programming Idea 2"
-  />
+  <img src="./seam-carving-parallel-programming/9.png" alt="Optimisation direction" />
 </div>
+
+This project is systems and performance work rather than application development: profile first, parallelise what the profile justifies, measure that the memory hierarchy is being used correctly, and know the difference between a change that looks faster and one that is.
