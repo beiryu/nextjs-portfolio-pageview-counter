@@ -1,0 +1,81 @@
+---
+title: "CleanProxies — Figma-to-Code Proxy Network Site"
+description: A 21-route Next.js 16 marketing site for an ISP and residential proxy network, refactored out of raw Figma exports that stay committed beside the clean components, with five priced configurators on one page and a 1,000-line three.js globe behind a poster it can fall back to.
+repository: beiryu/clean-proxies
+url: https://clean-proxies-psia.vercel.app/
+date: "2026-08-16"
+published: true
+---
+
+## Technology Stack
+
+Next.js 16 (App Router), React 19.2, TypeScript strict, Tailwind CSS v4, shadcn/ui, Base UI, Motion, three.js, HugeIcons Pro, class-variance-authority, tailwind-merge, ESLint 9, Prettier, sharp, Docker, Vercel
+
+## Overview
+
+Duration: 8/2026
+
+CleanProxies sells ISP subnets, rotating residential, bare metal, and VPS to people who scrape and monitor at scale — the same buyer as any proxy vendor: technical, price-sensitive, already comparing tabs. The site itself is not the interesting part of this project. The interesting part is how it got built.
+
+The whole thing started as Figma exports — the absolutely-positioned, `top-[437px]`, `calc()`-riddled HTML that Dev Mode produces — and every one of those exports is still in the repository under `raw/`, 4.2 MB of them, sitting beside the semantic components they were refactored into. The repo is a fork of a Figma-to-code template with a `/figma-to-code` agent skill in `.claude/skills/`, and `AGENTS.md` as the single source of instructions synced out to `CLAUDE.md` and `GEMINI.md` by `scripts/sync-agent-rules.sh`. Seventy-five commits over nine days.
+
+Keeping the raw exports means the refactor is auditable: for any component you can open the export it came from and check that the visual result survived the structural rewrite. That is the whole premise of the workflow — change the DOM, never the pixels.
+
+## What the Refactor Actually Removes
+
+The comments in this repo are unusually explicit about what was thrown away, and that is worth pointing at because it is the part a screenshot cannot show. `landing.tsx` records that the export nested the header/hero block deep inside the file despite it rendering first, so section order in the rewrite follows the `top-[Npx]` offsets rather than the file order. It also shipped **three copies of the pricing-card grid** — two of them `hidden` Figma variant states — plus duplicate hidden buttons, orphaned text fragments, and a floating banner that never rendered. None of it was carried over.
+
+`site-header.tsx` notes the same thing at component scale: a dead "Create Account" button variant superseded by the live "Get Started" CTA, present in the export, absent from the code. Figma variant states are the single biggest source of noise in an export, and the discipline is knowing which one is live.
+
+## Pricing: Five Configurators, One Route
+
+Five products, and the naive shape is five routes. This is one route with a tab bar, because a buyer comparing ISP against residential should not pay a navigation for it.
+
+- **State** lives in `ProxyTabs`; switching is client-side only, never a server round-trip
+- **The URL still tracks the tab** via `?tab=`, but through `replaceState` rather than `pushState`, so the back button does not have to step through every tab that was clicked on the way
+- **A `syncUrl` opt-out** lets other pages — `/locations/united-states`, the ISP product page — embed the same configurators without touching the address bar
+- **The tab key is validated server-side**: `page.tsx` awaits `searchParams` and runs it through an `isProxyTypeKey` guard, so a hand-edited `?tab=` falls back rather than rendering nothing
+
+Each configurator models its own product. ISP Proxies prices per IP across nine volume tiers, with custom counts priced at the highest tier they qualify for and the input stripped to digits whether typed, pasted, or dropped. VPS derives RAM one-to-one from the vCPU index and prices at a flat rate per core — a comment records that the panel previously quoted a flat $160 regardless of the slider, so the configuration and its price were unrelated.
+
+The per-tab accent colour is handled without a theme provider: each configurator exports an `ACCENT` object overriding `--brand`, `--brand-soft`, `--brand-glow`, and `--brand-border` as inline CSS variables, so the shared `bg-brand` and `shadow-brand` utilities resolve to that tab's colour only inside that tab's subtree. ISP Subnet exports none, because it is the site default.
+
+## The Globe
+
+`src/components/ui/globe.tsx` is a thousand lines of three.js — a port of a public globe demo, re-themed from blue-on-dark to green on transparent, with the land mask stored as a 105 × 195 grid of `"0"`/`"1"` strings inline in `world-map.ts`. Coarse hand-drawn silhouettes rather than GeoJSON, deliberately: the globe only samples it to decide whether to place a dot, so the section renders with no fetch and no runtime parsing.
+
+Three changes from the reference are the substance of the port:
+
+- **Fitted, not fullscreen** — camera distance is derived from the container's aspect ratio instead of the demo's hardcoded `(0, 10, 25)`, so the globe stays in frame in both the 480px desktop column and the short mobile strip
+- **Seconds, not frames** — every animation runs on real elapsed time instead of the demo's `age += 0.02` per-frame increments, which silently assume 60 Hz and run two to two-and-a-half times too fast on a 120/144 Hz display
+- **Normal, not additive blending** — additive reads as glow only over a near-black backdrop; composited onto this section's light card it washes out to nothing, so the arcs carry their contrast in colour instead
+
+The loading boundary around it is the more transferable idea. three.js is the largest thing the homepage could pull in, for decoration most of the way down the page — so it is `dynamic()` with `ssr: false`, and the chunk is only requested when an `IntersectionObserver` with a 400px `rootMargin` says the section is a screen away. The static artwork is the poster: it renders on the server, holds the frame until the canvas paints, and stays for anyone who never gets one — reduced-motion users, and browsers with no WebGL context, which needs no branch because the globe simply never fires `onReady`. A single `POSTER_ONLY` flag currently holds the canvas back, and because `dynamic()` only fetches on first render, that flag means the three.js chunk is never requested at all.
+
+## Header
+
+The header is glass over the dark hero and solid white once past it, and the switch is driven by measuring the backdrop's real bottom edge rather than a scroll threshold. The comment explains why from experience: adding the discount banner pushed the bar down about 100px and ate half of the old 200px threshold, so it flipped white almost as soon as it docked — and any fixed number is wrong in one direction or the other depending on viewport height.
+
+Sticky positioning forced a second piece of care. A sticky grid item only sticks within its grid area, so the header is placed in row 2 to overlap the hero but spanned through to `row-end-[-1]` to make its stick range the whole page — and the four rows are declared explicitly, because negative grid lines resolve only against the explicit grid.
+
+The five mega menus follow the pattern written up in `docs/mega-dropdown-menu-animation.md`: one shared panel portaled to the body, with the shell's resize and the content's directional slide as two independent springs. The implementation departs from its own doc in four documented places — measuring panel size from the DOM in `useLayoutEffect` instead of a per-menu width lookup, keeping the panel centred rather than tracking triggers (the menus range from ~625px to ~1150px and the widest would go off-screen), collapsing to an inline accordion on mobile since this header has no drawer to host one, and holding the was-it-already-open flag in state because the lint config forbids reading a ref during render.
+
+The hover gap gets its own fix: the visible space between nav and panel is `paddingTop` inside the shell rather than a real gap, so the shell's hitbox spans the gap and a slow mouse moving down through it never lands in a dead zone that would trigger the close timer.
+
+## Metadata
+
+Every route's metadata goes through one `pageMetadata()` helper, for a specific reason: Next.js merges metadata shallowly, so the moment a page declares its own `openGraph` object the root layout's is replaced wholesale, images included. Hand-writing a partial `openGraph` on one page is the fastest way to silently drop its preview image, so the helper always re-supplies it.
+
+`metadataBase` resolves from `VERCEL_PROJECT_PRODUCTION_URL` rather than a hardcoded host. It had been pinned to `cleanproxies.com`, which is still parked at the registrar and refuses connections — the tags were emitted perfectly and every link preview came back blank, because crawlers only ever fetch absolute image URLs and could not reach the host they pointed at. The env var resolves to the shortest production domain and falls back to the `*.vercel.app` one, so it starts working the moment the domain is attached, with no code change. `NEXT_PUBLIC_SITE_URL` remains as a manual override.
+
+## Elsewhere in the Build
+
+- **Blog TOC scroll spy** that locks to the destination during a smooth scroll and releases on consecutive unchanged frames, since `scrollend` still is not reliable — without the lock the highlight tracks every heading the page flies past on the way down
+- **Shared data in `lib/`** — posts, testimonials, US states, proxy-type keys — placed there rather than beside their components specifically because those components are client modules, and importing across that boundary hands the server a client reference instead of the array
+- **AVIF throughout**, converted from the export's PNG and SVG assets, with `scripts/generate-favicons.mjs` producing the icon set via sharp
+- **Six self-hosted typefaces** — Aeonik Pro across seven weights, Eudoxus Sans, Inter Variable, DM Mono, Rubik, Dongra Script — behind Tailwind v4 `@theme` tokens
+- **Docker files** for dev and production alongside the Vercel deployment
+
+## Why This One Is Worth Reading
+
+The output is a proxy marketing site, and there are a lot of those. What is unusual is that the repository preserves both ends of a design-to-code pipeline — the raw export and the refactor — and that the comments record the reasoning, including the reversals: the pixel threshold that broke, the flat price unrelated to its own configurator, the OG host that never resolved, the doc this code deliberately disagrees with in four places. That is the residue of building fast with agents and still knowing why every decision was made.

@@ -1,0 +1,109 @@
+---
+title: "LightningProxies — Proxy Network Marketing Site"
+description: A 69-route Next.js 15 marketing site for a 20M-IP proxy network — five free network tools on a shielded API layer, 49 statically generated country pages whose artwork came out of an image-to-image pipeline, and affiliate attribution that mints a fresh Turnstile token per page view without ever being able to block the render.
+url: https://landing-light-five.vercel.app/
+date: "2026-08-17"
+published: true
+---
+
+## Technology Stack
+
+Next.js 15.5 (App Router), React 19.2, TypeScript, Tailwind CSS 3.4, GSAP, Lucide, React Icons, react-fast-marquee, react-d3-speedometer, react-syntax-highlighter, next-sitemap, Geist Mono, Cloudflare Turnstile, Crisp, Termly, @next/bundle-analyzer — plus an offline asset toolchain in Node: Replicate (FLUX Kontext), fal.ai, sharp, d3-geo, topojson-client, world-atlas. Deployed on Vercel and, separately, on a Hetzner box.
+
+## Overview
+
+Duration: 12/2025 - 8/2026
+
+LightningProxies sells residential, unlimited residential, ISP, datacenter, IPv6, and mobile proxies — a 20M+ IP pool across 250+ locations — to people who scrape, monitor SERPs, verify ads, and run anti-detect browsers. Seventy-eight commits over eight months, and unlike most marketing sites, this one never stopped being edited: the last third of the history is content and imagery, not chrome.
+
+The buyer is technical and comparison-shopping, which pushes the site in two directions at once. It has to be wide — a page per product, a page per price list, a page per country, a page per browser — so it catches the long tail of "residential proxies japan" and "octobrowser proxy setup." And it has to be *useful before purchase*, which is why five free network tools sit on the same domain as the pricing pages. Sixty-nine routes, ~81k lines of TypeScript and TSX, 435 image assets.
+
+## Site Map
+
+- **Products** — six lines, each with its own route, sharing one `ProductSeoSection` driven by a per-product content map (facts, use cases, decision copy, accent colour)
+- **Pricing** — a mirrored route per product line, each composed of eleven small components: `PriceBox`, `IncludedBox`, `ExtraDataBox`, `PointsBox`, `PaymentMethodsBox`, `TabNavs`, `TopBanner`
+- **Locations** — an overview plus 49 statically generated country pages
+- **Anti-detect browsers** — a hub plus 12 brand pages
+- **Use cases** — SERP monitoring, web scraping, market research, ad verification, brand protection
+- **Free tools** — proxy checker, IPv6 checker, WHOIS lookup, speed test + blacklist check, network status
+- **Blog** — 28 articles
+- **Programs and legal** — affiliate, reseller, partners, brand assets, help centre, FAQs, terms, privacy, cookies
+
+Product and pricing being separate URLs is deliberate and the same instinct that shapes the whole site: someone comparing three vendors wants the capability page and the price page open side by side, not behind a tab in each other.
+
+## Affiliate Attribution That Cannot Block the Page
+
+`LandingTracker` is the most carefully written file in the repository, and it does one commercially load-bearing thing: make sure a visitor who arrives on a partner link is still recognisable as that partner's referral when they create an account minutes later on a different subdomain.
+
+It is mounted once in the root layout, so no page needs to opt in, and it has two jobs:
+
+- **Report the page view** to `/api/track/visit` on the app host — but only when a `private_invite` code is present, so ordinary organic traffic generates no request at all. The code is read from the query string, persisted to `localStorage`, and a `crypto.randomUUID()` visitor id is minted once and reused
+- **Rewrite auth links on the way out**, via a single `document` click listener in the **capture phase** so it runs before Next.js `<Link>`'s own handler. Any anchor whose path matches `/(register|login|signup|sign-up)/?$` gets `private_invite` and `visitor_id` appended in place. Modified clicks — middle, meta, ctrl, shift — are left alone, so a new-tab open behaves normally
+
+The hard part is the Cloudflare Turnstile token the backend Siteverifies. Tokens are single-use and expire after 300 seconds, so a fresh one has to be minted per report — the first call rides the widget's auto-solve on render, every later one resets the widget to trigger a new solve. Three details are the difference between that working and silently never producing a token:
+
+- **The script tag is a raw `<script>`, not `next/script`.** Cloudflare rejects `async`/`defer` when `turnstile.ready()` is used, and `next/script` always forces one of them. There is a lint-disable and a four-line comment in the layout explaining exactly this
+- **`ready()` is preferred but never trusted.** In production it sometimes never fires, which used to leave the widget parked at "init timeout" forever. The render now also fires from a `setTimeout(..., 0)` fallback, guarded so it only happens once
+- **Every step is timeout-bounded at 12 seconds**, and on expiry it makes one last attempt at `getResponse()` in case a solve raced the reset before falling back to sending the report untokenised
+
+The invisible widget is parked in a fixed 0×0 container at the corner of the page rather than `display: none`, because a hidden widget can fail to solve. And the whole chain ends in `.catch()` — a fetch with `keepalive: true`, fire-and-forget. Attribution failing must never be something the visitor can see.
+
+## Free Tools on a Shielded API Layer
+
+The five tools are the reason to bookmark the domain, and each is a thin client page over a route handler. Two different shapes of proxying, for two different reasons:
+
+**The checker endpoints** — `ipv6-support`, `whois`, `speed-test`, `blacklist-check` — validate before they forward. IPv4 and IPv6 regexes, a domain regex, a size cap on the speed test (5 MB default, 25 MB maximum), and per-endpoint `AbortSignal.timeout()` budgets tuned to what each call actually costs: 10s for a DNS AAAA lookup, 15s for WHOIS, 20s for a five-blacklist sweep, 60s for a streamed download. Upstream failures are mapped to honest status codes — 502 for a dead dependency, 504 for a timeout — rather than being flattened into a 500, and every response carries CORS headers with a matching `OPTIONS` handler. `API_IMPLEMENTATION_SUMMARY.md` documents all four with request and response examples.
+
+**The status endpoint** exists for a different reason: `PROXY_STATUS_URL` and `PROXY_STATUS_API_KEY` are server-only environment variables, and the route is `revalidate = 0` with `cache: "no-store"`. Its entire job is to let the browser read a live network status feed without the API key ever reaching it. Missing configuration returns a clean 500 rather than a stack trace.
+
+The speed test page pairs the streamed download with a `react-d3-speedometer` gauge and the blacklist check in one section; measuring throughput client-side is just `performance.now()` around a `blob()` read.
+
+## The Location Image Pipeline
+
+Forty-nine country pages each want three pieces of artwork — a landmark poster, a network map card, a dotted-map card background. Seven countries had hand-made assets. Commissioning 126 more was not going to happen, and generic AI vector art would have looked like a different site.
+
+`scripts/` is the answer, and its interest is in where it draws the line between what a model can do and what it cannot.
+
+- **`generate-location-images.mjs`** runs Replicate's FLUX Kontext **image-to-image**, style-locked to the existing France poster and dotted map as reference images. That is the whole trick: restyling a reference into each country's landmark inherits its palette, ink outlines, clouds, and composition, so the new set stays visually continuous with the hand-made seven instead of drifting. Prompts are built from a `LANDMARKS` table — forty-odd hand-written descriptions, "the perfectly conical Mayon Volcano with palm trees and rice fields in the foreground," not "Philippines landmark"
+- **`generate-info2-cards.mjs` generates nothing.** The second card is a UI mockup — a world map with the country highlighted, connection nodes, and a card carrying the real flag, country name, city, and "Connected" status. Text-to-image models cannot draw a legible flag or spell a country name, so this one is rendered deterministically and offline: `world-atlas` TopoJSON projected through `d3-geo`'s Natural Earth, emitted as SVG, rasterised with sharp. No API, no rate limit, no lottery
+- **`image-utils.mjs`** keys out the dotted map's white background by deriving alpha from each pixel's distance from white, so blue dots stay solid and edges fade smoothly instead of leaving a white box over the hero gradient
+- **`wire-location-images.mjs`** then parses `locations.tsx` and injects the `import` lines and `cardBg` / `info1Img` / `info2Img` fields into the matching `makeLocation({...})` call
+
+Every script is idempotent, discovers its work by parsing the data file rather than hardcoding a country list, and supports `--only`, `--type`, `--force`, `--list`, and `--dry-run`. `scripts/README.md` is honest about output quality per kind — the landmark poster is a good fit, the dotted map is an approximation, the UI card is not attempted. City lists for the new countries live in a separate `supported-locations.ts` keyed by slug, specifically so 30-odd cities per country do not bloat the main data file.
+
+## SEO Architecture
+
+The site is built to be found, and the machinery is centralised rather than sprinkled:
+
+- **One article registry.** `lib/seo/blogArticles.ts` holds all 28 posts — title, description, `datePublished`, optional `dateModified`, keywords, and a `cluster` (`residential`, `mobile`, `datacenter`, `scraping`, `social`, `general`). `BlogArticleSeo` reads the cluster and renders the internal links for it, so every scraping article points at the products a scraping reader wants. The topic-cluster link graph is data, not per-post hand-wiring
+- **One URL helper.** `canonicalSiteUrl` resolves from env with a hardcoded fallback and strips the trailing slash; `getSocialImageUrl()` stamps a `?v=` version onto social images, which is how you actually bust a cached Open Graph preview on platforms that never re-fetch
+- **JSON-LD as components.** An Organization graph in the layout, `ProxyPageJsonLd` with a service definition per product key, and `BreadcrumbJsonLd` wherever a trail exists
+- **`generateStaticParams` on both dynamic routes**, so all 49 country pages and all 12 browser pages are prerendered rather than rendered on demand
+- **`next-sitemap` as a `postbuild` step**, generating robots.txt and excluding `/api/*`, the coming-soon page, and the unsubscribe route
+
+## Third-Party Scripts, Loaded Late
+
+Four vendors, four different deferral strategies, none of them blocking first paint:
+
+- **Crisp** is not loaded at all until the first `pointerdown`, `keydown`, `scroll`, or `touchstart`, with a 5-second idle fallback and every listener removed after the first hit. A `openCrispChatWithMessage()` helper handles the pre-filled-message race by re-pushing the text on a 100ms interval for up to 1.5s, because Crisp discards it if the widget is still booting
+- **Google Ads gtag** is `strategy="lazyOnload"`
+- **YouTube** on the browser pages is a facade — a static `i.ytimg.com` thumbnail behind an `aria-label`led button that swaps in the autoplay iframe only on click
+- **Termly** handles consent with a custom blocking map that marks Crisp and Turnstile essential, so auto-block cannot defer the tracking token
+
+`next.config.ts` sets AVIF and WebP output with an explicit quality allowlist, and a one-year `immutable` `Cache-Control` on every static image and font extension. `@next/bundle-analyzer` sits behind `ANALYZE=true`.
+
+## Things Worth Being Honest About
+
+**The blog is 28 hand-built React pages, not markdown.** Each post is a `HeroSection.tsx` of 800–1,100 lines with its own GSAP entrance. It buys per-article layout freedom and it is why the largest files in the repo are blog posts; it also means a copy fix is a code change and a deploy. For a blog that is really product documentation, edited by the same people who edit the site, that trade is defensible — but it is a trade, and a markdown pipeline is what most of these posts actually need.
+
+**The OG image routes are stubs.** `/api/og/blog/[slug]` and `/api/og/page/[variant]` still exist and both now 307 to a single static `/images.png`. Per-post generated cards were the plan; a shared versioned image is what shipped.
+
+**The seasonal code is commented out, not deleted.** `SeasonalSnow` and `HolidayAmbient` — a reindeer-drawn sleigh that flies across the viewport on a randomised route — sit in the layout behind two comment lines, waiting for December. Both respect `prefers-reduced-motion`, the snow is `dynamic()` with `ssr: false` and drops from 58 flakes to 40 on mobile.
+
+**The navigation is honest 2020s React.** `NavigationBar` is 700 lines holding seven separate `useState` booleans, one per dropdown, with the underline position measured from `getBoundingClientRect()`. Six mega-menu panels, ~2,600 lines between them. It works and it is well-behaved; it is also the part of the codebase most obviously waiting for a single `openMenu: string | null`.
+
+## Deployment
+
+Two paths, both live. The Vercel project is `landing-light` and is what the linked demo runs on. Alongside it, a `Makefile` SSHes into a Hetzner box and runs an `update.sh` there — the self-hosted deployment the client also operates.
+
+This is the largest build of the set by surface area, and what makes it interesting is not the section count. It is that the parts a visitor never sees are the ones that got the attention: a token flow that fails open rather than failing the page, an API layer whose job is to hold a key the browser must not have, and an image pipeline that knows exactly which of its three outputs a generative model has no business attempting.

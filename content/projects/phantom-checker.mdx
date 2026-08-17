@@ -1,0 +1,69 @@
+---
+title: "Phantom Checker Landing Page"
+description: A conversion landing page for a product-drop monitoring service, built with React and Vite — its centrepiece a two-axis pricing configurator that resolves events per month against seat count, backed by a framework-free scroll and header animation layer.
+repository: beiryu/phantom-tracker
+url: https://idomoo-drab.vercel.app/
+date: "2026-03-25"
+published: true
+---
+
+## Technology Stack
+
+React 18, TypeScript, Vite 7, Tailwind CSS 3.4, tailwindcss-animate, React Router, HugeIcons, Fontsource, Vercel
+
+## Overview
+
+Duration: 3/2026
+
+Phantom Checker is a monitoring service for resellers: it watches retailers for product drops and restocks and pushes alerts the moment something goes live. Its buyers live in Discord, Telegram and Whop, which is where the product is distributed and where this page has to send them.
+
+That audience shapes the page. They are technical, sceptical, and comparing several monitors at once, so the page leads with coverage and detection speed rather than brand language, and it puts real pricing on the page instead of hiding it behind a sales call. The build is a single Vite-served React screen with no backend of its own.
+
+## Page Structure
+
+Each section is its own folder under `src/screens/Landing/sections/`, exported through a barrel file and composed in `Landing.tsx`:
+
+- **Hero dashboard**: the product UI itself as the hero image, rather than an illustration
+- **Dashboard features**: what the monitor does once you are inside it
+- **Platform coverage**: the five-part capability story — all-platform coverage, Phantom drop detection, filtering by your own requirements, privacy, and alerts
+- **Pricing**: the interactive configurator
+- **Testimonials and FAQ**: paired in one section, so the objection and the reassurance sit together
+- **Early monitor add-on**: an upsell surfaced in a modal rather than given its own section
+
+## Interactive Pricing
+
+The pricing section is the most interesting part of the page, because the product does not price on one axis. Cost depends on **events per month** and on **how many people need a seat**, and the two interact — the seat tiers available differ per event bucket.
+
+It is modelled as a matrix rather than a set of plan cards:
+
+- **Event buckets** run 100 · 200 · 500 · 750 · 1,000 as a row of pills
+- **Seat tiers per bucket** are then offered on a slider, and the options change with the bucket: 100 events is single-user only, while 1,000 events opens up 4 through 10 users
+- **Prices resolve** from $175/month at the entry point to $1,500/month at the top
+- **Selection is clamped, not reset**: moving from a bucket with seven seat options to one with three clamps the slider index to the last valid tier rather than snapping back to the first, so a visitor exploring buckets never loses their place
+
+Encoding it this way means the price grid is data — one `PRICING_BY_EVENT` table — and adding a tier is an edit to an array rather than another hand-built card.
+
+## Scroll Choreography
+
+Animation is hand-rolled on `IntersectionObserver` instead of pulling in a motion library:
+
+- **`useScrollReveal`** returns a `ref` and an `isVisible` flag, defaulting to a `0.15` threshold and a `0px 0px -60px 0px` root margin so an element must clear the fold before it counts as revealed
+- **It disconnects the observer** on first trigger when `once` is set, rather than leaving one observer per element running for the life of the page
+- **A `Reveal` wrapper** exposes five variants — fade-up, fade-in, scale-in, slide-left, slide-right — each pairing a hidden style with a matching keyframe, plus per-element `delay` and `duration` so a section can be choreographed rather than fired all at once
+
+## Header Behaviour
+
+`createHeaderScrollAnimator` is a plain function with no React dependency — it takes a header element and a sentinel, toggles classes, and returns its own teardown:
+
+- **A sentinel above the header** drives the scrolled state through an observer with a `-1px` top root margin, which is more reliable than reading scroll offsets against a header whose height can change
+- **Directional hide**: scrolling down past a 120px threshold hides the bar, scrolling up brings it back, with a `suppressHide` callback so an open mobile menu can veto it
+- **rAF throttling** keeps the scroll handler off the critical path
+- **Reduced motion is honoured first**: if the user has asked for it, the animator pins the header to its scrolled state and returns a no-op teardown immediately, never attaching a listener at all
+
+## Build Details
+
+- **`landingImage()`** resolves every static asset through `import.meta.env.BASE_URL`, so the build keeps working if it is ever served from a sub-path rather than the domain root
+- **Self-hosted typeface** via Fontsource, keeping the font off a third-party origin on the critical path
+- **Icons** come from HugeIcons' bulk-rounded set, imported per icon rather than as a bundle
+
+The theme running through this one is doing the interactive work directly on platform primitives — observers, rAF, a data table — and spending the complexity budget on the pricing model instead, which is the part a visitor actually has to understand before they will buy.

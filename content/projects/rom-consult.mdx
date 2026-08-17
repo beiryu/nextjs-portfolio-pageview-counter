@@ -1,0 +1,81 @@
+---
+title: "RomConsult — Consultant Booking Platform"
+description: A marketplace where clients browse digital marketing and cloud consultants, book them across timezones, and pay — a Next.js 16 front end on an accessibility-first component layer, backed by a NestJS API with queues, TOTP two-factor auth, and a documented self-hosted deployment.
+repository: beiryu/rom-consult
+url: https://rom-consult-cm6t.vercel.app/
+date: "2026-04-29"
+published: true
+---
+
+## Technology Stack
+
+**Front end** — Next.js 16, React 19, TypeScript, Tailwind CSS 4, Untitled UI, React Aria Components, TanStack Query, Zustand, Axios, Motion, Recharts, next-themes, Embla Carousel
+
+**Back end** — NestJS, Prisma, PostgreSQL, Redis, Bull, Passport, argon2, Speakeasy, Swagger, Pino, Sentry, Resend, Handlebars, nestjs-i18n
+
+**Operations** — Docker, PM2, Nginx, Certbot, GitHub Actions, Vercel
+
+## Overview
+
+Duration: 4/2026 - 5/2026
+
+RomConsult is a booking marketplace for digital marketing and cloud consulting. Clients browse services, pick a consultant, book a slot, and pay; consultants apply to join and manage their own work; both sides get a dashboard. The repository holds the whole system — `rom-consult-fe` and `rom-consult-be` — and this write-up centres on the front end, with the API and deployment covered as the context it runs in.
+
+The domain has two constraints that drive most of the design. Bookings cross timezones, so the client and the consultant have to be shown the same slot in their own local terms without either of them doing arithmetic. And money moves through the platform, which is why the site carries a full legal surface — terms, refund policy, disclaimer, acceptable use, and an AML/CFT policy — as first-class routes rather than footer afterthoughts.
+
+## Application Surface
+
+Twenty-five routes under the App Router, in four groups:
+
+- **Commerce**: `browse-services`, a service detail page, then checkout and payment as separate steps under `browse-services/[serviceId]/`
+- **Dashboard**: bookings, orders, and profile behind authentication
+- **Accounts**: login, signup, and a `become-a-consultant` application flow
+- **Marketing and legal**: about, contact, FAQ, support, plus six policy pages including AML/CFT
+
+There is also a `components-showcase` route — an in-repo gallery of the design system, which is how a component library stays reviewable without a separate Storybook deployment.
+
+## Front-end Architecture
+
+The data layer is split cleanly in three, so nothing reaches for `fetch` from a component:
+
+- **`src/api/`** — one typed client per domain: auth, bookings, cart, consultant applications, contact messages, orders, products, support tickets, users
+- **`src/hooks/use-*`** — TanStack Query wrappers over those clients, owning cache keys and invalidation
+- **`src/stores/`** — Zustand for the state Query should not hold, chiefly the auth session
+
+Components follow the Untitled UI convention — `foundations`, `base`, `application`, `marketing`, `shared-assets` — around 290 files in total, built on **React Aria Components**. That choice is the accessibility story: keyboard interaction, focus management, and ARIA semantics for menus, dialogs, and comboboxes come from the library rather than being reimplemented per component, which is what usually decays first on a build this size.
+
+Timezone and country tables live in `src/utils/`, feeding the booking UI so a slot can be rendered in the viewer's own zone.
+
+## Session Handling
+
+`lib/api-client.ts` is small but does the thing most token setups get wrong:
+
+- **A request interceptor** pulls the access token straight from the Zustand store and sets the `Authorization` header, so no component ever passes a token
+- **A response interceptor** catches `401`, and if a refresh token exists, marks the failed request with a `_retry` flag, refreshes, writes the new pair back to the store, and replays the original request with the new token — the caller never sees the interruption
+- **Refresh uses a separate Axios instance**, so a failing refresh cannot recurse back through the same interceptor and loop
+- **Failure is unambiguous**: a rejected refresh, or a `401` with no refresh token at all, logs the session out rather than leaving it half-alive
+
+Two-factor auth is real rather than decorative: the API issues TOTP secrets with Speakeasy and renders enrolment QR codes, which the front end pairs with `qr-code-styling` and an `input-otp` field.
+
+## Backend Services
+
+The NestJS API is organised by domain — `booking`, `cart`, `order`, `product`, `consultant-application`, `support-ticket`, `contact-message`, `user` — over Prisma and PostgreSQL, with Redis for caching. Beyond CRUD:
+
+- **Background work**: Bull queues with dedicated processors and schedulers under `src/workers/`, and Bull Board mounted so queue state is inspectable in production rather than guessed at
+- **Hardening**: Helmet, rate limiting via Throttler, compression, and Terminus health endpoints
+- **Observability**: Sentry for errors, Pino for structured logs
+- **Operations**: `nestjs-command` CLI entry points, Prisma migrations with Faker-backed seeds, and Swagger generated from the controllers
+- **Comms**: Handlebars email templates sent through Resend, with `nestjs-i18n` for message translation
+
+## Deployment
+
+The repository documents a deliberately hybrid production topology rather than pushing everything into containers:
+
+- **Docker for stateful services only** — Postgres and Redis
+- **PM2 for the Node API**, so the process is supervised without a container around it
+- **The front end as a prebuilt image**, explicitly to avoid building on the server
+- **Nginx on the host**, not containerised, terminating SSL via Certbot and reverse-proxying both apps
+
+The linked demo runs the front end on Vercel; the guide above is what the full self-hosted stack expects.
+
+This is the broadest project of the set — a real marketplace with money, identity, and scheduling in it — and the parts worth pointing at are the boring ones done properly: a token refresh that cannot loop, an accessibility layer that comes from the component library instead of good intentions, and queues you can actually look inside once it is running.

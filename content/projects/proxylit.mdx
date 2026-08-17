@@ -1,0 +1,71 @@
+---
+title: "proxylit — Proxy Infrastructure Marketing Site"
+description: A 29-route marketing site for a proxy network, with a pricing calculator per product line, a markdown-backed blog, and a spec-driven workflow where every design change was written up before it was built and the documents were committed alongside the code.
+repository: beiryu/new-landing-light-2
+url: https://new-landing-light-2.vercel.app/
+date: "2026-03-26"
+published: true
+---
+
+## Technology Stack
+
+React 18, TypeScript, Vite 6, Tailwind CSS 3.4, React Router 6, Radix UI, class-variance-authority, HugeIcons, react-markdown, remark-gfm, react-syntax-highlighter, Untitled UI country flags, ESLint, Prettier, Vercel
+
+## Overview
+
+Duration: 3/2026 - 6/2026
+
+proxylit sells proxy infrastructure — datacenter, residential, unlimited residential, ISP, IPv6, and mobile — to people who scrape, verify ads, monitor prices, and run anti-detect browsers. That buyer arrives already knowing what a sticky session is, comparing three providers in three tabs, and looking for two numbers: coverage and price per gigabyte.
+
+So this is not a one-page pitch. It is a wide site built for search and for comparison: a page per product, a matching page per price list, a page per use case, a page per country, and a page per supported anti-detect browser. The whole thing is a static Vite build with no backend — every number on it is data in the repository.
+
+## Site Map
+
+Twenty-nine routes under React Router, in six families:
+
+- **Products** — datacenter, residential, unlimited residential, ISP, IPv6, mobile
+- **Pricing** — a dedicated page mirroring each of the six product lines
+- **Use cases** — price monitoring, web scraping, ad verification, lead generation, brand protection, market research
+- **Locations** — a global overview plus a `/:countrySlug` page per country, with flag assets from Untitled UI
+- **Anti-detect** — a hub plus a `/:browserSlug` page for each supported browser
+- **Blog, help centre and legal** — a listing with `/:slug` posts, plus terms, privacy, and cookie policy
+
+The product-and-pricing pairing is the shape that matters: a visitor comparing providers wants the capability page and the price page to be different URLs they can hold open side by side.
+
+## Pricing Calculators
+
+Pricing is the reason someone is on the site, so it is the part carrying the most logic — five calculator components, one per product line that needs one, plus a static JSON price list for datacenter.
+
+Each calculator models its own product rather than sharing a generic abstraction, because the units genuinely differ — residential sells by the gigabyte, IPv6 by the subnet, mobile by the port. What they share is the shape: a typed `Plan` describing included bandwidth, price per gigabyte, checkout price against list price, and which tier to highlight, tiered into regular and enterprise. The plan tables are data, so a price change is an edit to a constant rather than a rewrite of the component.
+
+Each calculator also carries its own included-features table — IP pool size, authorisation method, targeting granularity, rotation interval, thread limits — so the comparison a buyer needs sits beside the number instead of a page away.
+
+## Content Pipeline
+
+The blog is markdown files in `src/content/blog/`, rendered client-side with `react-markdown` and `remark-gfm`, with `react-syntax-highlighter` for the code samples. The posts are integration guides for anti-detect browsers, which is exactly the long-tail search traffic this kind of product lives on.
+
+Keeping posts as committed markdown rather than pulling in a CMS means the content ships and versions with the code — appropriate for a site whose blog is documentation rather than news.
+
+## Spec-Driven Workflow
+
+The most unusual thing about this repository is what sits next to the source. `docs/superpowers/` holds a dated specification and an implementation plan for each significant piece of design work:
+
+- A global network globe, specified and planned on the same day
+- A dotted-map redesign superseding that globe **one day later**
+- A display-typeface replacement, specified and planned
+- A proxy-types carousel
+- A datacenter page, then a distinct visual identity for it
+
+Two things make this worth pointing at. First, the reversal is legible: the globe spec and the dotted-map spec that replaced it both remain in the repository, so the decision and its reversal are readable months later instead of being buried in a force-push. Second, the artefacts of that first attempt are still visible in the dependency list — the globe library is installed but no longer imported anywhere, which is the honest residue of a direction that was tried and dropped.
+
+Alongside those, `DESIGN.md` is a committed design-token reference — the full brand colour scale with the intended use of each swatch, button variants, typography, shadows, and animation rules — and `CLAUDE.md` gives coding agents the repository's conventions. The site was built with heavy AI assistance, and this is what makes that work at scale: the tokens, the conventions, and the reasoning are written down in the repository rather than living in a chat log.
+
+## Design System
+
+- **A single brand module** (`src/brand.ts`) holds name, URLs, and social links, so brand values are never inlined into a section
+- **An `asset()` helper** routes every image and SVG through one CDN base, making the asset origin a one-line change
+- **A `brand-50`–`brand-950` colour scale** defined in the Tailwind config, with marquee, shimmer, and fade-in keyframes alongside it
+- **Radix primitives** behind `class-variance-authority` variants for toggles and toggle groups
+- **A self-hosted display face** under `public/fonts/`, licence included
+
+This project is the widest of the set by surface area — six product lines, six use cases, per-country and per-browser pages — and the interesting engineering is in refusing to let that become unmaintainable: pricing as data, brand as a module, assets behind one helper, and design decisions written down before they were built.
