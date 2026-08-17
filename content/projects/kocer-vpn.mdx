@@ -1,0 +1,90 @@
+---
+title: "KocerVPN — Bandwidth-Sharing VPN Marketing Site"
+description: A static multi-page marketing site for a free VPN funded by bandwidth sharing — built on Vite and Tailwind CSS 4, where the design work was converting a Figma export into a maintainable stylesheet and the copy work was making an unusual business model read as a fair trade rather than a catch.
+url: https://kocer-vpn.vercel.app/
+date: "2025-10-16"
+published: true
+---
+
+## Technology Stack
+
+Vite 7, Tailwind CSS 4 (`@tailwindcss/postcss` + autoprefixer), vanilla JavaScript, AOS, jQuery + Owl Carousel (legacy pages), Prettier, Vercel
+
+## Overview
+
+Duration: 10/2025
+
+KocerVPN is a free VPN that pays for itself by borrowing what its users aren't using. Install the client, contribute a slice of idle upstream bandwidth, and in exchange you get unmetered access to the server network — no account, no card, no data cap. The shared bandwidth feeds KocerRoxy, the residential proxy business the product is built on top of.
+
+This is the marketing site for it: a static, hand-authored multi-page build covering the landing page, a desktop download page, blog and article templates, an FAQ, legal pages, and a 404.
+
+The interesting constraint isn't technical. **A free VPN is something people have been trained to distrust**, and correctly so — the category is full of products whose revenue model is the thing they don't mention. So the site's job is to lead with the mechanism instead of burying it. The badge above the hero headline reads `POWERED BY KOCERROXY`, the first FAQ is *How Does KocerVPN Provide Free VPN Service?*, and the same bandwidth-sharing explanation appears three separate times before the footer. The trade is stated up front because a visitor who has to go looking for the catch will assume the worst one.
+
+## What Ships and What Doesn't
+
+Worth stating plainly, since the repository and the deployment aren't the same thing.
+
+**The deployed site is the landing page.** Vite is running without a config file, so its default single-entry build picks up `index.html` and nothing else. Every other page — `/download`, `/blog`, `/faqs`, the legal pages — exists in the repository, is fully built, and returns a 404 in production. Turning them on is a `rollupOptions.input` map, not a rewrite.
+
+That gap also marks a toolchain seam. The landing page is the second-generation build: compiled Tailwind through PostCSS, styles in `global.css`, animation via AOS, zero jQuery. The remaining pages are the first generation, still loading `cdn.tailwindcss.com` at runtime with jQuery and Owl Carousel for the testimonial slider. Both generations are in the same repo and only one of them is deployed, which is a reasonable place to have paused — but it is a seam, not a design decision.
+
+## Taming a Figma Export
+
+The starting point was a design-tool export, and the Tailwind config still carries its fingerprints:
+
+```js
+corePlugins: { preflight: false },
+theme: {
+    extend: {
+        spacing: { "num-1880": "1880px", "num-624": "624px", "num-25_5": "25.5px" },
+        borderRadius: { "num-25": "25px", "num-5_62": "5.62px", "num-1_59": "1.59px" },
+    },
+    fontSize: { "num-16": "16px", "num-18": "18px", "num-14_62": "14.62px" },
+}
+```
+
+Tokens named after their own values are not a design system — `text-num-18` tells you nothing `text-[18px]` wouldn't. Disabling `preflight` is the same story: the export shipped with its own reset baked into every element, so Tailwind's had to be turned off to avoid fighting it, and `global.css` re-adds the one rule that was actually needed (`border-width: 0` on everything).
+
+The useful part of the export was the palette, which is worth keeping because it isn't a palette of grays. Nearly every neutral is white at a different alpha — `rgba(255,255,255,0.05)` through `0.6`, ten steps of it — which is what lets the dark hero read as layered depth rather than flat charcoal. Solid grays over a gradient would have banded.
+
+The commit history is mostly the work of walking that export back toward something editable: pulling inline `<style>` blocks out of the HTML into `global.css`, swapping raster art for SVG (the hero illustration, the benefit icons, the mobile logo), and rewriting the navigation to be genuinely responsive rather than two hardcoded layouts.
+
+Some residue survives and is easy to point at. The hero's scattered decorative dots are absolutely positioned at fixed pixel coordinates — `top-[615px] left-[334px]` — which places them correctly at exactly one viewport width. And the font config declares six families while the markup uses three; `SF Pro` and `Test Söhne` are still requested from Google Fonts, which has never hosted either, so those are two link tags that fail silently on every page load. Both are one-line deletions that a repo-wide pass would catch.
+
+## The Navbar Is the Whole Interaction Budget
+
+There is no framework here and no state management. The one component with real behaviour is the header, and it does something specific enough to be worth the code.
+
+At rest over the dark hero it is invisible chrome — no background, no border, white logo, white links, a white CTA with blue text. Past 100px of scroll it becomes an object: clamped to `max-width: 800px`, pinned to the top, and rendered as two nested shells, an outer translucent container with backdrop blur and an inner white pill inside it. Every child inverts at the same moment — the logo's SVG `path` fill, the link colors, the CTA's background and its download icon.
+
+All of that is driven by a single class:
+
+```js
+function updateNavbar() {
+    if (lastScrollY > scrollThreshold) navbar.classList.add("sticky");
+    else navbar.classList.remove("sticky");
+    ticking = false;
+}
+
+window.addEventListener("scroll", onScroll, { passive: true });
+```
+
+The scroll listener is passive and rAF-throttled behind a `ticking` flag, so it does no layout work on the scroll thread; the transition itself lives entirely in CSS keyed off `.sticky`. Adding a state to the header means writing a CSS block, not touching the JavaScript.
+
+**On mobile the plain state doesn't exist at all.** The media queries give the navbar its solid form unconditionally below 1024px, because a white-on-transparent header over a mobile hero has nowhere safe to sit — the illustration reaches the top of the viewport and the links land on it. Rather than tune contrast for a state that never looks right, the small breakpoint skips it.
+
+## Small Decisions Worth Naming
+
+**The FAQ allows multiple items open at once.** It started as a standard one-at-a-time accordion and was changed deliberately. On a page whose entire persuasive job is explaining a business model, a visitor comparing *how is this free?* against *is it safe?* shouldn't have the first answer yanked away to read the second.
+
+Each answer's height is set from its own `scrollHeight` at open time rather than a fixed `max-height`, so the transition animates to the real content height — the usual `max-height: 500px` trick either clips long answers or makes short ones ease at the wrong speed.
+
+**Social proof is quantified before it's quoted.** Each testimonial leads with a stat — *Made $242 in the month of September*, *3+ Devices Protected*, *Faster compared to paid VPN services* — and the prose sits underneath. For a product asking people to install something that uses their connection, the number that matters is the one on the other side of the trade.
+
+**The download page commits to specifics.** Not "available for desktop" but *Intel and Apple Silicon*, *Windows 10 and 11 (x86_64)*, and *Code Signed* as a named feature. Software that runs a network service on someone's machine has a higher bar to clear than a web app, and vagueness on that page reads as evasion.
+
+## What the Build Is
+
+Three days, twenty-two commits, no framework, one page deployed. The scope it was aimed at — a fast, dependency-light marketing surface for a product whose hard sell is trust — is met on the landing page, and the honest summary is that the rest of the site is finished code sitting behind a missing Vite config entry.
+
+What it demonstrates is less about tooling than about sequencing: the messaging problem was solved first (state the mechanism, quantify the trade, answer the skeptical question before it's asked), and the implementation stayed deliberately small so that nothing about the stack could get in the way of changing the copy.

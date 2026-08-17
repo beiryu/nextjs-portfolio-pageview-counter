@@ -1,0 +1,91 @@
+---
+title: "CogPiece — Privacy-First DeFi Swap Platform"
+description: A Next.js 15 interface for a private cross-chain exchange — a WebGL-lit landing page whose hero is literally the live swap composer, a standard/private mode toggle built around a thirty-second batch auction, and a four-stage order tracker assembled from one set of shared cards.
+url: https://cog-piece.vercel.app/
+date: "2025-10-21"
+published: true
+---
+
+## Technology Stack
+
+Next.js 15.5 (App Router, Turbopack), React 19, TypeScript 5, Tailwind CSS 4, OGL (WebGL/GLSL), Framer Motion 12, `copy-to-clipboard`, ESLint 9 + Prettier, Vercel
+
+## Overview
+
+Duration: 10/2025
+
+CogPiece is a decentralised exchange built around a specific claim: that a swap can be both **unlinkable** and **fairly priced**, and that you don't need new cryptography to get there. Orders collect into thirty-second batch auctions instead of executing first-come-first-served, competing solvers route them, zero-knowledge commitments prove an order is valid without exposing it, and every trade lands on a freshly derived single-use address across randomised Layer 1s.
+
+The product's own FAQ names the position bluntly — *what makes it not vaporware* — and answers it by listing borrowed parts: CoW Protocol's batch auctions, circom/snarkjs for proofs, standard HD derivation for the wallets. Nothing invented, everything assembled.
+
+This build is the interface for that argument: a marketing site that has to make batch auctions sound like a feature rather than a delay, and a swap application that has to make a **non-custodial, no-wallet-connect, deposit-to-an-address** flow feel as trustworthy as a connected wallet. It ships as four static routes with no server, no database, and no chain calls.
+
+## The Hero Is the App
+
+The landing page's signature move is that it doesn't mock up the product. It renders it.
+
+`InitialSwap` — the real swap composer, all 685 lines of it — is mounted directly into the hero with `isPlaceHolderMode` set, and hidden behind a CSS gradient mask that fades it to nothing halfway down. What a visitor sees below the headline is not a screenshot of the app; it's the app, dissolving into the page.
+
+Clicking it runs a two-phase transition:
+
+1. **Phase 1** — the headline, the feature pills, and the decorative ellipse translate away and fade; the placeholder composer goes transparent
+2. **Phase 2**, 750ms later — the mask is dropped, a WebGL star field fades up behind it, and the same component remounts full-screen with its real header and footer
+
+The parent page then unmounts every marketing section below, so the document collapses from a scrolling landing page into a single-screen application without a navigation.
+
+The reason to build it this way rather than with a static image is maintenance arithmetic. A hero screenshot of a swap interface is a second artifact that goes stale the moment the interface changes, and it always changes. Passing one boolean to the component you already ship means the marketing page cannot depict a product that no longer exists.
+
+## Two Modes, One Composer
+
+The swap card carries a **Standard / Private** toggle, and private mode is where the product's thesis becomes visible rather than described. Selecting it reveals two things the standard path doesn't have:
+
+- **Three guarantee chips** — MEV protected, unlinked transaction path, fair batch pricing
+- **A live batch countdown** — `Batch in: 0:47`, next to an SVG progress ring driven off `strokeDashoffset`
+
+That countdown is the most useful element on the screen. A batch auction *is* a wait, and the honest way to sell a wait is to show it running rather than bury it in a tooltip. The user watches the window they're about to join.
+
+Around it sits the composer proper: a send/receive pair with price-derived conversion that respects each token's decimals, a direction flip that swaps both tokens and their amounts in one action, numeric input guarded by a regex so a paste can't corrupt the field, and a recipient address input with a clipboard **Paste** button — because nobody types a wallet address by hand, and pretending otherwise is how a form gets abandoned.
+
+The economics live in a collapsible panel under the card: the 0.25% fee computed live off the entered amount, network cost, order routing, price impact, and max slippage. A settings dropdown offers a **Fixed (1.0%) / Float (0.5%)** order rate — the trade-off between a locked quote and a cheaper one, which is a real decision and is presented as one.
+
+## The Order Tracker
+
+Once a swap is initiated, the flow moves to a four-stage tracker: **Awaiting Deposit → Awaiting Confirmations → Performing Swap → Swap Complete.**
+
+Each stage is a different arrangement of the same small set of cards — transaction overview, order information, transaction detail, email notifications, support — rather than four separately built screens. The composition is what changes: `AwaitingDeposit` shows deposit instructions and a QR code; the later stages replace them with transaction cards as each leg lands.
+
+**`OrderInformation` is the piece that makes that work.** It takes every field as optional and renders each one only when supplied, so the same component shows *Time Remaining* while a deposit window is open and *Completion Time* once it has closed, with no conditional branching at the call site and no fifth variant of the card.
+
+The deposit flow itself reflects the product being genuinely non-custodial: there is no wallet connect. The user is given an address to send to and a receiving address to be paid at — and in the demo data those two are deliberately different formats, an EVM-style send address and a Tron-style receive address, which is the shape a cross-chain swap actually takes. Every copyable value goes through one `CopyToClipboard` component that shows a self-clearing *Copied* tooltip and cancels its own timer on unmount.
+
+The progress indicator is clickable in both directions, which is a demo affordance rather than a production one — it lets a reviewer step through all four states without ever moving funds.
+
+## A Star Field in a Fragment Shader
+
+The application background is a procedural galaxy: a single full-screen triangle drawn with OGL, running a hand-written GLSL fragment shader.
+
+Stars are generated by hashing grid coordinates rather than stored in a buffer, so there is no geometry to upload — four parallax layers, each cell producing a star whose size, colour, flare, and twinkle phase all derive from one seed. Colour runs through an HSV round-trip so a single `hueShift` uniform can retint the entire field, and the app sets saturation to zero for a monochrome look that never competes with the interface on top of it.
+
+The mouse position is fed in as a uniform and lerped toward its target each frame rather than applied directly, which is the difference between a background that follows the cursor and one that snaps to it. Teardown cancels the animation frame, removes both listeners, detaches the canvas, and explicitly calls `WEBGL_lose_context` — worth doing, because a route that mounts a WebGL context and doesn't release it leaks one per navigation.
+
+Text entrances use a `BlurText` component that splits a heading into words and animates each through a blur-and-translate keyframe sequence, staggered by index, triggered once by `IntersectionObserver`. Everything else scroll-reveals through a shared `useInView` hook with a `triggerOnce` flag, so sections never re-animate on the way back up.
+
+## Design System
+
+The visual language is a violet-on-near-black glassmorphism assembled from primitives rather than a component library:
+
+- **Four typefaces with assigned jobs** — Roobert (local) for display numerals and headings, Inter for body, Manrope for the hero's feature pills, DM Mono for the small uppercase section eyebrows that label each band of the page
+- **Design tokens transcribed from the design source**, including a set of custom keyframes — `fadeIn`, `scaleUp`, `slideIn`, `blurIn`, `galaxyIn` — declared in the Tailwind config so entrance animations are utilities instead of one-off inline styles
+- **Focus and hover states carried by inset box-shadow**, so an active field glows from within the violet rather than gaining an outline — including the send field, which morphs its own border radius on focus from a rectangle into a pill
+
+An earlier iteration of the landing page — a different hero plus How It Works, Problems, Solutions, Use Cases, and Technology sections — is preserved in a `(backup)` route group. It stays readable in the tree and doesn't reach the build output.
+
+## Scope
+
+Stated plainly: **this is the clickable demo, and the product roadmap says so.** Phase 01 on CogPiece's own timeline is *Investor Demo — clickable demo, mock dual-solver simulation, privacy toggle interface*, with the testnet MVP, the real dual-solver, and mainnet in phases 02 through 04.
+
+So there is no wallet integration, no RPC, no backend, and no batch engine. Conversion runs off two hardcoded token prices; order IDs, addresses, confirmation counts, and transaction hashes are fixtures. The whole thing compiles to four static routes.
+
+What is real is everything a user touches: the mode toggle, the direction flip, the live fee arithmetic, the countdown, the token and network selectors, the copy interactions, and all four order states, reachable and complete.
+
+That is the correct thing to have built first. A privacy DEX is asking people to send funds to an address without connecting a wallet and wait thirty seconds for a batch — three separate demands on trust, none of which a whitepaper can answer. Whether the interface can carry them is a question the interface has to answer on its own, and it has to be answered before there is anything worth wiring a solver to.
