@@ -51,7 +51,10 @@ export const Article: React.FC<Props> = ({ project, views }) => {
 				{project.title}
 			</h2>
 
-			<p className="mt-3 text-sm leading-6 duration-1000 text-zinc-400 group-hover:text-zinc-300 line-clamp-3">
+			{/* Same idea as the title: reserve the three lines the clamp allows
+			    (3 × 1.5rem) so a short description can't shrink its card. Without
+			    this, card height depends on which projects happen to share a row. */}
+			<p className="mt-3 min-h-18 text-sm leading-6 duration-1000 text-zinc-400 group-hover:text-zinc-300 line-clamp-3">
 				{project.description}
 			</p>
 

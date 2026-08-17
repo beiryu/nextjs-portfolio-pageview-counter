@@ -1,6 +1,6 @@
 ---
 title: "Apptics — All-in-One Subscription CRM"
-description: A conversion-focused marketing site for Apptics, an all-in-one CRM that turns one-time Shopify buyers into loyal subscribers — built by pulling a Framer design into a real Vite + React codebase with unframer, so the design team keeps Framer and engineering keeps full control of the runtime.
+description: Two front ends for Apptics, an all-in-one CRM that turns one-time Shopify buyers into subscribers — a Framer design pulled into a real Vite + React codebase with unframer, and a ten-step lead qualification funnel that scores prospects and books them onto a sales call.
 repository: beiryu/bug-free-journey
 url: https://apptics-ai.vercel.app/
 date: "2025-08-18"
@@ -9,15 +9,17 @@ published: true
 
 ## Technology Stack
 
-Vite, React, TypeScript, Tailwind CSS, unframer, Framer, Motion One, Lottie, ESLint, Prettier, Husky, Vercel
+**Marketing site** — Vite, React, TypeScript, Tailwind CSS, unframer, Framer, Motion One, Lottie, ESLint, Prettier, Husky, Vercel
+
+**Lead funnel** — Next.js 15, React 19, TypeScript, Tailwind CSS 4, Zustand, Zod, Framer Motion, Google Sheets API, Resend, iClosed, Cal.com, libphonenumber-js, OGL, Vercel
 
 ## Overview
 
-Duration: 8/2025 - 9/2025
+Duration: 8/2025 - 1/2026
 
-Apptics is an all-in-one platform that turns one-time Shopify shoppers into recurring subscribers — it handles subscription management, payment optimization, and customer retention behind a single dashboard. This project is the product's public-facing site: a long-form, conversion-oriented landing experience that has to explain a fairly technical payments product to non-technical eCommerce founders, and then push them into booking a call.
+Apptics is an all-in-one platform that turns one-time Shopify shoppers into recurring subscribers — it handles subscription management, payment optimization, and customer retention behind a single dashboard. Selling it needs two very different front ends, and this project is both of them: a long-form marketing site that explains a fairly technical payments product to non-technical eCommerce founders, and a qualification funnel that turns the resulting interest into booked sales calls.
 
-The interesting part is the build pipeline. The site is designed in Framer, but instead of shipping Framer's hosted output, the design is pulled into a real codebase with **unframer** — a CLI that compiles Framer components down to plain React. The result is a normal Vite + React + TypeScript app: designers keep working in Framer and re-sync with a single command, while engineering owns the bundle, the routing, the loading strategy, and the deploy.
+The interesting part of the site is the build pipeline. It is designed in Framer, but instead of shipping Framer's hosted output, the design is pulled into a real codebase with **unframer** — a CLI that compiles Framer components down to plain React. The result is a normal Vite + React + TypeScript app: designers keep working in Framer and re-sync with a single command, while engineering owns the bundle, the routing, the loading strategy, and the deploy.
 
 ## Architecture
 
@@ -69,4 +71,28 @@ This is where owning the code pays for itself — a hosted design-tool export gi
 - Husky and lint-staged running format and lint checks on every commit
 - Prettier as the single formatting authority across TS, JSX, CSS, JSON, and Markdown
 
-This project shows how to get the best of both worlds on a marketing site: the iteration speed of a visual design tool, and the performance, tooling, and code quality guarantees of a real front-end codebase — with a regeneration step that keeps the two in sync instead of drifting apart.
+## Lead Qualification Funnel
+
+Repository: `beiryu/apptics-form-v2` · Live: [apptics-form-iclosed.vercel.app](https://apptics-form-iclosed.vercel.app)
+
+The second surface is a separate Next.js 15 app that replaces the usual "contact us" box. Rather than one intimidating form, it asks ten questions one screen at a time, so each step is a single low-effort decision and the visitor is progressively committed by the time contact details are requested:
+
+- **Intent** — "Want a predictable way to scale your business and MRR?"
+- **Pain** — what is holding growth back right now (multi-select)
+- **Contact** — name, email, and an international phone field with country detection
+- **Business model**, **monthly revenue**, and **monthly ad spend** — the qualification signals that decide whether a prospect is worth a call
+- **Payment processing needs** and **what kind of help they want** — routing to the right conversation
+
+Question labels live in one module (`src/lib/questions.ts`) that is the single source of truth for the on-screen copy, the Google Sheet column headers, and the notification email — so a reworded question can never desynchronise the spreadsheet from the form.
+
+## Funnel Engineering
+
+- **Abandonment capture**: a `useAppendOnExit` hook listens for `beforeunload` and flushes whatever has been answered so far via `navigator.sendBeacon`, which survives page unload where `fetch` would be cancelled. A half-finished funnel still produces a usable lead instead of nothing.
+- **Exactly-once writes**: that hook guards against duplicates with both per-instance refs and module-level flags, and the final step marks the submission as already appended — so a visitor who completes the funnel and *then* closes the tab is written once, not twice.
+- **Booking webhook**: `/api/iclosed-webhook` receives the scheduling callback from iClosed, tolerates its array-wrapped payload shape, pulls the meeting link and invitee email, looks the matching submission back up in Google Sheets by email, and sends the team a Resend email containing the meeting link alongside the prospect's full answers — so whoever takes the call already has the context.
+- **Sheets as the datastore**: the Google Sheets API is used deliberately in place of a database. A non-technical sales team reads, sorts, and annotates leads in a tool they already use, with no admin UI to build or maintain.
+- **State**: Zustand holds answers across steps, Zod validates each one at its own step rather than in a single submit-time avalanche of errors.
+- **Motion**: Framer Motion handles the step transitions; OGL renders an animated WebGL background.
+- **Variants**: the funnel ships as several parallel deployments — `v0`, `v1` and `v2` differ in booking provider and positioning, each with a `-meta` counterpart for Meta ad traffic, so copy and flow can be tested against live traffic without branching the product.
+
+This project shows how to get the best of both worlds on a marketing site — the iteration speed of a visual design tool, and the performance, tooling and code quality guarantees of a real front-end codebase, with a regeneration step that keeps the two in sync — and then how to carry that traffic through to a booked call, with a funnel that keeps its data even when the visitor leaves early.
